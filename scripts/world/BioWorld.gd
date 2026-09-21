@@ -66,7 +66,7 @@ func build_content() -> void:
 	add_wall_rect(Rect2(0, 1330, 1000, 40))
 	add_wall_rect(Rect2(400, 1180, 1000, 40))
 	add_wall_rect(Rect2(0, 1030, 1000, 40))
-	add_label(Vector2(920, 1420), "Cytoplasm — exonucleases hunt free mRNA here", 20, 440)
+	add_label(Vector2(50, 1400), "Cytoplasm — exonucleases hunt free mRNA here", 26, 290)
 	var nu := {
 		"hazard_name": "Exonuclease", "texture_path": NUCLEASE_TEX, "sprite_max_dim": 88.0,
 		"mode": "patrol", "speed": 150.0, "hit_radius": 36.0, "damage": 0.2,
