@@ -1,0 +1,89 @@
+{
+  "title": {"en": "How to Play - the Prince's Journey", "ko": "게임 도움말 - 왕자의 여정"},
+  "sections": [
+    {
+      "title": {"en": "Controls", "ko": "조작법"},
+      "body": {
+        "en": "Move: WASD / arrow keys, or the on-screen joystick.\nTalk / use: E, or the hand button.\nJump / leap: Space (also Shift or J), or the JUMP button. Press it while running for a long leap. Nothing on the ground can bite the prince while he is in the air.\nPause: Esc or the II button. Save from the pause menu.\nWhen a meter appears at the top (mRNA integrity, poly(A) tail), the message is in danger: if it runs out you restart from the last safe place with a fresh copy.",
+        "ko": "이동: WASD / 방향키, 또는 화면의 조이스틱.\n대화·사용: E 키 또는 손 버튼.\n점프·도약: 스페이스(Shift, J도 가능) 또는 JUMP 버튼. 달리면서 누르면 멀리 뛴다. 공중에 떠 있는 동안에는 바닥의 어떤 적도 왕자를 물지 못한다.\n일시정지: Esc 또는 II 버튼. 저장은 일시정지 메뉴에서.\n화면 위에 게이지(mRNA 온전도, 폴리(A) 꼬리)가 뜨면 메시지가 위험하다는 뜻. 게이지가 바닥나면 마지막 안전한 곳에서 새 사본으로 다시 시작한다."
+      }
+    },
+    {
+      "title": {"en": "1-2. The Cave and the Princess's Chamber", "ko": "1-2장. 동굴과 공주의 방"},
+      "body": {
+        "en": "Reach Princess Mira. A crevasse blocks the cave: run at it and press Space to leap across.\nMira is gravely ill - the healers call it cancer. Read the ancient scroll on the pedestal: it speaks of a 'message of life', the mRNA. The door to the Molecular Kingdom opens.",
+        "ko": "공주 미라에게 가는 길. 동굴의 협곡은 달리면서 스페이스를 눌러 뛰어넘는다.\n공주는 암으로 위독하다. 받침대 위의 고대 두루마리를 읽으면 '생명의 메시지' mRNA의 비밀이 열리고, 분자 왕국으로 가는 문이 열린다."
+      }
+    },
+    {
+      "title": {"en": "3. Build the vaccine - the Molecular Kingdom", "ko": "3장. 백신 만들기 - 분자 왕국"},
+      "body": {
+        "en": "First the prince must gather the seven parts of the mRNA vaccine and assemble them IN ORDER at the Synthesizer:\n5' cap -> 5' UTR -> start codon (AUG) -> antigen ORF (the code for the cancer cell's 'wanted poster') -> stop codon -> 3' UTR -> poly(A) tail.\nThe moment the naked mRNA exists, RNases - enzymes that shred unprotected RNA - come hunting. Three bites and the message is gone. Leap over them and reach the Microfluidic Mixer: lipids in ethanol into one inlet, mRNA in pH 4 buffer into the other, ratio 3:1 with a fast flow, then dialysis back to pH 7.4. The mRNA is now wrapped in a lipid nanoparticle (LNP).\nThe syringe is loaded: go to the Inject gate and dive into the princess's bloodstream.",
+        "ko": "왕자는 먼저 mRNA 백신의 일곱 요소를 모아 백신 합성기에서 순서대로 조립해야 한다:\n5' 캡 -> 5' UTR -> 개시코돈(AUG) -> 항원 ORF(암세포 몽타주의 설계도) -> 종결코돈 -> 3' UTR -> 폴리(A) 꼬리.\n맨몸의 mRNA가 만들어지는 순간, RNA 분해효소(RNase)들이 달려든다. 세 번 물리면 메시지는 사라진다. 뛰어넘어 미세유체 혼합기로 가서 지질(에탄올)은 한쪽 입구에, mRNA(pH 4 완충액)는 다른 입구에 넣고 3:1, 빠른 유속으로 섞은 뒤 투석으로 pH 7.4로 되돌린다. 이제 mRNA는 지질나노입자(LNP) 속에 안전하게 싸였다.\n주사기에 백신을 넣고 주사 문으로 가서 공주의 혈관으로 뛰어든다."
+      }
+    },
+    {
+      "title": {"en": "4a. In the blood - meet the dendritic cell", "ko": "4a. 혈관 속 - 수지상세포와의 만남"},
+      "body": {
+        "en": "The blood is full of roaming RNases too, but now they bounce off the lipid shell - watch them fail.\nHand the LNP to the Dendritic Cell (DC), the sentinel of the immune system. It reaches out a branch and swallows the particle (endocytosis). Inside the cell the LNP sits in an endosome - the cell's waste bin, slowly filling with acid.",
+        "ko": "혈관에도 RNA 분해효소가 가득 돌아다니지만, 이제는 지질 껍질에 부딪혀 튕겨 나간다.\n면역계의 파수꾼 수지상세포를 만나 백신(LNP)을 전해 준다. 수지상세포는 가지를 뻗어 입자를 삼킨다(세포내섭취). 세포 안에서 LNP는 위산 같은 산이 차오르는 폐기물통, 엔도솜에 갇힌다."
+      }
+    },
+    {
+      "title": {"en": "4b. Escape the endosome - it's all timing", "ko": "4b. 엔도솜 탈출 - 타이밍이 생명"},
+      "body": {
+        "en": "Proton pumps make the endosome more and more acidic. Watch the pH gauge:\n- above pH 6.6 the ionizable lipids are still neutral - pressing does nothing.\n- below about pH 6.6 they turn positive and can tear the membrane: press BREAK OUT (tap, E or Space) in the green window.\n- below pH 5 the lysosome fuses with the endosome and its enzymes digest the mRNA. Try again.",
+        "ko": "양성자 펌프가 엔도솜을 점점 산성으로 만든다. pH 게이지를 보라:\n- pH 6.6 위에서는 이온화 지질이 아직 중성이라 눌러도 소용없다.\n- pH 6.6 아래로 내려가면 지질이 양전하를 띠어 막을 찢을 수 있다: 초록 구간에서 BREAK OUT(탭, E 또는 스페이스)!\n- pH 5 아래에서는 리소좀이 엔도솜과 융합해 효소로 mRNA를 소화해 버린다. 다시 도전."
+      }
+    },
+    {
+      "title": {"en": "4c. Dash to the ribosome - the lizard's tail", "ko": "4c. 리보솜으로 달려라 - 도마뱀의 꼬리"},
+      "body": {
+        "en": "Free in the cytoplasm, the mRNA is like a lizard with a poly(A) tail. Deadenylases chew the tail from the 3' end while exonucleases patrol the winding path between the organelles - the tail meter is your clock.\nSwim the path (right gap, left gap, right gap) and leap over the nucleases. Like a lizard, give up a bit of tail if you must, but run fast: an mRNA that loses its whole tail is decapped and destroyed. Reach the Ribosome before the meter empties.",
+        "ko": "세포질로 나온 mRNA는 폴리(A) 꼬리를 가진 도마뱀과 같다. 탈아데닐화효소가 3' 끝에서 꼬리를 갉아먹고, 핵산분해효소들이 세포소기관 사이의 구불구불한 길목을 순찰한다. 꼬리 게이지가 곧 시계다.\n오른쪽 틈, 왼쪽 틈, 오른쪽 틈으로 헤엄쳐 가며 핵산분해효소를 뛰어넘어라. 꼬리자르기 도마뱀처럼 꼬리 조금은 내주더라도 재빨리 도망쳐야 한다. 꼬리를 다 잃은 mRNA는 캡이 벗겨져 파괴된다. 게이지가 바닥나기 전에 리보솜에 닿아라."
+      }
+    },
+    {
+      "title": {"en": "4d. Translation and the MHC billboard", "ko": "4d. 번역, 그리고 MHC 광고판"},
+      "body": {
+        "en": "Push the mRNA into the Ribosome. It touches the 5' cap, approves the message, and reads the code three letters at a time, linking amino acids into the antigen protein. At last the cancer cell's wanted poster is made!\nQuickly pin the antigen on MHC - the little billboard on the dendritic cell's surface. The DC matures in a flash: now it can smell the scent flowing from the nearby lymph node.",
+        "ko": "리보솜에 mRNA를 쑤셔 넣는다. 리보솜이 백신의 캡을 만져 보고 승인하면, 세 글자씩 코드를 읽어 아미노산을 이어 항원 단백질을 합성해 준다. 드디어 암세포 몽타주 제작 성공!\n항원을 재빨리 수지상세포 표면의 작은 광고판 MHC에 붙인다. 수지상세포는 급속히 변신해 어른이 된다. 어른이 되면 인근 임파선에서 흘러나오는 냄새를 맡을 수 있다."
+      }
+    },
+    {
+      "title": {"en": "5a. The long journey to the lymph node", "ko": "5a. 임파선으로 가는 기나긴 여행"},
+      "body": {
+        "en": "Ride the mature DC. Its CCR7 antennae glow toward the CCL19 scent flowing out of the lymphatic vessel. Steer toward the stronger scent (watch the scent meter), around the tissue cells and into the vessel mouth. About 24 hours later the DC finally arrives at the lymph node.",
+        "ko": "어른이 된 수지상세포를 타고 냄새를 좇아 기나긴 여행을 떠난다. CCR7 더듬이가 임파관에서 흘러나오는 CCL19 냄새 쪽으로 빛난다. 냄새 게이지를 보며 더 진한 쪽으로, 조직세포를 피해 임파관 입구로 들어가라. 24시간 만에 드디어 임파선에 도착한다."
+      }
+    },
+    {
+      "title": {"en": "5b. The T-cell room - the climax", "ko": "5b. T세포의 방 - 이 게임의 클라이맥스"},
+      "body": {
+        "en": "Enter the room where young (naive) T-cells crowd together. Each has an attack receptor (TCR) of a different shape. Hug them one by one and compare the shape with the antigen on MHC - most do not fit.\nAfter many hugs the perfect match is found. The DC injects its 'mystery substance' - three signals: TCR-pMHC, CD28-CD80/86 and IL-12. The young T-cell grows up in an instant and divides like a storm into millions. The lymph node swells and the fever rises: one young T-cell has become an army of ruthless killer cells.",
+        "ko": "어린 T세포들이 와글와글 모인 방으로 들어간다. 공격용 항원 인식 돌기(TCR)의 모양이 제각각이다. 어린 T세포를 한 놈씩 끌어안고 MHC 위의 항원과 모양을 맞춰 본다. 대부분은 맞지 않는다.\n무수한 껴안기를 반복한 끝에 꼭 맞는 어린 T세포를 찾아낸다. 수지상세포는 이 녀석에게 신비의 물질을 주입한다 - 세 가지 신호: TCR-pMHC, CD28-CD80/86, IL-12. T세포는 갑자기 어른이 되고, 폭풍처럼 분열해 수천만 마리가 된다. 임파선이 붓고 열이 난다. 한 마리의 어린 T세포가 잔혹한 살세포 병기 수천만 마리로 늘어난 것이다."
+      }
+    },
+    {
+      "title": {"en": "6a. Lead the army", "ko": "6a. 군단을 이끌고"},
+      "body": {
+        "en": "Hurrah! The prince leads the T-cell army out of the blood vessel toward the tumor. Keep the herd close to you:\n- regulatory T-cells breathe a purple fog that switches fighters off - run past a sleeping cell to rally it.\n- cancer-associated fibroblasts build collagen walls - find the gaps.\n- hypoxic pockets make everyone crawl.\nGet at least 8 of the 12 fighters into the tumor before time runs out.",
+        "ko": "왕자는 만세를 부르고 T세포 군단을 이끌고 혈관을 나와 암세포를 향해 떠난다. 무리를 가까이 붙여 다녀라:\n- 조절 T세포가 내뿜는 보라색 안개는 전사들을 잠재운다. 잠든 세포 곁을 달려 지나가면 다시 깨어난다.\n- 암 섬유아세포가 쌓은 콜라겐 벽은 틈을 찾아 지나간다.\n- 저산소 구역에서는 모두 느려진다.\n시간이 다하기 전에 12마리 중 8마리 이상을 종양 안으로 데려가라."
+      }
+    },
+    {
+      "title": {"en": "6b. The hunt", "ko": "6b. 사냥"},
+      "body": {
+        "en": "A scout T-cell meets a cell and compares its own receptor with the peptide shown on the cell's MHC-I.\n- Orange key = the cancer antigen. It's the enemy! Without hesitation it punches holes in the membrane (perforin) and injects poison (granzymes). The cancer cell bursts into countless fragments.\n- Blue key = a healthy cell. Spare it.\nSome tumor cells hide behind a PD-L1 shield: grab the checkpoint antibody to strip it away.\nThe scent of the fragments reaches the army. 'There! Attack!' the prince commands, and the T-cells swarm the tumor like ants, peeling and melting it away layer by layer.",
+        "ko": "정찰병 T세포가 세포를 만나 자기 표면 수용체와 세포의 MHC-I 위 펩타이드 돌기를 맞춰 본다.\n- 주황 열쇠 = 암 항원. 맞다, 이놈이다! 망설이지 않고 세포막에 구멍을 뚫고(퍼포린) 독약을 주입한다(그랜자임). 암세포가 터지면서 무수한 파편이 흩어진다.\n- 파란 열쇠 = 정상세포. 살려 둔다.\n일부 암세포는 PD-L1 방패 뒤에 숨는다. 면역관문 항체를 집어 방패를 벗겨라.\n파편의 냄새가 T세포 군단에 전해진다. '저곳이다, 공격하라!' 왕자의 명령에 T세포 군단이 개미떼처럼 암 조직에 달라붙어 한 꺼풀 두 꺼풀씩 벗겨 녹인다."
+      }
+    },
+    {
+      "title": {"en": "Ending", "ko": "결말"},
+      "body": {
+        "en": "Colour returns to Mira's face. The prince leaves the princess's body, and they kiss.\nSome of the T-cells remain as memory cells: if the cancer ever returns, they will remember its face.",
+        "ko": "공주의 얼굴에 화색이 돈다. 왕자는 공주의 몸 안에서 나오고, 두 사람은 키스한다.\nT세포 일부는 기억세포로 남는다. 암이 다시 찾아오면 그 얼굴을 기억할 것이다."
+      }
+    }
+  ]
+}

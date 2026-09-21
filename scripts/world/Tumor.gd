@@ -4,6 +4,7 @@ extends LevelBase
 ## healthy ones; Mira is cured.
 
 const TUMOR_STATION := preload("res://scripts/world/TumorStation.gd")
+const HERD_STATION := preload("res://scripts/world/HerdStation.gd")
 
 var _gate_body: StaticBody2D
 var _gate_label: Label
@@ -24,12 +25,19 @@ func _ready() -> void:
 func build_content() -> void:
 	add_label(Vector2(440, 2130), "The T-cell army follows the blood to the tumor.", 24)
 
+	# Station 0: leave the blood vessel and herd the T-cells through the stroma.
+	var herd := Area2D.new()
+	herd.set_script(HERD_STATION)
+	herd.name = "HerdStation"
+	herd.position = Vector2(700, 2000)
+	content_root.add_child(herd)
+
 	# Decorative tumor cells crowding the middle of the room.
 	var tp := "res://assets/env/tumor_cell.png"
 	if ResourceLoader.exists(tp):
 		var tex: Texture2D = load(tp)
 		var f: float = 110.0 / max(tex.get_size().x, tex.get_size().y)
-		for p in [Vector2(300, 1900), Vector2(1100, 1850), Vector2(250, 1500), Vector2(1150, 1450), Vector2(450, 1300), Vector2(950, 1250), Vector2(700, 1400)]:
+		for p in [Vector2(300, 1750), Vector2(1100, 1800), Vector2(250, 1500), Vector2(1150, 1450), Vector2(450, 1300), Vector2(950, 1250), Vector2(700, 1400)]:
 			var spr := Sprite2D.new()
 			spr.texture = tex
 			spr.scale = Vector2.ONE * f
@@ -43,7 +51,7 @@ func build_content() -> void:
 	var st := Area2D.new()
 	st.set_script(TUMOR_STATION)
 	st.name = "TumorStation"
-	st.position = Vector2(700, 1750)
+	st.position = Vector2(700, 1650)
 	content_root.add_child(st)
 
 	# Wall of tumor tissue blocking Mira's chamber until the tumor is cleared.
@@ -67,7 +75,8 @@ func build_content() -> void:
 			["Mira", "Arin! The fever is gone... I can stand again. The healers say the growth has vanished."],
 			["Arin", "Your own body did it, Mira. We only taught it the enemy's face — with a message written in mRNA."],
 			["Mira", "A message of life. Then let the whole kingdom learn to read it."],
-			["Scroll", "And so the secret of the scroll was shared, and no one need fear that illness alone again. THE END."],
+			["Scroll", "Colour returns to the princess's face. The prince steps out of her body at last... and the two of them kiss."],
+			["Scroll", "Some of the T-cells stay behind as memory cells: if the illness ever returns, they will remember its face. And so the secret of the scroll was shared. THE END."],
 		],
 		"res://assets/characters/mira_hd.png", "mira_cured", 150.0)
 	add_label(Vector2(440, 720), "Mira's chamber", 22)
@@ -76,6 +85,7 @@ func build_content() -> void:
 	door.required_flag = "story_complete"
 
 func _process(delta: float) -> void:
+	super._process(delta)
 	_t += delta
 	var cleared := GameState.has_flag("tumor_cleared")
 	for spr in _tumor_sprites:

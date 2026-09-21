@@ -25,6 +25,15 @@ var title_card: Label
 var touch_layer: Control
 var joystick: Control
 var interact_btn: Button
+var jump_btn: Button
+
+# hazard meter (mRNA integrity / poly(A) tail ...)
+var meter_panel: PanelContainer
+var meter_name: Label
+var meter_bg: ColorRect
+var meter_fill: ColorRect
+var meter_pct: Label
+var _meter_shown := 0.0
 
 # pause
 var pause_menu: PanelContainer
@@ -50,6 +59,7 @@ func _build() -> void:
 
 	_build_inventory_bar()
 	_build_top_bar()
+	_build_meter()
 	_build_title_card()
 	_build_dialogue()
 	_build_touch()
@@ -92,12 +102,64 @@ func _build_top_bar() -> void:
 	pause.pressed.connect(_toggle_pause)
 	root.add_child(pause)
 
+func _build_meter() -> void:
+	meter_panel = PanelContainer.new()
+	meter_panel.anchor_left = 0.5
+	meter_panel.anchor_right = 0.5
+	meter_panel.offset_left = -150
+	meter_panel.offset_right = 150
+	meter_panel.offset_top = 76
+	meter_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_style_panel(meter_panel, Color(0.05, 0.07, 0.14, 0.8), Color(0.9, 0.6, 0.3, 0.7))
+	meter_panel.modulate.a = 0.0
+	root.add_child(meter_panel)
+	var m := MarginContainer.new()
+	for sd in ["left", "right", "top", "bottom"]:
+		m.add_theme_constant_override("margin_" + sd, 8)
+	meter_panel.add_child(m)
+	var vb := VBoxContainer.new()
+	vb.add_theme_constant_override("separation", 4)
+	m.add_child(vb)
+	var hb := HBoxContainer.new()
+	vb.add_child(hb)
+	meter_name = Label.new()
+	meter_name.text = "mRNA integrity"
+	meter_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	meter_name.add_theme_font_size_override("font_size", 17)
+	meter_name.add_theme_color_override("font_color", Color(1, 0.9, 0.7))
+	hb.add_child(meter_name)
+	meter_pct = Label.new()
+	meter_pct.text = "100%"
+	meter_pct.add_theme_font_size_override("font_size", 17)
+	meter_pct.add_theme_color_override("font_color", Color(1, 1, 1))
+	hb.add_child(meter_pct)
+	meter_bg = ColorRect.new()
+	meter_bg.custom_minimum_size = Vector2(280, 16)
+	meter_bg.color = Color(0.15, 0.12, 0.12)
+	vb.add_child(meter_bg)
+	meter_fill = ColorRect.new()
+	meter_fill.position = Vector2(2, 2)
+	meter_fill.size = Vector2(276, 12)
+	meter_fill.color = Color(0.4, 0.95, 0.5)
+	meter_bg.add_child(meter_fill)
+
+## Show/update the hazard meter (label, 0..1 value); hidden when `on` is false.
+func set_meter(label: String, value: float, on: bool) -> void:
+	_meter_shown = 1.0 if on else 0.0
+	meter_name.text = label
+	meter_pct.text = "%d%%" % int(round(value * 100.0))
+	meter_fill.size.x = 276.0 * clampf(value, 0.0, 1.0)
+	meter_fill.color = Color(0.4, 0.95, 0.5).lerp(Color(1.0, 0.25, 0.2), clampf(1.0 - value, 0.0, 1.0))
+
+func flash_hint(msg: String) -> void:
+	_flash_hint(msg)
+
 func _build_title_card() -> void:
 	title_card = Label.new()
 	title_card.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	title_card.anchor_left = 0.0
 	title_card.anchor_right = 1.0
-	title_card.offset_top = 120
+	title_card.offset_top = 150
 	title_card.offset_left = 20
 	title_card.offset_right = -20
 	title_card.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -182,6 +244,22 @@ func _build_touch() -> void:
 	interact_btn.button_up.connect(func(): Input.action_release("interact"))
 	touch_layer.add_child(interact_btn)
 
+	jump_btn = Button.new()
+	jump_btn.text = "JUMP"
+	jump_btn.custom_minimum_size = Vector2(96, 96)
+	jump_btn.anchor_left = 1.0
+	jump_btn.anchor_right = 1.0
+	jump_btn.anchor_top = 1.0
+	jump_btn.anchor_bottom = 1.0
+	jump_btn.offset_left = -232
+	jump_btn.offset_top = -180
+	jump_btn.offset_right = -136
+	jump_btn.offset_bottom = -84
+	jump_btn.add_theme_font_size_override("font_size", 22)
+	jump_btn.button_down.connect(func(): Input.action_press("jump"))
+	jump_btn.button_up.connect(func(): Input.action_release("jump"))
+	touch_layer.add_child(jump_btn)
+
 	# only show touch controls on touch-capable devices (FORCE_TOUCH overrides for testing)
 	var touch := DisplayServer.is_touchscreen_available() or OS.has_environment("FORCE_TOUCH")
 	touch_layer.visible = touch
@@ -189,14 +267,14 @@ func _build_touch() -> void:
 func _build_pause_menu() -> void:
 	pause_menu = PanelContainer.new()
 	pause_menu.set_anchors_preset(Control.PRESET_CENTER)
-	pause_menu.custom_minimum_size = Vector2(360, 360)
+	pause_menu.custom_minimum_size = Vector2(360, 420)
 	pause_menu.position = Vector2(-180, -180)
 	pause_menu.anchor_left = 0.5
 	pause_menu.anchor_top = 0.5
 	pause_menu.offset_left = -180
-	pause_menu.offset_top = -180
+	pause_menu.offset_top = -210
 	pause_menu.offset_right = 180
-	pause_menu.offset_bottom = 180
+	pause_menu.offset_bottom = 210
 	_style_panel(pause_menu, Color(0.06, 0.08, 0.16, 0.97), Color(0.4, 0.6, 0.9, 0.8))
 	pause_menu.visible = false
 	root.add_child(pause_menu)
@@ -217,9 +295,13 @@ func _build_pause_menu() -> void:
 	vb.add_child(_menu_button("Save Game", func():
 		SaveManager.save_game()
 		_flash_hint("Saved!")))
+	vb.add_child(_menu_button("Help", _open_help))
 	vb.add_child(_menu_button("Main Menu", func():
 		get_tree().paused = false
 		SceneManager.change_scene("res://scenes/MainMenu.tscn")))
+
+func _open_help() -> void:
+	HelpScreen.open(get_tree())
 
 func _menu_button(text: String, cb: Callable) -> Button:
 	var b := Button.new()
@@ -269,6 +351,8 @@ func _process(delta: float) -> void:
 		if text_label.visible_ratio >= 1.0:
 			_typing = false
 	continue_hint.visible = DialogueManager.is_active() and not _typing
+	if meter_panel:
+		meter_panel.modulate.a = move_toward(meter_panel.modulate.a, _meter_shown, delta * 4.0)
 	if _dialogue_hiding and dialogue_box.visible and dialogue_box.modulate.a <= 0.03:
 		dialogue_box.visible = false
 		_dialogue_hiding = false
@@ -280,7 +364,7 @@ func _on_dialogue_click(event: InputEvent) -> void:
 		_advance_dialogue()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("interact") and DialogueManager.is_active():
+	if (event.is_action_pressed("interact") or event.is_action_pressed("jump")) and DialogueManager.is_active():
 		_advance_dialogue()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("pause"):

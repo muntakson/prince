@@ -88,6 +88,7 @@ func build_content() -> void:
 	add_label(Vector2(440, 230), "Efferent lymphatic — the army marches out", 20)
 
 func _process(delta: float) -> void:
+	super._process(delta)
 	_t += delta
 	for spr in _tcells:
 		var home: Vector2 = spr.get_meta("home")

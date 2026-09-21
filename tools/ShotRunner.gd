@@ -13,6 +13,11 @@ var burst := 1               # shots=N: take N screenshots
 var burst_step := 30         # step=M: frames between burst shots
 var trigger_mg := ""         # mg=<station name prefix>: open a MinigameStation's mini-game (autoplay)
 var mg_skip_intro := true
+var mg_autoplay := true      # autoplay=0 to leave a station's mini-game idle for a still shot
+var hazard_flags := ""       # flags=a,b : extra story flags to grant before the shot
+var act := ""                # act=jump|leap|walkup : player action right before the burst
+var player_at := ""          # at=x,y : teleport the player before the shot
+var show_help := ""          # help=en|ko : open the Help screen in that language
 
 func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
@@ -25,6 +30,11 @@ func _ready() -> void:
 		elif a.begins_with("shots="): burst = int(a.substr(6))
 		elif a.begins_with("step="): burst_step = int(a.substr(5))
 		elif a.begins_with("mg="): trigger_mg = a.substr(3)
+		elif a.begins_with("autoplay="): mg_autoplay = a.substr(9) == "1"
+		elif a.begins_with("flags="): hazard_flags = a.substr(6)
+		elif a.begins_with("act="): act = a.substr(4)
+		elif a.begins_with("at="): player_at = a.substr(3)
+		elif a.begins_with("help="): show_help = a.substr(5)
 	if target_scene == "":
 		push_error("ShotRunner: no scene= provided")
 		get_tree().quit(1)
@@ -39,8 +49,30 @@ func _ready() -> void:
 	_run(inst)
 
 func _run(_inst) -> void:
+	for f in hazard_flags.split(","):
+		if f.strip_edges() != "":
+			GameState.set_flag(f.strip_edges())
+	if player_at != "":
+		var xy := player_at.split(",")
+		var pl0 = get_tree().get_first_node_in_group("player")
+		if pl0 and xy.size() == 2:
+			pl0.global_position = Vector2(float(xy[0]), float(xy[1]))
 	for i in wait_frames:
 		await get_tree().process_frame
+	if show_help != "":
+		HelpScreen.lang = show_help
+		HelpScreen.open(get_tree())
+		for k in 10:
+			await get_tree().process_frame
+	if act != "":
+		var pl1 = get_tree().get_first_node_in_group("player")
+		if pl1:
+			if act == "walkup" or act == "leap":
+				pl1._k_up = true
+			if act == "jump" or act == "leap":
+				for k in 6:
+					await get_tree().process_frame
+				pl1._jump_queued = true
 	if trigger_dialogue:
 		DialogueManager.start([
 			{"speaker": "Mira", "text": "Arin... you came. But I am gravely ill. The healers call it cancer."},
@@ -60,6 +92,16 @@ func _run(_inst) -> void:
 				pl.global_position = st.global_position + Vector2(0, 230)
 				await get_tree().process_frame
 				st.interact()
+				if trigger_station.to_lower().begins_with("endo"):
+					# skip the intro line, then autoplay the timing mini-game
+					for k in 3:
+						await get_tree().process_frame
+					DialogueManager.advance()
+					for k in 3:
+						await get_tree().process_frame
+					var mg = get_tree().get_first_node_in_group("minigame")
+					if mg and mg_autoplay:
+						mg.debug_autoplay = true
 				break
 	if trigger_mg != "":
 		GameState.set_flag("quest_started")
@@ -71,6 +113,8 @@ func _run(_inst) -> void:
 		if not trigger_mg.to_lower().begins_with("d"):
 			GameState.set_flag("dc_migrated")
 			GameState.set_flag("tcell_activated")
+		if trigger_mg.to_lower().begins_with("the") or trigger_mg.to_lower().begins_with("tumor"):
+			GameState.set_flag("tcells_herded")
 		var pl = get_tree().get_first_node_in_group("player")
 		for st in get_tree().get_nodes_in_group("minigame_station"):
 			if st.station_name.to_lower().begins_with(trigger_mg.to_lower()):
@@ -80,7 +124,7 @@ func _run(_inst) -> void:
 				st.intro_lines = []
 				st.interact()
 				await get_tree().process_frame
-				if st._mg != null and is_instance_valid(st._mg):
+				if st._mg != null and is_instance_valid(st._mg) and mg_autoplay:
 					st._mg.debug_autoplay = true
 				break
 	for i in burst:

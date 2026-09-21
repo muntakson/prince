@@ -1,4 +1,4 @@
-# The Secret Scroll: An mRNA Adventure
+# Prince of mRNA
 
 A story-driven educational game (Godot 4.3) that teaches mRNA vaccine science.
 Prince Arin rescues Princess Mira, then journeys through a molecular kingdom to
@@ -76,11 +76,28 @@ xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 $GODOT --path . tools/ShotRunner.tscn \
 ```
 
 Android export needs the Godot Android build template + SDK configured; the
-preset ("Android", `org.aiedus.secretscroll`, portrait) is already in
+preset ("Android", `org.aiedus.princeofmrna`, portrait) is already in
 `export_presets.cfg`.
 
 ## Controls
 
 - **Move:** WASD / arrow keys, or the on-screen joystick (touch).
-- **Interact / advance dialogue:** `E` or `Space`, or the ✋ button.
+- **Interact / advance dialogue:** `E`, or the ✋ button (`Space` also advances dialogue).
+- **Jump / leap:** `Space` (also `Shift` / `J`), or the JUMP button. Press while running for a long leap. Hazards on the ground cannot touch the prince while he is in the air.
 - **Pause:** `Esc` or the `II` button.
+- **Help:** the Help button on the title screen or in the pause menu opens a step-by-step walkthrough of the whole journey (English / 한국어 toggle). Content: `assets/help/help.json`; Korean font: `assets/fonts/help_ko.otf` (Noto Sans CJK KR subset, OFL).
+
+## Hazards
+
+Every chapter after the palace has something hunting the message; the HUD shows a
+meter (mRNA integrity / poly(A) tail) while it is at risk, and running out sends
+the prince back to the last safe spot with a fresh copy.
+
+| Chapter | Hazard | Science | How to survive |
+|---|---|---|---|
+| 1 Cave | Crevasse | (tutorial) | Run and press Space / JUMP to leap it |
+| 3 Lab | RNases chase the naked mRNA (after assembly) | RNases shred unprotected RNA; the LNP shields it | Leap over them, reach the mixer; after the LNP is made they bounce off |
+| 4 Cell | RNases in the tissue | The lipid shell repels them | Nothing to do — watch them bounce |
+| 4 Cell | Endosome pH timing (mini-game) | Ionizable lipids (pKa ~6.4) charge below pH 6.6; below pH 5 the lysosome fuses | Break out inside the pH window |
+| 4 Cell | Poly(A) rush + exonucleases | Deadenylation shortens the tail; when it is gone the mRNA is decapped and destroyed | Reach the ribosome before the tail meter empties; leap over the exonucleases |
+| 6 Tumor | Herd the T-cells (mini-game) | Tregs (IL-10 / TGF-beta), CAF collagen stroma, hypoxia | Keep the herd close, avoid the purple fog, find the gaps, rally suppressed cells |

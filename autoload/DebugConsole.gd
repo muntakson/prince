@@ -5,12 +5,13 @@ extends CanvasLayer
 ## distinguishable from a real hang: if the frame counter keeps rising but
 ## paused=true, it's a stuck dialogue/pause; if the counter freezes, it's a hang.
 
-var enabled := true
+var enabled := false
 var _label: Label
 var _log: Array[String] = []
 var _frame := 0
 var _is_web := OS.has_feature("web")
 var url_flags: Array = []     # web: ?flags=a,b grants story flags from the chapter-select (debug) menu
+var url_chapter := ""         # web: ?chapter=<id> jumps straight into that chapter (test aid)
 
 func _ready() -> void:
 	layer = 200
@@ -36,19 +37,23 @@ func _ready() -> void:
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(_label)
 	dlog("DebugConsole ready")
-	# Release builds hide the overlay unless the page URL contains "debug"
-	# (state is still mirrored to window.__ss for browser automation).
-	if not OS.is_debug_build():
-		var want := false
-		if _is_web:
-			var q = JavaScriptBridge.eval("String(window.location.search)", true)
-			want = str(q).contains("debug")
-		set_enabled(want)
+	# The overlay is hidden by default. Opt in with "?debug" in the web URL or
+	# the "--debug-console" command-line argument. Logging (dlog/print) and the
+	# window.__ss state mirror for browser automation keep running regardless.
+	var want := false
+	if _is_web:
+		var q = JavaScriptBridge.eval("String(window.location.search)", true)
+		want = str(q).contains("debug")
+	elif OS.get_cmdline_user_args().has("--debug-console") or OS.get_cmdline_args().has("--debug-console"):
+		want = true
+	set_enabled(want)
 	if _is_web:
 		var q2 = JavaScriptBridge.eval("(new URLSearchParams(window.location.search)).get('flags') || ''", true)
 		for f in str(q2).split(","):
 			if f.strip_edges() != "":
 				url_flags.append(f.strip_edges())
+		var q3 = JavaScriptBridge.eval("(new URLSearchParams(window.location.search)).get('chapter') || ''", true)
+		url_chapter = str(q3).strip_edges()
 
 func dlog(msg: String) -> void:
 	_log.append("%d| %s" % [_frame, msg])
@@ -111,6 +116,18 @@ func _export_state_to_js() -> void:
 		st["py"] = int(player.global_position.y)
 		var inter = player.get("_current_interactable")
 		st["inter"] = str(inter.name) if inter != null and is_instance_valid(inter) else ""
+	var scene = tree.current_scene
+	if scene and is_instance_valid(scene) and "integrity" in scene:
+		st["meter"] = {"on": scene.meter_on, "v": scene.integrity, "label": scene.meter_label, "respawning": scene._respawn_t >= 0.0}
+	if player and is_instance_valid(player) and player.has_method("is_airborne"):
+		st["air"] = player.is_airborne()
+	var help = tree.get_first_node_in_group("help_screen")
+	st["help"] = help.lang if help and is_instance_valid(help) else ""
+	var hz := []
+	for h in tree.get_nodes_in_group("hazard"):
+		if h.is_active():
+			hz.append([int(h.global_position.x), int(h.global_position.y), h.is_shielded()])
+	st["hazards"] = hz
 	var stations := []
 	for n in tree.get_nodes_in_group("cutscene_station"):
 		stations.append({"name": n.station_name, "state": n._state, "x": int(n.global_position.x), "y": int(n.global_position.y)})

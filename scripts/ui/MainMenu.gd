@@ -3,6 +3,14 @@ extends Control
 
 func _ready() -> void:
 	_build()
+	# web test aid: ?chapter=<id> starts that chapter directly (with ?flags=... granted)
+	if DebugConsole.url_chapter != "" and GameState.CHAPTERS.has(DebugConsole.url_chapter):
+		var id: String = DebugConsole.url_chapter
+		DebugConsole.url_chapter = ""
+		GameState.reset()
+		Inventory.clear()
+		_grant_debug_flags(id)
+		SceneManager.goto_chapter.call_deferred(id)
 
 func _build() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -37,7 +45,7 @@ func _build() -> void:
 	add_child(vb)
 
 	var title := Label.new()
-	title.text = "The Secret Scroll"
+	title.text = "Prince of mRNA"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 44)
 	title.add_theme_color_override("font_color", Color(1, 0.95, 0.75))
@@ -54,6 +62,7 @@ func _build() -> void:
 	vb.add_child(_button("New Game", _new_game))
 	if SaveManager.has_save():
 		vb.add_child(_button("Continue", _continue))
+	vb.add_child(_button("Help", _help))
 	vb.add_child(_button("Chapter Select", _chapter_select))
 	if not _is_web():
 		vb.add_child(_button("Quit", func(): get_tree().quit()))
@@ -82,6 +91,9 @@ func _spacer(h: int) -> Control:
 	var c := Control.new()
 	c.custom_minimum_size = Vector2(0, h)
 	return c
+
+func _help() -> void:
+	HelpScreen.open(get_tree())
 
 func _new_game() -> void:
 	GameState.reset()

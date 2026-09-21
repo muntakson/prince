@@ -1,4 +1,4 @@
-# Deployment — The Secret Scroll
+# Deployment — Prince of mRNA
 
 **Production URL:** https://prince.aiedus.org  (Cloudflare Full SSL → this server)
 
@@ -14,3 +14,9 @@ $GODOT --headless --path /home/jit/mRNA --export-release "Web" /home/jit/mRNA/bu
 cp -r /home/jit/mRNA/build/web/* /var/www/prince/
 # nginx reload not needed for static file changes
 ```
+
+## Loading splash
+- Boot splash image: `assets/ui/splash.png` (720x1280, set in `project.godot` → `boot_splash/image`).
+- The web loading page gets its dark-purple background and loads the splash as `index.png?v=N`
+  via `html/head_include` in `export_presets.cfg`. Cloudflare caches `index.png` for a day, so
+  **bump `?v=N` whenever `splash.png` changes**, or the old splash keeps showing at the edge.

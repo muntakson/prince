@@ -5,16 +5,16 @@ func _configure() -> void:
 	station_name = "The Tumor"
 	texture_path = "res://assets/env/tumor_cell.png"
 	sprite_max_dim = 170.0
-	required_flag = "tcell_activated"
+	required_flag = "tcells_herded"
 	done_flag = "tumor_cleared"
 	minigame_script = preload("res://scripts/minigames/TumorHunt.gd")
 	prompt_offset = Vector2(0, -120)
 	interact_radius = 120.0
 	hint_lines = [
-		["Scroll", "No army has been raised yet. The T-cells must first be activated in the lymph node."],
+		["Scroll", "The T-cells are still in the blood. Lead them out of the vessel to the south and through the stroma first."],
 	]
 	intro_lines = [
-		["Scroll", "The activated T-cells leave the lymph node through the efferent lymph and ride the bloodstream. Chemokines from the inflamed tumor call them in, and they squeeze out of the vessel walls into the tissue."],
+		["Scroll", "The T-cells that made it through the stroma are inside the tumor now."],
 		["Arin", "So many cells... how will they know which ones to strike?"],
 		["Scroll", "Every cell shows pieces of its inner proteins on MHC class I. Tumor cells show the vaccine antigen; healthy cells show only self. The T-cell reads each one before it strikes."],
 		["Scroll", "Beware: some tumor cells wear PD-L1, a checkpoint that switches T-cells off. A checkpoint-inhibitor antibody can remove that disguise."],
