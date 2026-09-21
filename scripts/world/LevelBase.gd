@@ -1,0 +1,198 @@
+extends Node2D
+class_name LevelBase
+## Base for all chapters. Builds a walled room + tiled floor, spawns the player,
+## mounts the HUD, sets a checkpoint, and exposes helpers so each chapter script
+## only has to place content in `build_content()`.
+
+const PLAYER_SCENE := preload("res://scenes/player/Player.tscn")
+const HUD_SCENE := preload("res://scenes/ui/HUD.tscn")
+const PORTAL_SCRIPT = preload("res://scripts/world/Portal.gd")
+const NPC_SCRIPT = preload("res://scripts/world/StoryNPC.gd")
+const PICKUP_SCENE := preload("res://scenes/pickups/MoleculePickup.tscn")
+
+@export var chapter_id: String = "cave"
+@export var room_size: Vector2 = Vector2(1400, 2000)
+@export var floor_texture: Texture2D
+@export var wall_texture: Texture2D
+@export var music_path: String = ""
+@export var default_spawn: Vector2 = Vector2(700, 1800)
+@export var floor_stretch: bool = false  # true = stretch one image over the room (organic bg); false = tile
+
+var player: CharacterBody2D
+var hud: CanvasLayer
+var content_root: Node2D
+var _wall_body: StaticBody2D
+
+const WALL_THICKNESS := 40.0
+
+func _ready() -> void:
+	GameState.set_chapter(chapter_id)
+	_build_backdrop()
+	content_root = Node2D.new()
+	content_root.name = "Content"
+	add_child(content_root)
+	_build_floor()
+	_build_room_walls()
+	_spawn_player()
+	_mount_hud()
+	if music_path != "":
+		AudioManager.play_music(music_path)
+	build_content()
+	GameState.set_checkpoint(chapter_id, player.global_position)
+	await get_tree().process_frame
+	if hud and hud.has_method("show_chapter_title"):
+		hud.show_chapter_title(GameState.chapter_title(chapter_id))
+
+## Override in chapter scripts to place pickups, NPCs, portals, hazards.
+func build_content() -> void:
+	pass
+
+# --------------------------------------------------------------------------
+func _build_backdrop() -> void:
+	# Full-screen dark backdrop behind the world so any area outside the room
+	# reads as an intentional void rather than raw black tile edges.
+	var cl := CanvasLayer.new()
+	cl.layer = -100
+	add_child(cl)
+	var rect := ColorRect.new()
+	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var grad := Gradient.new()
+	grad.set_color(0, Color(0.05, 0.06, 0.12))
+	grad.set_color(1, Color(0.01, 0.02, 0.05))
+	var gt := GradientTexture2D.new()
+	gt.gradient = grad
+	gt.fill = GradientTexture2D.FILL_RADIAL
+	gt.fill_from = Vector2(0.5, 0.45)
+	gt.fill_to = Vector2(1.0, 1.0)
+	gt.width = 256
+	gt.height = 256
+	var tr := TextureRect.new()
+	tr.texture = gt
+	tr.set_anchors_preset(Control.PRESET_FULL_RECT)
+	tr.stretch_mode = TextureRect.STRETCH_SCALE
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cl.add_child(tr)
+
+func _build_floor() -> void:
+	var spr := Sprite2D.new()
+	spr.texture = floor_texture
+	spr.centered = false
+	spr.position = Vector2.ZERO
+	spr.z_index = -100
+	if floor_stretch and floor_texture != null:
+		# Stretch one image over the whole room (for organic backgrounds that would
+		# show seams if tiled).
+		var ts := floor_texture.get_size()
+		spr.scale = Vector2(room_size.x / ts.x, room_size.y / ts.y)
+	else:
+		# Tile the floor texture across the room in world space via a region'd Sprite2D.
+		spr.region_enabled = true
+		spr.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+		spr.region_rect = Rect2(0, 0, room_size.x, room_size.y)
+	add_child(spr)
+
+func _build_room_walls() -> void:
+	_wall_body = StaticBody2D.new()
+	_wall_body.collision_layer = 1
+	_wall_body.collision_mask = 0
+	add_child(_wall_body)
+	var t := WALL_THICKNESS
+	# four borders (collision + visual)
+	_add_wall_rect(Rect2(-t, -t, room_size.x + 2 * t, t))                       # top
+	_add_wall_rect(Rect2(-t, room_size.y, room_size.x + 2 * t, t))              # bottom
+	_add_wall_rect(Rect2(-t, 0, t, room_size.y))                               # left
+	_add_wall_rect(Rect2(room_size.x, 0, t, room_size.y))                      # right
+
+## Public: add a rectangular wall/obstacle (world coords).
+func add_wall_rect(rect: Rect2) -> void:
+	_add_wall_rect(rect)
+
+func _add_wall_rect(rect: Rect2) -> void:
+	var cs := CollisionShape2D.new()
+	var shape := RectangleShape2D.new()
+	shape.size = rect.size
+	cs.shape = shape
+	cs.position = rect.position + rect.size / 2.0
+	_wall_body.add_child(cs)
+	# visual
+	var spr := Sprite2D.new()
+	if wall_texture:
+		spr.texture = wall_texture
+		spr.region_enabled = true
+		spr.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+		spr.region_rect = Rect2(0, 0, rect.size.x, rect.size.y)
+	spr.centered = false
+	spr.position = rect.position
+	spr.z_index = -50
+	if wall_texture == null:
+		var cr := ColorRect.new()
+		cr.color = Color(0.12, 0.12, 0.2)
+		cr.size = rect.size
+		cr.position = rect.position
+		cr.z_index = -50
+		add_child(cr)
+	else:
+		add_child(spr)
+
+func _spawn_player() -> void:
+	player = PLAYER_SCENE.instantiate()
+	player.global_position = SceneManager.consume_spawn(default_spawn)
+	add_child(player)
+	# Bound the camera to the room so it never scrolls past the walls.
+	var cam := player.get_node_or_null("Camera2D")
+	if cam:
+		cam.limit_left = 0
+		cam.limit_top = 0
+		cam.limit_right = int(room_size.x)
+		cam.limit_bottom = int(room_size.y)
+
+func _mount_hud() -> void:
+	hud = HUD_SCENE.instantiate()
+	add_child(hud)
+
+# --------------------------------------------------------------------------
+# content helpers (call from build_content)
+func add_pickup(id: String, pos: Vector2) -> Node:
+	var p := PICKUP_SCENE.instantiate()
+	p.component_id = id
+	p.position = pos
+	content_root.add_child(p)
+	return p
+
+func add_portal(pos: Vector2, target_chapter: String, label: String = "", spawn: Vector2 = Vector2.INF) -> Node:
+	var portal := Area2D.new()
+	portal.set_script(PORTAL_SCRIPT)
+	portal.position = pos
+	portal.target_chapter = target_chapter
+	portal.label_text = label
+	portal.target_spawn = spawn
+	content_root.add_child(portal)
+	return portal
+
+func add_npc(pos: Vector2, npc_name: String, lines: Array, texture_path: String = "", once_flag: String = "", sprite_max_dim: float = 96.0) -> Node:
+	var npc := Area2D.new()
+	npc.set_script(NPC_SCRIPT)
+	npc.position = pos
+	npc.npc_name = npc_name
+	npc.lines = lines
+	npc.texture_path = texture_path
+	npc.once_flag = once_flag
+	npc.sprite_max_dim = sprite_max_dim
+	content_root.add_child(npc)
+	return npc
+
+func add_label(pos: Vector2, text: String, size: int = 26, width: float = 520.0) -> Label:
+	var l := Label.new()
+	l.text = text
+	l.position = pos
+	l.size = Vector2(width, 0)
+	l.custom_minimum_size = Vector2(width, 0)
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.add_theme_font_size_override("font_size", size)
+	l.add_theme_color_override("font_color", Color(0.8, 0.88, 1.0, 0.85))
+	l.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	l.add_theme_constant_override("outline_size", 6)
+	content_root.add_child(l)
+	return l

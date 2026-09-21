@@ -1,0 +1,19 @@
+# Godot 4
+.godot/
+/build/
+*.tmp
+
+# Editor / OS
+.DS_Store
+*.import.bak
+.vscode/
+export_presets.local.cfg
+
+# Source sprite sheet kept, generated slices are reproducible but committed for convenience
+
+# Reference material not ours to redistribute (copyrighted sprite rips / paper)
+princeofperisia_sprite.jpg*
+prince_of_persia_sprites_2.gif*
+Applications of microfluidics in mRNA vaccine.pdf
+ChatGPT Image*
+.claude/
