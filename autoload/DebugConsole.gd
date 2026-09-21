@@ -5,8 +5,11 @@ extends CanvasLayer
 ## distinguishable from a real hang: if the frame counter keeps rising but
 ## paused=true, it's a stuck dialogue/pause; if the counter freezes, it's a hang.
 
-var enabled := false
+var enabled := false          # debug mode opted in: toggle button shown, state mirrored
+var show_panel := false       # the overlay panel itself (toggle with the DBG button or F3)
 var _label: Label
+var _panel: PanelContainer
+var _toggle: Button
 var _log: Array[String] = []
 var _frame := 0
 var _is_web := OS.has_feature("web")
@@ -17,6 +20,7 @@ func _ready() -> void:
 	layer = 200
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	var panel := PanelContainer.new()
+	_panel = panel
 	panel.anchor_top = 1.0
 	panel.anchor_bottom = 1.0
 	panel.offset_left = 6
@@ -36,6 +40,19 @@ func _ready() -> void:
 	_label.add_theme_constant_override("outline_size", 3)
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(_label)
+	# Small "DBG" button (left of the HUD pause button) that shows/hides the
+	# panel, so it can be moved out of the way of dialogue boxes. F3 also
+	# toggles it on desktop.
+	_toggle = Button.new()
+	_toggle.text = "DBG"
+	_toggle.custom_minimum_size = Vector2(52, 52)
+	_toggle.anchor_left = 1.0
+	_toggle.anchor_right = 1.0
+	_toggle.position = Vector2(-124, 12)
+	_toggle.focus_mode = Control.FOCUS_NONE
+	_toggle.add_theme_font_size_override("font_size", 14)
+	_toggle.pressed.connect(func(): set_panel_visible(not show_panel))
+	add_child(_toggle)
 	dlog("DebugConsole ready")
 	# The overlay is hidden by default. Opt in with "?debug" in the web URL or
 	# the "--debug-console" command-line argument. Logging (dlog/print) and the
@@ -61,9 +78,22 @@ func dlog(msg: String) -> void:
 		_log.pop_front()
 	print("[DBG] ", msg)
 
+## Debug mode on/off: shows the DBG toggle button and (initially) the panel.
 func set_enabled(on: bool) -> void:
 	enabled = on
 	visible = on
+	set_panel_visible(on)
+
+## Show or hide just the overlay panel; the DBG button stays.
+func set_panel_visible(on: bool) -> void:
+	show_panel = on
+	_panel.visible = on
+	_toggle.modulate = Color(1, 1, 1, 1.0 if on else 0.6)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if enabled and event is InputEventKey and event.pressed and not event.echo \
+			and event.physical_keycode == KEY_F3:
+		set_panel_visible(not show_panel)
 
 func _process(_delta: float) -> void:
 	_frame += 1
@@ -123,6 +153,7 @@ func _export_state_to_js() -> void:
 		st["air"] = player.is_airborne()
 	var help = tree.get_first_node_in_group("help_screen")
 	st["help"] = help.lang if help and is_instance_valid(help) else ""
+	st["dbg_panel"] = show_panel
 	var hz := []
 	for h in tree.get_nodes_in_group("hazard"):
 		if h.is_active():
