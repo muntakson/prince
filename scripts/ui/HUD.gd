@@ -155,22 +155,22 @@ func flash_hint(msg: String) -> void:
 	_flash_hint(msg)
 
 func _build_title_card() -> void:
+	# a full-width centring row so the card hugs its text but stays centred
+	var row := HBoxContainer.new()
+	row.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	row.offset_top = 150
+	row.offset_left = 20
+	row.offset_right = -20
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(row)
 	title_card = Label.new()
-	title_card.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	title_card.anchor_left = 0.0
-	title_card.anchor_right = 1.0
-	title_card.offset_top = 150
-	title_card.offset_left = 20
-	title_card.offset_right = -20
 	title_card.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_card.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	title_card.add_theme_font_size_override("font_size", 38)
-	title_card.add_theme_color_override("font_color", Color(1, 0.95, 0.75))
-	title_card.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	TextStyle.apply(title_card, 38, Color(1, 0.95, 0.75))
 	title_card.add_theme_constant_override("outline_size", 8)
 	title_card.modulate.a = 0.0
 	title_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(title_card)
+	row.add_child(title_card)
 
 func _build_dialogue() -> void:
 	dialogue_box = PanelContainer.new()

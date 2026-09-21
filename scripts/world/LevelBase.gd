@@ -339,15 +339,15 @@ func add_npc(pos: Vector2, npc_name: String, lines: Array, texture_path: String 
 
 func add_label(pos: Vector2, text: String, size: int = 26, width: float = 520.0) -> Label:
 	var l := Label.new()
-	l.text = text
-	l.position = pos
-	l.size = Vector2(width, 0)
-	l.custom_minimum_size = Vector2(width, 0)
+	# autowrap first, size last: a Label sized while its text is unwrapped
+	# keeps that wider size and the box overflows the intended width
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l.add_theme_font_size_override("font_size", size)
-	l.add_theme_color_override("font_color", Color(0.8, 0.88, 1.0, 0.85))
-	l.add_theme_color_override("font_outline_color", Color(0, 0, 0))
-	l.add_theme_constant_override("outline_size", 6)
+	# never smaller than 26 px: hints must stay readable on bright backdrops
+	TextStyle.apply(l, maxi(size, 26), Color(0.88, 0.94, 1.0))
+	l.text = text
+	l.position = pos
+	l.custom_minimum_size = Vector2(width, 0)
+	l.size = Vector2(width, 0)
 	content_root.add_child(l)
 	return l

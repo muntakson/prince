@@ -40,10 +40,7 @@ func _ready() -> void:
 	_label.position = Vector2(-60, -110)
 	_label.size = Vector2(120, 30)
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_label.add_theme_font_size_override("font_size", 20)
-	_label.add_theme_color_override("font_color", Color(0.9, 0.95, 1.0))
-	_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
-	_label.add_theme_constant_override("outline_size", 5)
+	TextStyle.apply(_label, 24, Color(0.9, 0.95, 1.0), true)
 	_label.modulate.a = 0.0
 	add_child(_label)
 	if auto:

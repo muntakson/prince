@@ -39,10 +39,7 @@ func _ready() -> void:
 	_prompt.position = Vector2(-70, -80)
 	_prompt.size = Vector2(140, 26)
 	_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_prompt.add_theme_font_size_override("font_size", 20)
-	_prompt.add_theme_color_override("font_color", Color(1, 0.95, 0.7))
-	_prompt.add_theme_color_override("font_outline_color", Color(0, 0, 0))
-	_prompt.add_theme_constant_override("outline_size", 5)
+	TextStyle.apply(_prompt, 24, Color(1, 0.95, 0.7), true)
 	_prompt.modulate.a = 0.0
 	add_child(_prompt)
 

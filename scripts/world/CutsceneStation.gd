@@ -66,15 +66,17 @@ func _ready() -> void:
 	_spr_b.modulate.a = 0.0
 	add_child(_spr_b)
 
-	_prompt = _make_label(station_name, 20, Color(1, 0.95, 0.7))
+	_prompt = _make_label(station_name, 24, Color(1, 0.95, 0.7))
 	_prompt.position = prompt_offset + Vector2(-120, 0)
 	_prompt.size = Vector2(240, 26)
+	TextStyle.apply(_prompt, 24, Color(1, 0.95, 0.7), true)
 	add_child(_prompt)
 
-	_caption = _make_label("", 22, Color(0.85, 0.95, 1.0))
-	_caption.position = caption_offset + Vector2(-260, 0)
-	_caption.size = Vector2(520, 60)
+	_caption = _make_label("", 26, Color(0.9, 0.96, 1.0))
+	_caption.position = caption_offset + Vector2(-270, 0)
+	_caption.size = Vector2(540, 0)
 	_caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_caption.visible = false
 	add_child(_caption)
 
 	var done := done_flag != "" and GameState.has_flag(done_flag)
@@ -90,10 +92,7 @@ func _make_label(text: String, size: int, color: Color) -> Label:
 	var l := Label.new()
 	l.text = text
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l.add_theme_font_size_override("font_size", size)
-	l.add_theme_color_override("font_color", color)
-	l.add_theme_color_override("font_outline_color", Color(0, 0, 0))
-	l.add_theme_constant_override("outline_size", 6)
+	TextStyle.apply(l, size, color)
 	l.modulate.a = 0.0
 	return l
 
@@ -137,6 +136,7 @@ func _set_stage(idx: int, instant: bool) -> void:
 	_stage = idx
 	_stage_t = 0.0
 	_caption.text = captions[idx] if idx < captions.size() else ""
+	_caption.visible = _caption.text != ""
 	_caption.modulate.a = 1.0
 	if instant:
 		_spr_a.texture = _frames[idx]

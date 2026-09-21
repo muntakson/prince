@@ -28,7 +28,7 @@ func _ready() -> void:
 	super._ready()
 
 func build_content() -> void:
-	add_label(Vector2(430, 2560), "Guide the message through the living cell.", 24)
+	add_label(Vector2(400, 2555), "Guide the message through the living cell.", 26, 600)
 
 	# Station 1: the lipid nanoparticle (the shielded mRNA) — already carried
 	# if it was made in the Chapter 3 mixer.

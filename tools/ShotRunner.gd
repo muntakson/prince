@@ -18,6 +18,7 @@ var hazard_flags := ""       # flags=a,b : extra story flags to grant before the
 var act := ""                # act=jump|leap|walkup : player action right before the burst
 var player_at := ""          # at=x,y : teleport the player before the shot
 var show_help := ""          # help=en|ko : open the Help screen in that language
+var dump_labels := false     # labels=1 : print every in-world Label's position/size before the shot
 
 func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
@@ -35,6 +36,7 @@ func _ready() -> void:
 		elif a.begins_with("act="): act = a.substr(4)
 		elif a.begins_with("at="): player_at = a.substr(3)
 		elif a.begins_with("help="): show_help = a.substr(5)
+		elif a.begins_with("labels="): dump_labels = a.substr(7) == "1"
 	if target_scene == "":
 		push_error("ShotRunner: no scene= provided")
 		get_tree().quit(1)
@@ -59,6 +61,8 @@ func _run(_inst) -> void:
 			pl0.global_position = Vector2(float(xy[0]), float(xy[1]))
 	for i in wait_frames:
 		await get_tree().process_frame
+	if dump_labels:
+		_dump_labels_of(get_tree().root)
 	if show_help != "":
 		HelpScreen.lang = show_help
 		HelpScreen.open(get_tree())
@@ -140,3 +144,9 @@ func _run(_inst) -> void:
 		for j in burst_step:
 			await get_tree().process_frame
 	get_tree().quit(0)
+
+func _dump_labels_of(n: Node) -> void:
+	if n is Label and n.text != "":
+		print("LABEL '%s' pos=%s size=%s min=%s" % [n.text.left(28), n.global_position, n.size, n.get_combined_minimum_size()])
+	for c in n.get_children():
+		_dump_labels_of(c)
