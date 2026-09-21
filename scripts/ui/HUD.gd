@@ -229,7 +229,7 @@ func _build_touch() -> void:
 	touch_layer.add_child(joystick)
 
 	interact_btn = Button.new()
-	interact_btn.text = "✋"
+	interact_btn.text = "USE"
 	interact_btn.custom_minimum_size = Vector2(96, 96)
 	interact_btn.anchor_left = 1.0
 	interact_btn.anchor_right = 1.0
@@ -239,9 +239,9 @@ func _build_touch() -> void:
 	interact_btn.offset_top = -180
 	interact_btn.offset_right = -24
 	interact_btn.offset_bottom = -84
-	interact_btn.add_theme_font_size_override("font_size", 40)
-	interact_btn.button_down.connect(func(): Input.action_press("interact"))
-	interact_btn.button_up.connect(func(): Input.action_release("interact"))
+	interact_btn.add_theme_font_size_override("font_size", 22)
+	interact_btn.button_down.connect(func(): _send_action("interact", true))
+	interact_btn.button_up.connect(func(): _send_action("interact", false))
 	touch_layer.add_child(interact_btn)
 
 	jump_btn = Button.new()
@@ -256,8 +256,8 @@ func _build_touch() -> void:
 	jump_btn.offset_right = -136
 	jump_btn.offset_bottom = -84
 	jump_btn.add_theme_font_size_override("font_size", 22)
-	jump_btn.button_down.connect(func(): Input.action_press("jump"))
-	jump_btn.button_up.connect(func(): Input.action_release("jump"))
+	jump_btn.button_down.connect(func(): _send_action("jump", true))
+	jump_btn.button_up.connect(func(): _send_action("jump", false))
 	touch_layer.add_child(jump_btn)
 
 	# only show touch controls on touch-capable devices (FORCE_TOUCH overrides for testing)
@@ -356,6 +356,15 @@ func _process(delta: float) -> void:
 	if _dialogue_hiding and dialogue_box.visible and dialogue_box.modulate.a <= 0.03:
 		dialogue_box.visible = false
 		_dialogue_hiding = false
+
+## Touch buttons must inject a real InputEventAction: Input.action_press()
+## only flips the polled held-state and never reaches _unhandled_input, so
+## the player's event-driven interact / jump handlers would never fire.
+func _send_action(action: String, pressed: bool) -> void:
+	var ev := InputEventAction.new()
+	ev.action = action
+	ev.pressed = pressed
+	Input.parse_input_event(ev)
 
 func _on_dialogue_click(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
