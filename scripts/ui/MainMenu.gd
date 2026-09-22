@@ -77,31 +77,31 @@ func _build() -> void:
 		vb.add_child(_button("Quit", func(): get_tree().quit()))
 
 	var credit := Label.new()
-	credit.text = "제작 : 손문탁 박사, 사단법인 나눔과기술, 2026년 9월 19일"
+	credit.text = "제작 : 손문탁 박사, 사단법인 나눔과기술\n2026년 9월 19일"
 	credit.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	credit.add_theme_font_size_override("font_size", 18)
-	credit.add_theme_color_override("font_color", Color(0.85, 0.88, 0.95, 0.9))
+	credit.add_theme_font_size_override("font_size", 30)
+	credit.add_theme_color_override("font_color", Color(0.9, 0.92, 0.98, 0.95))
 	if cjk:
 		credit.add_theme_font_override("font", cjk)
 	credit.anchor_left = 0.0
 	credit.anchor_right = 1.0
 	credit.anchor_top = 1.0
 	credit.anchor_bottom = 1.0
-	credit.offset_top = -72
-	credit.offset_bottom = -44
+	credit.offset_top = -140
+	credit.offset_bottom = -50
 	add_child(credit)
 
 	var credit2 := Label.new()
 	credit2.text = "Educational game · Godot 4"
 	credit2.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	credit2.add_theme_font_size_override("font_size", 14)
+	credit2.add_theme_font_size_override("font_size", 18)
 	credit2.add_theme_color_override("font_color", Color(0.6, 0.65, 0.8, 0.7))
 	credit2.anchor_left = 0.0
 	credit2.anchor_right = 1.0
 	credit2.anchor_top = 1.0
 	credit2.anchor_bottom = 1.0
-	credit2.offset_top = -36
-	credit2.offset_bottom = -14
+	credit2.offset_top = -42
+	credit2.offset_bottom = -16
 	add_child(credit2)
 
 func _button(text: String, cb: Callable) -> Button:
