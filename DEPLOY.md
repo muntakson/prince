@@ -72,3 +72,14 @@ removed. Never copy `build/web/*` by hand any more.
   `EL=<key> python3 tools/audio/gen_voice_ko.py` (Korean ElevenLabs voices; Mira uses the shared
   voice "Anna Kim" added to the account). The CJK font subset `assets/fonts/help_ko.otf` must cover
   every Korean string (help, dialogue_ko, clue jsons) — re-subset after editing any of them.
+
+## Korean UI (2026-09-22)
+- `assets/help/ui_ko.json` maps every English UI string to Korean; it is loaded into Godot's
+  TranslationServer, so controls auto-translate when F3 switches the locale. Add new UI strings
+  there (English text as the key) and run `python3 tools/subset_font.py` so the font subset covers
+  the new characters. The subset is applied at runtime as the default theme font (the project
+  setting `gui/theme/custom_font` stalls the web build — do not use it).
+- `deploy.sh` keeps the previous deploy's hashed files for two hours so players mid-load keep working.
+- If the live site loads slowly while `curl` from the server is fast, check the Cloudflare→origin
+  leg: `curl -o /dev/null -w '%{speed_download}' https://prince.aiedus.org/index.<hash>.pck` vs the
+  same file with `--resolve prince.aiedus.org:443:121.180.148.105`. A Cloudflare Cache Rule is the fix.
