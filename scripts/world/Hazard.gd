@@ -74,6 +74,8 @@ func _ready() -> void:
 		_pick_drift_target()
 
 func is_active() -> bool:
+	if GameState.has_flag("nohazards"):   # test aid: ?flags=nohazards (no "debug" in the name: that word would also show the overlay)
+		return false
 	if active_flag != "" and not GameState.has_flag(active_flag):
 		return false
 	if inactive_flag != "" and GameState.has_flag(inactive_flag):

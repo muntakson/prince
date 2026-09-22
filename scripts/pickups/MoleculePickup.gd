@@ -77,7 +77,7 @@ func _on_area_entered(_a: Node) -> void:
 func _collect() -> void:
 	DebugConsole.dlog("pickup collect: %s" % component_id)
 	if Inventory.collect(component_id):
-		AudioManager.play_sfx("res://assets/audio/pickup.wav")
+		AudioManager.sfx("pickup")
 		# Stop being interactable immediately, then fade out via _process.
 		monitoring = false
 		set_deferred("monitorable", false)

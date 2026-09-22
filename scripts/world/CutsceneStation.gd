@@ -149,6 +149,7 @@ func _set_stage(idx: int, instant: bool) -> void:
 
 func _finish() -> void:
 	_state = State.DONE
+	AudioManager.sfx("mg_win")
 	GameState.cutscene_active = false
 	if done_flag != "":
 		GameState.set_flag(done_flag)
@@ -159,6 +160,8 @@ func set_highlight(on: bool) -> void:
 	_highlighted = on
 
 func requirement_met() -> bool:
+	if GameState.debug_mode:
+		return true
 	if required_flag != "" and not GameState.has_flag(required_flag):
 		return false
 	if required_item != "" and not Inventory.has(required_item):
@@ -182,4 +185,5 @@ func interact() -> void:
 
 ## Default: go straight into the frame sequence from frame 1 (frame 0 = idle).
 func _start_cutscene() -> void:
+	AudioManager.sfx("cutscene")
 	_begin_frames(1 if frame_count > 1 else 0)

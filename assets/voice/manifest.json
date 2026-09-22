@@ -1,0 +1,466 @@
+{
+ "0b9a5b2d707c": {
+  "speaker": "Scroll",
+  "text": "The MHC molecules wait empty. First the ribosome to the south must build the antigen protein."
+ },
+ "11a88a25cb51": {
+  "speaker": "Scroll",
+  "text": "The tumor antigen is displayed on the cell surface by an MHC molecule. T-cells inspect it, recognize it, and multiply into an army that hunts any cell wearing the same antigen."
+ },
+ "ba8904b6fe43": {
+  "speaker": "Arin",
+  "text": "But the T-cells that must learn this face gather elsewhere... in the lymph nodes. Let's go."
+ },
+ "8d0d74039d76": {
+  "speaker": "Scroll",
+  "text": "The antigen is displayed on the cell surface. Now the dendritic cell must carry it to a lymph node — the way lies north."
+ },
+ "819f7adfb833": {
+  "speaker": "Scroll",
+  "text": "Hurry! In the cytoplasm, deadenylases nibble the poly(A) tail from the 3' end. When the tail is gone the mRNA loses its cap and is destroyed."
+ },
+ "88f85f96977d": {
+  "speaker": "Scroll",
+  "text": "Reach the ribosome before the tail runs out. Exonucleases patrol the path — leap over them!"
+ },
+ "34a516a6b1c8": {
+  "speaker": "Scroll",
+  "text": "Without its tail the mRNA was decapped and destroyed. Another copy escapes the endosome — run straight for the ribosome and leap over the exonucleases!"
+ },
+ "b7d23be8d6d4": {
+  "speaker": "Scroll",
+  "text": "The exonucleases chewed the mRNA to pieces. Another copy escapes the endosome — this time, leap over them!"
+ },
+ "35d282448359": {
+  "speaker": "Scroll",
+  "text": "A voice echoes: 'Brave Arin... the Princess waits beyond. Hurry.'"
+ },
+ "7a457882ded3": {
+  "speaker": "Scroll",
+  "text": "The dendritic cell has nothing to show yet. It must first present the antigen on MHC."
+ },
+ "42d2b2afe194": {
+  "speaker": "Scroll",
+  "text": "The dendritic cell carries the antigen on its surface. Now it must travel to a lymph node, where the T-cells gather."
+ },
+ "ea51428cea5e": {
+  "speaker": "Arin",
+  "text": "How does it know the way?"
+ },
+ "54b4d16b463d": {
+  "speaker": "Scroll",
+  "text": "It smells its way. The lymph node releases a chemokine, CCL19. The cell raises CCR7 antennae and crawls toward the stronger scent."
+ },
+ "8bff24d68c05": {
+  "speaker": "Arin",
+  "text": "Then I'll steer it. Onward!"
+ },
+ "cd57ae5cb631": {
+  "speaker": "Scroll",
+  "text": "Carried by the lymph, the dendritic cell reaches the lymph node. Inside, thousands of naive T-cells wait, each with a different receptor."
+ },
+ "f4400f58fef3": {
+  "speaker": "Arin",
+  "text": "One of them must fit our antigen. Let's find it."
+ },
+ "0287fb4ddd1d": {
+  "speaker": "Scroll",
+  "text": "The dendritic cell has already reached the lymph node. Enter the T-cell zone to the north."
+ },
+ "ce7ccac62f1c": {
+  "speaker": "Scroll",
+  "text": "The dendritic cell drifts in the tissue. Follow the CCL19 scent with the CCR7 antennae to reach the vessel."
+ },
+ "5fe02afc9249": {
+  "speaker": "Cell",
+  "text": "I am a dendritic cell. I reach out with my branches and capture particles... but you carry nothing for me yet."
+ },
+ "cfa3d69e08ff": {
+  "speaker": "Arin",
+  "text": "The Lipid Nanoparticle — I must bring it here first."
+ },
+ "e956067a2db6": {
+  "speaker": "Cell",
+  "text": "I am a dendritic cell — a sentinel of the immune system. I captured your nanoparticle and drew it inside an endosome."
+ },
+ "6dec79fc449f": {
+  "speaker": "Scroll",
+  "text": "This is endocytosis: the membrane folds around the particle and pinches off as a vesicle. The mRNA is now inside the cell, but still trapped in the endosome."
+ },
+ "89717d92a59d": {
+  "speaker": "Arin",
+  "text": "Then the next step is to break free. Onward, to the endosome!"
+ },
+ "b2d4b0eefdca": {
+  "speaker": "Cell",
+  "text": "The nanoparticle is already inside me, sealed in an endosome. Follow it north — the endosome is turning acidic."
+ },
+ "352186b7f88a": {
+  "speaker": "Scroll",
+  "text": "This endosome is empty. The nanoparticle must first be captured by the dendritic cell to the south."
+ },
+ "ca00e7561ae8": {
+  "speaker": "Scroll",
+  "text": "Inside the endosome the pH dropped. The ionizable lipids became positively charged, disrupted the membrane, and the vesicle burst open."
+ },
+ "c6521d7df417": {
+  "speaker": "Arin",
+  "text": "The mRNA escapes through the torn membrane into the cytoplasm — free at last!"
+ },
+ "57cc75d85e98": {
+  "speaker": "Scroll",
+  "text": "Now the ribosomes can read it. Head north — but hurry, the cytoplasm is full of nucleases."
+ },
+ "3dcdac4ac58c": {
+  "speaker": "Scroll",
+  "text": "The mRNA has already escaped this endosome. The ribosome to the north is waiting to translate it."
+ },
+ "2243bd59a1cd": {
+  "speaker": "Scroll",
+  "text": "The mRNA was digested. Endosomal escape is a race: wait for the lipids to charge (pH below 6.6), but break out before pH 5, when the lysosome fuses."
+ },
+ "5d9fc4dd01fc": {
+  "speaker": "Arin",
+  "text": "The cell is taking in more particles. Let me try again."
+ },
+ "77af09628413": {
+  "speaker": "Scroll",
+  "text": "The endosome is acidifying. Watch the pH: the lipids only charge below pH 6.6, and below pH 5 the lysosome arrives. Tap or press SPACE at the right moment to break out."
+ },
+ "e61d39f66deb": {
+  "speaker": "Scroll",
+  "text": "No army has been raised yet. The T-cells must first be activated in the lymph node."
+ },
+ "3be9c2eb2f92": {
+  "speaker": "Scroll",
+  "text": "The activated T-cells ride the blood and squeeze out of the vessel here, drawn by the tumor's chemokines. But the tumor defends itself."
+ },
+ "411aeceead59": {
+  "speaker": "Scroll",
+  "text": "Regulatory T-cells breathe out IL-10 and TGF-beta that switch fighters off. Cancer-associated fibroblasts wall the tumor in with dense collagen. Hypoxic pockets sap their strength."
+ },
+ "04e6a248321f": {
+  "speaker": "Arin",
+  "text": "Then I'll lead them myself. Stay close, all of you!"
+ },
+ "c517dded9b10": {
+  "speaker": "Scroll",
+  "text": "The T-cells have infiltrated the tumor. Now each one must read the cells around it and choose its target."
+ },
+ "2fa3013c52ac": {
+  "speaker": "Scroll",
+  "text": "The army is inside the tumor. Head north and begin the hunt."
+ },
+ "d5d7fb446e9c": {
+  "speaker": "Scroll",
+  "text": "Too few T-cells reached the tumor. Keep the herd close, steer them around the purple Treg fog, and find the gaps in the stroma."
+ },
+ "ecdb07f2c86c": {
+  "speaker": "Scroll",
+  "text": "Beware! The naked mRNA is out, and RNases — enzymes that shred unprotected RNA — are prowling the kingdom."
+ },
+ "b8e2b5d5114e": {
+  "speaker": "Scroll",
+  "text": "Three bites and the message is gone. Leap over them with SPACE or the JUMP button, and get the mRNA to the mixer!"
+ },
+ "b66ba8b2289f": {
+  "speaker": "Arin",
+  "text": "Then I'll be quick on my feet."
+ },
+ "f658ccfd0307": {
+  "speaker": "Synthesizer",
+  "text": "The message was destroyed by RNase. Here is a fresh copy — this time, leap over them!"
+ },
+ "d43833a73bbe": {
+  "speaker": "Mixer",
+  "text": "Nothing to encapsulate yet. Assemble the mRNA at the synthesizer first."
+ },
+ "79fc37a492c8": {
+  "speaker": "Scroll",
+  "text": "Naked mRNA would be shredded in the blood within minutes. It needs a shield: a lipid nanoparticle."
+ },
+ "26aaf72b2a0b": {
+  "speaker": "Mixer",
+  "text": "I am a microfluidic mixer. Feed lipids in ethanol into one inlet and the mRNA in acidic buffer into the other, and my herringbone channel folds them together in milliseconds."
+ },
+ "fa1537643250": {
+  "speaker": "Arin",
+  "text": "Then let's wrap the message."
+ },
+ "ed9c76123f10": {
+  "speaker": "Mixer",
+  "text": "Batch complete: small, uniform nanoparticles with the mRNA safely inside, now at neutral pH."
+ },
+ "27f551e260fb": {
+  "speaker": "Scroll",
+  "text": "The shielded message is ready. Take it to the injection gate — Mira's body awaits."
+ },
+ "f9bb4b3b64a9": {
+  "speaker": "Mixer",
+  "text": "The LNP batch is ready. Head to the injection gate on the right."
+ },
+ "d2a2bcfdd212": {
+  "speaker": "Mixer",
+  "text": "No batch yet. Load both inlets, set the flow ratio to 3:1 with a fast total flow, run, then exchange the buffer."
+ },
+ "2fb7be2b0d37": {
+  "speaker": "Mira",
+  "text": "Arin... you came. But I am gravely ill. The healers call it cancer."
+ },
+ "ca0be7ec8a3f": {
+  "speaker": "Arin",
+  "text": "I will not lose you. There must be a cure."
+ },
+ "7494c9044174": {
+  "speaker": "Mira",
+  "text": "On the pedestal... an ancient scroll. It speaks of a strange medicine."
+ },
+ "a6c7d5052be0": {
+  "speaker": "Scroll",
+  "text": "To teach the body to fight the illness, craft an mRNA — a message of life."
+ },
+ "2ab753aa728a": {
+  "speaker": "Scroll",
+  "text": "Gather its seven parts: 5′ cap, 5′ UTR, start codon, the antigen code, stop codon, 3′ UTR, and poly(A) tail."
+ },
+ "b33520a740d6": {
+  "speaker": "Scroll",
+  "text": "Assemble them, wrap them in a lipid shield, and deliver the message within."
+ },
+ "5a856b354a86": {
+  "speaker": "Arin",
+  "text": "Then to the molecular kingdom I go. Hold on, Mira."
+ },
+ "310edac9b527": {
+  "speaker": "Ribosome",
+  "text": "I am a ribosome, but I have nothing to read. The mRNA is still trapped inside the endosome to the south."
+ },
+ "d2dcf7e9cf69": {
+  "speaker": "Ribosome",
+  "text": "I read the message three letters at a time — each codon calls for one amino acid — and linked them into a chain."
+ },
+ "b078f6102d02": {
+  "speaker": "Scroll",
+  "text": "The chain folds into the tumor antigen: a harmless copy of a protein found on Mira's cancer cells. Now the cell can show it to the immune system."
+ },
+ "f24b2cfba496": {
+  "speaker": "Arin",
+  "text": "So the body learns the enemy's face without ever meeting the enemy. On to the surface!"
+ },
+ "ebfaea8b0077": {
+  "speaker": "Ribosome",
+  "text": "The antigen is made. Carry on north — the cell is presenting it on its surface now."
+ },
+ "5c1c1781898f": {
+  "speaker": "Synthesizer",
+  "text": "The mRNA is ready. Take it to the microfluidic mixer to wrap it in a lipid nanoparticle."
+ },
+ "2d3e83ad23de": {
+  "speaker": "Scroll",
+  "text": "The T-cell zone is sealed. The dendritic cell must first arrive through the lymphatic vessel."
+ },
+ "ca7dba5a815e": {
+  "speaker": "Scroll",
+  "text": "Naive T-cells. Each carries one unique T-cell receptor, a TCR. Only a receptor shaped to fit our antigen on MHC can recognise it."
+ },
+ "c7a7ea9d9319": {
+  "speaker": "Arin",
+  "text": "Like a key and a lock. Let the dendritic cell show the antigen, and we test them one by one."
+ },
+ "b1f00ba2a91d": {
+  "speaker": "Scroll",
+  "text": "The matching T-cell locked onto the antigen, received its three signals, and multiplied into an army of identical fighters."
+ },
+ "59bfcea3803d": {
+  "speaker": "Arin",
+  "text": "Every one of them knows the face of Mira's cancer."
+ },
+ "44e275cc1c49": {
+  "speaker": "Mira",
+  "text": "Arin... I can feel my strength returning. The message you delivered has become an army. Thank you."
+ },
+ "f5428fe0e659": {
+  "speaker": "Scroll",
+  "text": "The T-cell army is on the march. Follow them north, out through the efferent lymph toward the tumor."
+ },
+ "5ac08fd854be": {
+  "speaker": "Scroll",
+  "text": "No T-cell was activated. Compare each TCR's notches with the antigen key and test the one that fits."
+ },
+ "fefb21dc4a88": {
+  "speaker": "Mira",
+  "text": "Arin! The fever is gone... I can stand again. The healers say the growth has vanished."
+ },
+ "184a9daae835": {
+  "speaker": "Arin",
+  "text": "Your own body did it, Mira. We only taught it the enemy's face — with a message written in mRNA."
+ },
+ "7af06e9c1b34": {
+  "speaker": "Mira",
+  "text": "A message of life. Then let the whole kingdom learn to read it."
+ },
+ "77d28d00077b": {
+  "speaker": "Scroll",
+  "text": "Colour returns to the princess's face. The prince steps out of her body at last... and the two of them kiss."
+ },
+ "57a8fc02da4a": {
+  "speaker": "Scroll",
+  "text": "Some of the T-cells stay behind as memory cells: if the illness ever returns, they will remember its face. And so the secret of the scroll was shared. THE END."
+ },
+ "23a0f75e94d5": {
+  "speaker": "Scroll",
+  "text": "The T-cells are still in the blood. Lead them out of the vessel to the south and through the stroma first."
+ },
+ "e15d2e7cf808": {
+  "speaker": "Scroll",
+  "text": "The T-cells that made it through the stroma are inside the tumor now."
+ },
+ "77f715612e2a": {
+  "speaker": "Arin",
+  "text": "So many cells... how will they know which ones to strike?"
+ },
+ "e80119f9b5f3": {
+  "speaker": "Scroll",
+  "text": "Every cell shows pieces of its inner proteins on MHC class I. Tumor cells show the vaccine antigen; healthy cells show only self. The T-cell reads each one before it strikes."
+ },
+ "307a604204dc": {
+  "speaker": "Scroll",
+  "text": "Beware: some tumor cells wear PD-L1, a checkpoint that switches T-cells off. A checkpoint-inhibitor antibody can remove that disguise."
+ },
+ "ba01b4096b29": {
+  "speaker": "Arin",
+  "text": "Then let the hunt begin!"
+ },
+ "7206a1d187ef": {
+  "speaker": "Scroll",
+  "text": "The tumor is gone. Perforin opened the way, granzymes did the work, and every tumor cell died by apoptosis — while the healthy cells were untouched."
+ },
+ "4ff065d60f5a": {
+  "speaker": "Scroll",
+  "text": "Some of the T-cells become memory cells. If the cancer ever returns, they will remember its face."
+ },
+ "e7cca321aa5e": {
+  "speaker": "Arin",
+  "text": "Mira... it is over. Let's go home."
+ },
+ "35e5f78dc4df": {
+  "speaker": "Scroll",
+  "text": "The tumor has been destroyed. Mira waits to the north."
+ },
+ "f3dc0a0fcadb": {
+  "speaker": "Scroll",
+  "text": "The tumor still grows. Read each cell's MHC-I peptide: strike the vaccine antigen, spare self — and grab the antibody to beat PD-L1."
+ },
+ "87e4b53f86c0": {
+  "speaker": "Arin",
+  "text": "The 5′ Cap!"
+ },
+ "fb0085a7ba5c": {
+  "speaker": "Scroll",
+  "text": "Protects the mRNA and helps ribosomes find the start."
+ },
+ "1050b668ec46": {
+  "speaker": "Arin",
+  "text": "The 5′ UTR!"
+ },
+ "948c4c563265": {
+  "speaker": "Scroll",
+  "text": "Untranslated region that tunes how efficiently mRNA is read."
+ },
+ "b07a41581c54": {
+  "speaker": "Arin",
+  "text": "The Start Codon!"
+ },
+ "60be64c3c4dd": {
+  "speaker": "Scroll",
+  "text": "AUG — where translation begins."
+ },
+ "152d2ce39ac9": {
+  "speaker": "Arin",
+  "text": "The Antigen ORF!"
+ },
+ "87c0635fc451": {
+  "speaker": "Scroll",
+  "text": "Open reading frame coding the tumor antigen."
+ },
+ "71fe4ea4c2c0": {
+  "speaker": "Arin",
+  "text": "The Stop Codon!"
+ },
+ "af2954c58408": {
+  "speaker": "Scroll",
+  "text": "Signals the ribosome to release the finished protein."
+ },
+ "46b4f435aa45": {
+  "speaker": "Arin",
+  "text": "The 3′ UTR!"
+ },
+ "19b80b1140a5": {
+  "speaker": "Scroll",
+  "text": "Untranslated region controlling mRNA stability."
+ },
+ "9a23b49201b0": {
+  "speaker": "Arin",
+  "text": "The Poly(A) Tail!"
+ },
+ "38649d256c86": {
+  "speaker": "Scroll",
+  "text": "A tail of adenines that stabilizes the mRNA."
+ },
+ "893a86677aaa": {
+  "speaker": "Arin",
+  "text": "The Lipid Nanoparticle!"
+ },
+ "bbfefcbe06a0": {
+  "speaker": "Scroll",
+  "text": "Delivery vehicle that protects and carries the mRNA."
+ },
+ "7426c5e2b734": {
+  "speaker": "Arin",
+  "text": "The Antibody!"
+ },
+ "81d91e798c0d": {
+  "speaker": "Scroll",
+  "text": "Immune protein that recognizes the presented antigen."
+ },
+ "d21f5dde3fa5": {
+  "speaker": "Arin",
+  "text": "The Ribosome!"
+ },
+ "5b58ca670833": {
+  "speaker": "Scroll",
+  "text": "Molecular machine that reads mRNA into protein."
+ },
+ "6ee611ab749e": {
+  "speaker": "",
+  "text": "The gate is sealed. Collect all 7 components and operate the Synthesizer first."
+ },
+ "0157d58542d2": {
+  "speaker": "",
+  "text": "The way is not open yet."
+ },
+ "c9627bea09c1": {
+  "speaker": "Scroll",
+  "text": "STEP 1 - Load the two inlets.\n\nEthanol inlet (left): all four lipids - the ionizable lipid, DSPC, cholesterol and the PEG-lipid. Lipids are hydrophobic, so they only dissolve in ethanol.\n\npH 4 acetate buffer inlet (right): the mRNA. It is water-soluble and must never sit in the ethanol.\n\nThe classic recipe dissolves about 50% ionizable lipid, 10% DSPC, 38.5% cholesterol and 1.5% PEG-lipid (molar ratio) in the ethanol stream. Drag every tile to its inlet, then press F1 again for the flow settings."
+ },
+ "54f9c83f998a": {
+  "speaker": "Scroll",
+  "text": "STEP 2 - The ideal formulation.\n\nFlow-rate ratio (buffer : ethanol) = 3 : 1. Set the first slider to 3.0 (anything from 2.5 to 3.5 passes). Three volumes of acidic mRNA buffer per one volume of lipid-ethanol dilutes the ethanol so quickly that the lipids precipitate around the mRNA as small particles of about 80 nm. With less buffer the particles fuse and grow; with more, the lipids precipitate unevenly.\n\nTotal flow rate: at least 10 mL/min. Push the second slider to 12 to 16. Fast flow lets the herringbone grooves mix the two streams in milliseconds, before the lipids can clump, which gives a low PDI and over 90% of the mRNA encapsulated.\n\nWhy pH 4: the ionizable lipid is positively charged in the acidic buffer, so it grabs the negatively charged mRNA while the particle forms.\n\nWatch the 'Predicted' line: aim for about 80 nm, PDI below 0.10 and over 90% encapsulated, then press Run mixer."
+ },
+ "4ea8c2b57270": {
+  "speaker": "Scroll",
+  "text": "STEP 3 - Finish the particle.\n\nThe batch is good. Press 'Exchange buffer to pH 7.4': dialysis removes the ethanol and raises the pH, so the ionizable lipid turns neutral and the LNP is gentle in the blood. It will only turn positive again inside the acidic endosome, where it must release the mRNA."
+ },
+ "3b2d3709da47": {
+  "speaker": "Scroll",
+  "text": "The mixer is running. The two streams meet in the herringbone channel and fold together; at pH 4 the charged ionizable lipid captures the mRNA and the lipids precipitate into nanoparticles. Wait for the result, then press F1 again if you need the settings."
+ },
+ "8d21eac0c912": {
+  "speaker": "Scroll",
+  "text": "How to find the right T-cell.\n\nLook at the orange antigen key sitting on the MHC of the dendritic cell: four bumps, from left to right medium, tall, short, medium.\n\nEvery naive T-cell hangs a blue receptor plate (its TCR) below it with four notches. Only one plate has notches of exactly those depths in the same order: medium, tall, short, medium. That plate would swallow the key perfectly.\n\nTo test a cell: tap it, or move the yellow ring with the left and right keys (or A and D) and press E. A wrong cell is only crossed out and greyed; you cannot lose, so keep testing until one fits.\n\nStill unsure? When you close this clue, the matching T-cell glows green for a few seconds."
+ },
+ "ff8ae4cd9ea6": {
+  "speaker": "Scroll",
+  "text": "The chosen T-cell is docking on the dendritic cell. Signal 1 is the TCR gripping the antigen on MHC. Signal 2 is CD28 meeting CD80/86. Signal 3 is the IL-12 cytokine. With all three, the T-cell activates and clones itself into an army."
+ }
+}

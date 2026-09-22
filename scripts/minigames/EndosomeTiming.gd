@@ -192,6 +192,7 @@ func _attempt() -> void:
 		DebugConsole.dlog("endo early ph=%.2f" % ph)
 	elif ph >= WIN_LO:
 		phase = Phase.ESCAPE
+		AudioManager.sfx("portal")
 		_phase_t = 0.0
 		msg.text = "The charged lipids rupture the membrane - ESCAPE!"
 		go_btn.visible = false
@@ -202,6 +203,7 @@ func _attempt() -> void:
 
 func _fail() -> void:
 	phase = Phase.FAIL
+	AudioManager.sfx("wrong")
 	_phase_t = 0.0
 	go_btn.visible = false
 	retry_btn.visible = true

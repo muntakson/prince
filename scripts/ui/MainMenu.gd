@@ -64,6 +64,15 @@ func _build() -> void:
 		vb.add_child(_button("Continue", _continue))
 	vb.add_child(_button("Help", _help))
 	vb.add_child(_button("Chapter Select", _chapter_select))
+	_voice_btn = _button(_voice_label(), AudioManager.toggle_voice)
+	AudioManager.voice_toggled.connect(_on_voice_toggled)
+	vb.add_child(_voice_btn)
+	_lang_btn = _button(_lang_label(), AudioManager.toggle_lang)
+	var cjk: Font = load(GameState.CJK_FONT_PATH) if ResourceLoader.exists(GameState.CJK_FONT_PATH) else null
+	if cjk:
+		_lang_btn.add_theme_font_override("font", cjk)   # covers Latin + Hangul
+	GameState.lang_changed.connect(_on_lang_changed)
+	vb.add_child(_lang_btn)
 	if not _is_web():
 		vb.add_child(_button("Quit", func(): get_tree().quit()))
 
@@ -84,6 +93,7 @@ func _button(text: String, cb: Callable) -> Button:
 	b.text = text
 	b.custom_minimum_size = Vector2(300, 56)
 	b.add_theme_font_size_override("font_size", 24)
+	b.pressed.connect(AudioManager.sfx.bind("ui_click"))
 	b.pressed.connect(cb)
 	return b
 
@@ -91,6 +101,22 @@ func _spacer(h: int) -> Control:
 	var c := Control.new()
 	c.custom_minimum_size = Vector2(0, h)
 	return c
+
+var _voice_btn: Button
+var _lang_btn: Button
+func _lang_label() -> String:
+	return "언어: 한국어  (F3)" if GameState.lang == "ko" else "Language: English  (F3)"
+
+func _on_lang_changed(_l: String) -> void:
+	if _lang_btn and is_instance_valid(_lang_btn):
+		_lang_btn.text = _lang_label()
+
+func _voice_label() -> String:
+	return "Voice: ON  (V)" if AudioManager.voice_enabled else "Voice: OFF  (V)"
+
+func _on_voice_toggled(_on: bool) -> void:
+	if _voice_btn and is_instance_valid(_voice_btn):
+		_voice_btn.text = _voice_label()
 
 func _help() -> void:
 	HelpScreen.open(get_tree())

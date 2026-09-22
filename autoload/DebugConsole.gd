@@ -6,7 +6,7 @@ extends CanvasLayer
 ## paused=true, it's a stuck dialogue/pause; if the counter freezes, it's a hang.
 
 var enabled := false          # debug mode opted in: toggle button shown, state mirrored
-var show_panel := false       # the overlay panel itself (toggle with the DBG button or F3)
+var show_panel := false       # the overlay panel itself (toggle with the DBG button or F4)
 var _label: Label
 var _panel: PanelContainer
 var _toggle: Button
@@ -41,7 +41,7 @@ func _ready() -> void:
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(_label)
 	# Small "DBG" button (left of the HUD pause button) that shows/hides the
-	# panel, so it can be moved out of the way of dialogue boxes. F3 also
+	# panel, so it can be moved out of the way of dialogue boxes. F4 also
 	# toggles it on desktop.
 	_toggle = Button.new()
 	_toggle.text = "DBG"
@@ -64,6 +64,7 @@ func _ready() -> void:
 	elif OS.get_cmdline_user_args().has("--debug-console") or OS.get_cmdline_args().has("--debug-console"):
 		want = true
 	set_enabled(want)
+	_build_badge()
 	if _is_web:
 		var q2 = JavaScriptBridge.eval("(new URLSearchParams(window.location.search)).get('flags') || ''", true)
 		for f in str(q2).split(","):
@@ -92,8 +93,44 @@ func set_panel_visible(on: bool) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if enabled and event is InputEventKey and event.pressed and not event.echo \
-			and event.physical_keycode == KEY_F3:
+			and event.physical_keycode == KEY_F4:
 		set_panel_visible(not show_panel)
+	if event.is_action_pressed("debug_toggle") and not event.is_echo():
+		GameState.set_debug_mode(not GameState.debug_mode)
+		AudioManager.sfx("voice_on" if GameState.debug_mode else "voice_off")
+		AudioManager.show_toast("Debug mode: ON - all stations open" if GameState.debug_mode else "Debug mode: OFF")
+		dlog("debug mode %s" % ("on" if GameState.debug_mode else "off"))
+		get_viewport().set_input_as_handled()
+
+## Small persistent badge while debug mode is on (F2), independent of the overlay.
+var _badge: Label
+func _build_badge() -> void:
+	_badge = Label.new()
+	_badge.text = "DEBUG (F2)"
+	_badge.anchor_left = 0.5
+	_badge.anchor_right = 0.5
+	_badge.offset_left = -70
+	_badge.offset_right = 70
+	_badge.offset_top = 6
+	_badge.offset_bottom = 30
+	_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_badge.add_theme_font_size_override("font_size", 15)
+	_badge.add_theme_color_override("font_color", Color(1, 0.85, 0.3))
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.3, 0.1, 0.1, 0.85)
+	sb.border_color = Color(1, 0.7, 0.3, 0.9)
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(6)
+	sb.set_content_margin_all(3)
+	_badge.add_theme_stylebox_override("normal", sb)
+	_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_badge.visible = GameState.debug_mode
+	# own layer under the tree root: this console's layer is hidden unless the overlay is opted in
+	var cl := CanvasLayer.new()
+	cl.layer = 199
+	cl.add_child(_badge)
+	get_tree().root.call_deferred("add_child", cl)
+	GameState.debug_mode_changed.connect(func(on: bool): _badge.visible = on)
 
 func _process(_delta: float) -> void:
 	_frame += 1
@@ -112,9 +149,10 @@ func _process(_delta: float) -> void:
 		var iname := "none"
 		if inter != null and is_instance_valid(inter):
 			iname = str(inter.name)
-		pinfo = "pos=(%d,%d) inter=%s vel=%d" % [
+		pinfo = "pos=(%d,%d) inter=%s vel=%d st=%s" % [
 			player.global_position.x, player.global_position.y, iname,
-			int(player.velocity.length()) if "velocity" in player else 0]
+			int(player.velocity.length()) if "velocity" in player else 0,
+			player.state_name() if player.has_method("state_name") else "?"]
 	var head := "f=%d fps=%d paused=%s\nDLG active=%s q=%d\nchap=%s inv=%d/7\n%s" % [
 		_frame, Engine.get_frames_per_second(), paused,
 		dlg_active, dlg_q,
@@ -151,8 +189,18 @@ func _export_state_to_js() -> void:
 		st["meter"] = {"on": scene.meter_on, "v": scene.integrity, "label": scene.meter_label, "respawning": scene._respawn_t >= 0.0}
 	if player and is_instance_valid(player) and player.has_method("is_airborne"):
 		st["air"] = player.is_airborne()
+	if player and is_instance_valid(player) and player.has_method("state_name"):
+		st["state"] = player.state_name()
+		st["mounted"] = player.mounted
+		st["vel"] = int(player.velocity.length())
+		st["ledge"] = player.ledge_kind() if player.has_method("ledge_kind") else ""
 	var help = tree.get_first_node_in_group("help_screen")
 	st["help"] = help.lang if help and is_instance_valid(help) else ""
+	st["debug_mode"] = GameState.debug_mode
+	st["lang"] = GameState.lang
+	st["voice"] = AudioManager.voice_enabled
+	st["voice_playing"] = AudioManager.is_voice_playing()
+	st["sfx"] = AudioManager.last_sfx
 	st["dbg_panel"] = show_panel
 	var hz := []
 	for h in tree.get_nodes_in_group("hazard"):

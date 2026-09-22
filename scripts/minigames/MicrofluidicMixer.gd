@@ -55,6 +55,9 @@ var result := {}
 var _done := false
 var _rng := RandomNumberGenerator.new()
 var flow_particles: Array = []
+var clue: CluePanel
+var _clues: Dictionary = {}
+const CLUES_PATH := "res://assets/help/mixer_clues.json"
 
 func _ready() -> void:
 	layer = 40
@@ -152,7 +155,45 @@ func _build() -> void:
 	close.add_theme_font_size_override("font_size", 26)
 	close.pressed.connect(func(): _finish(false))
 	frame.add_child(close)
+	CluePanel.add_button(frame, BW, 1092, toggle_clue)
+	_build_clue()
 	_set_phase(Phase.LOAD)
+
+## F1 clue: a popup with the ideal formulation for the current step. The
+## texts live in assets/help/mixer_clues.json (shared with the voice generator).
+func _build_clue() -> void:
+	if FileAccess.file_exists(CLUES_PATH):
+		var parsed = JSON.parse_string(FileAccess.get_file_as_string(CLUES_PATH))
+		if parsed is Dictionary:
+			_clues = parsed
+	clue = CluePanel.create(frame, BW, str(_clues.get("title", "Clue")))
+
+func _clue_key() -> String:
+	match _phase:
+		Phase.LOAD:
+			return "load"
+		Phase.SET:
+			return "set"
+		Phase.RESULT:
+			return "finish" if result.get("ok", false) else "set"
+		_:
+			return "wait"
+
+func clue_text() -> String:
+	return str(_clues.get(_clue_key(), ""))
+
+func toggle_clue() -> void:
+	if _done:
+		return
+	if clue.is_open:
+		clue.close()
+		return
+	if _grabbed:
+		_grabbed.position = _grabbed.get_meta("home")
+		_grabbed.z_index = 0
+		_grabbed = null
+	clue.open(clue_text())
+	DebugConsole.dlog("mixer clue open: %s" % _clue_key())
 
 func _slider(parent: Control, pos: Vector2, lo: float, hi: float, step: float, val: float) -> HSlider:
 	var s := HSlider.new()
@@ -197,6 +238,10 @@ func _add_label(parent: Control, pos: Vector2, w: float, text: String, size: int
 
 # --------------------------------------------------------------------------
 func _set_phase(p: int) -> void:
+	if p == Phase.RUN:
+		AudioManager.sfx("cutscene")
+	elif p == Phase.DIALYSIS:
+		AudioManager.sfx("portal")
 	_phase = p
 	_pt = 0.0
 	DebugConsole.dlog("Mixer phase %d" % p)
@@ -257,7 +302,18 @@ func _on_dialysis() -> void:
 
 # --------------------------------------------------------------------------
 func _input(event: InputEvent) -> void:
-	if _done or _phase != Phase.LOAD:
+	if _done:
+		return
+	if event.is_action_pressed("hint") and not event.is_echo():
+		toggle_clue()
+		get_viewport().set_input_as_handled()
+		return
+	if clue.is_open:
+		if event.is_action_pressed("pause"):
+			clue.close()
+			get_viewport().set_input_as_handled()
+		return
+	if _phase != Phase.LOAD:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
@@ -408,7 +464,8 @@ func debug_state() -> Dictionary:
 			"run": [set_box.position.x + run_btn.position.x + 110, set_box.position.y + run_btn.position.y + 28, run_btn.visible],
 			"dial": [set_box.position.x + dial_btn.position.x + 170, set_box.position.y + dial_btn.position.y + 28, dial_btn.visible]}
 	return {"kind": "mixer", "phase": _phase, "fx": frame.global_position.x, "fy": frame.global_position.y,
-		"tiles": tiles, "inlets": inl, "ctl": ctl, "runs": _runs, "result": result}
+		"tiles": tiles, "inlets": inl, "ctl": ctl, "runs": _runs, "result": result, "clue": clue.is_open, "clue_key": _clue_key(),
+		"clue_ok": [clue.ok_center().x, clue.ok_center().y], "clue_h": clue.size.y}
 
 # --------------------------------------------------------------------------
 class Icon extends Control:

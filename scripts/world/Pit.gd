@@ -10,6 +10,7 @@ var depth_color := Color(0.02, 0.02, 0.04)
 var fall_text := "You fell into the crevasse!"
 
 var _cool := 0.0
+const GRAB_REACH := 48.0   # how far past the rim he can still catch it
 
 func _ready() -> void:
 	add_to_group("pit")
@@ -46,11 +47,50 @@ func _process(delta: float) -> void:
 		return
 	if player.has_method("is_airborne") and player.is_airborne():
 		return
+	if player.has_method("is_hanging") and player.is_hanging():
+		return
+	if "state" in player and player.state == player.State.FALL:
+		return
 	# feet point of the player
 	var feet: Vector2 = player.global_position + Vector2(0, 22)
 	var inner := Rect2(global_position, rect.size).grow(-10)
-	if inner.has_point(feet):
-		_cool = 2.0
-		var level = get_tree().current_scene
-		if level and level.has_method("fall"):
-			level.fall(fall_text)
+	if not inner.has_point(feet):
+		return
+	# A careful walk (or a short hop) onto the rim catches the ledge; a run
+	# carries him over the edge and he falls.
+	if player.has_method("can_grab_ledge") and player.can_grab_ledge():
+		var edges := [
+			[feet.y - inner.position.y, Vector2(feet.x, inner.position.y), Vector2.DOWN],
+			[inner.end.y - feet.y, Vector2(feet.x, inner.end.y), Vector2.UP],
+			[feet.x - inner.position.x, Vector2(inner.position.x, feet.y), Vector2.RIGHT],
+			[inner.end.x - feet.x, Vector2(inner.end.x, feet.y), Vector2.LEFT],
+		]
+		var best: Array = edges[0]
+		for e in edges:
+			if e[0] < best[0]:
+				best = e
+		if best[0] <= GRAB_REACH:
+			_cool = 0.4
+			player.ledge_grab(self, best[1], best[2])
+			DebugConsole.dlog("ledge grab d=%d" % int(best[0]))
+			return
+	_cool = 2.0
+	if player.has_method("fall_into"):
+		player.fall_into(self)
+	else:
+		player_fell()
+
+## The player let go of (or ran over) the rim: the level fades and respawns.
+func player_fell() -> void:
+	_cool = 2.0
+	var level := _level()
+	if level:
+		level.fall(fall_text)
+
+## The owning level (walks up the tree so it also works when the level is
+## embedded, e.g. under tools/ShotRunner).
+func _level() -> Node:
+	var n := get_parent()
+	while n and not n.has_method("fall"):
+		n = n.get_parent()
+	return n

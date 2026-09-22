@@ -267,14 +267,14 @@ func _build_touch() -> void:
 func _build_pause_menu() -> void:
 	pause_menu = PanelContainer.new()
 	pause_menu.set_anchors_preset(Control.PRESET_CENTER)
-	pause_menu.custom_minimum_size = Vector2(360, 420)
+	pause_menu.custom_minimum_size = Vector2(360, 490)
 	pause_menu.position = Vector2(-180, -180)
 	pause_menu.anchor_left = 0.5
 	pause_menu.anchor_top = 0.5
 	pause_menu.offset_left = -180
-	pause_menu.offset_top = -210
+	pause_menu.offset_top = -245
 	pause_menu.offset_right = 180
-	pause_menu.offset_bottom = 210
+	pause_menu.offset_bottom = 245
 	_style_panel(pause_menu, Color(0.06, 0.08, 0.16, 0.97), Color(0.4, 0.6, 0.9, 0.8))
 	pause_menu.visible = false
 	root.add_child(pause_menu)
@@ -296,6 +296,9 @@ func _build_pause_menu() -> void:
 		SaveManager.save_game()
 		_flash_hint("Saved!")))
 	vb.add_child(_menu_button("Help", _open_help))
+	_voice_btn = _menu_button(_voice_label(), AudioManager.toggle_voice)
+	AudioManager.voice_toggled.connect(_on_voice_toggled)
+	vb.add_child(_voice_btn)
 	vb.add_child(_menu_button("Main Menu", func():
 		get_tree().paused = false
 		SceneManager.change_scene("res://scenes/MainMenu.tscn")))
@@ -308,6 +311,7 @@ func _menu_button(text: String, cb: Callable) -> Button:
 	b.text = text
 	b.custom_minimum_size = Vector2(0, 52)
 	b.add_theme_font_size_override("font_size", 22)
+	b.pressed.connect(AudioManager.sfx.bind("ui_click"))
 	b.pressed.connect(cb)
 	return b
 
@@ -315,6 +319,7 @@ func _menu_button(text: String, cb: Callable) -> Button:
 # dialogue flow
 var _touch_was_visible := false
 func _on_dialogue_started() -> void:
+	AudioManager.sfx("dlg_open")
 	dialogue_box.visible = true
 	dialogue_box.modulate.a = 0.0
 	create_tween().tween_property(dialogue_box, "modulate:a", 1.0, 0.2)
@@ -324,10 +329,18 @@ func _on_dialogue_started() -> void:
 		touch_layer.visible = false
 
 func _on_line_shown(speaker: String, text: String) -> void:
-	speaker_label.text = speaker
-	speaker_label.visible = speaker != ""
-	_full_text = text
-	text_label.text = text
+	var loc: Array = GameState.localize(speaker, text)
+	var f: Font = GameState.ui_font()
+	if f:
+		speaker_label.add_theme_font_override("font", f)
+		text_label.add_theme_font_override("normal_font", f)
+	else:
+		speaker_label.remove_theme_font_override("font")
+		text_label.remove_theme_font_override("normal_font")
+	speaker_label.text = loc[0]
+	speaker_label.visible = loc[0] != ""
+	_full_text = loc[1]
+	text_label.text = loc[1]
 	text_label.visible_ratio = 0.0
 	_typed = 0.0
 	_typing = true
@@ -388,6 +401,7 @@ func _advance_dialogue() -> void:
 
 # --------------------------------------------------------------------------
 func show_chapter_title(text: String) -> void:
+	AudioManager.sfx("title")
 	title_card.text = text
 	var t := create_tween()
 	t.tween_property(title_card, "modulate:a", 1.0, 0.6)
@@ -402,10 +416,19 @@ func _refresh_inventory() -> void:
 		else:
 			slot.modulate = Color(0.22, 0.24, 0.3, 0.7)
 
+var _voice_btn: Button
+func _voice_label() -> String:
+	return "Voice: ON  (V)" if AudioManager.voice_enabled else "Voice: OFF  (V)"
+
+func _on_voice_toggled(_on: bool) -> void:
+	if _voice_btn and is_instance_valid(_voice_btn):
+		_voice_btn.text = _voice_label()
+
 func _toggle_pause() -> void:
 	if DialogueManager.is_active():
 		return
 	_paused_by_menu = not _paused_by_menu
+	AudioManager.sfx("pause" if _paused_by_menu else "unpause")
 	pause_menu.visible = _paused_by_menu
 	get_tree().paused = _paused_by_menu
 

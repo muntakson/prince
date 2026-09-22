@@ -1,0 +1,5 @@
+{
+  "title": "Clue: finding the right T-cell",
+  "screen": "How to find the right T-cell.\n\nLook at the orange antigen key sitting on the MHC of the dendritic cell: four bumps, from left to right medium, tall, short, medium.\n\nEvery naive T-cell hangs a blue receptor plate (its TCR) below it with four notches. Only one plate has notches of exactly those depths in the same order: medium, tall, short, medium. That plate would swallow the key perfectly.\n\nTo test a cell: tap it, or move the yellow ring with the left and right keys (or A and D) and press E. A wrong cell is only crossed out and greyed; you cannot lose, so keep testing until one fits.\n\nStill unsure? When you close this clue, the matching T-cell glows green for a few seconds.",
+  "wait": "The chosen T-cell is docking on the dendritic cell. Signal 1 is the TCR gripping the antigen on MHC. Signal 2 is CD28 meeting CD80/86. Signal 3 is the IL-12 cytokine. With all three, the T-cell activates and clones itself into an army."
+}

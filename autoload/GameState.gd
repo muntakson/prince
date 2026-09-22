@@ -20,6 +20,80 @@ var last_checkpoint: Dictionary = {}          # {chapter, position}
 var flags: Dictionary = {}                     # arbitrary story flags
 var play_seconds: float = 0.0
 var cutscene_active: bool = false            # true while a scripted sequence plays (player frozen)
+var debug_mode: bool = false                 # F2: every station/gate/portal opens regardless of progress
+var lang: String = "en"                      # F3: "en" / "ko" — dialogue text + voice language
+
+signal lang_changed(lang: String)
+
+const KO_PATH := "res://assets/help/dialogue_ko.json"
+const CJK_FONT_PATH := "res://assets/fonts/help_ko.otf"
+var _ko_speakers: Dictionary = {}
+var _ko_lines: Dictionary = {}
+var _cjk_font: Font = null
+
+## Korean translations are keyed by the same id as the voice clips:
+## md5(speaker|english_text)[:12]. English text stays the canonical key.
+static func line_id(speaker: String, text: String) -> String:
+	return (speaker + "|" + text).md5_text().substr(0, 12)
+
+func _load_locale() -> void:
+	if FileAccess.file_exists(KO_PATH):
+		var parsed = JSON.parse_string(FileAccess.get_file_as_string(KO_PATH))
+		if parsed is Dictionary:
+			_ko_speakers = parsed.get("speakers", {})
+			_ko_lines = parsed.get("lines", {})
+	if ResourceLoader.exists(CJK_FONT_PATH):
+		_cjk_font = load(CJK_FONT_PATH)
+	var cf := ConfigFile.new()
+	if cf.load("user://settings.cfg") == OK:
+		lang = str(cf.get_value("ui", "lang", "en"))
+
+func set_lang(l: String) -> void:
+	if l == lang:
+		return
+	lang = l
+	var cf := ConfigFile.new()
+	cf.load("user://settings.cfg")
+	cf.set_value("ui", "lang", lang)
+	cf.save("user://settings.cfg")
+	lang_changed.emit(lang)
+
+## Korean text for an English line, or "" when there is no translation.
+func ko_text(speaker: String, text: String) -> String:
+	return str(_ko_lines.get(line_id(speaker, text), ""))
+
+## [speaker, text] to display for the current language.
+func localize(speaker: String, text: String) -> Array:
+	if lang == "ko":
+		var ko := ko_text(speaker, text)
+		if ko != "":
+			return [str(_ko_speakers.get(speaker, speaker)), ko]
+	return [speaker, text]
+
+## Font that covers the current language (the CJK subset for Korean), or null.
+func ui_font() -> Font:
+	return _cjk_font if lang == "ko" else null
+
+signal debug_mode_changed(on: bool)
+
+## Progress gate helper: true when the flag is set OR debug mode is on.
+func unlocked(flag: String) -> bool:
+	return debug_mode or flag == "" or has_flag(flag)
+
+func set_debug_mode(on: bool) -> void:
+	if debug_mode == on:
+		return
+	debug_mode = on
+	var cf := ConfigFile.new()
+	cf.load("user://settings.cfg")
+	cf.set_value("debug", "mode", on)
+	cf.save("user://settings.cfg")
+	debug_mode_changed.emit(on)
+
+func _load_debug_mode() -> void:
+	var cf := ConfigFile.new()
+	if cf.load("user://settings.cfg") == OK:
+		debug_mode = bool(cf.get_value("debug", "mode", false))
 
 func _process(delta: float) -> void:
 	play_seconds += delta
@@ -45,6 +119,10 @@ func set_flag(flag: String, value: Variant = true) -> void:
 
 func get_flag(flag: String, default: Variant = false) -> Variant:
 	return flags.get(flag, default)
+
+func _ready() -> void:
+	_load_debug_mode()
+	_load_locale()
 
 func has_flag(flag: String) -> bool:
 	return flags.get(flag, false) == true

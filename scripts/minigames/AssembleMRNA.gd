@@ -218,6 +218,7 @@ func _release(pos: Vector2) -> void:
 		_return_home(tile)
 
 func _lock_visual(tile: Control) -> void:
+	AudioManager.sfx("lock")
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.10, 0.28, 0.16, 0.98)
 	sb.set_corner_radius_all(10)
@@ -226,6 +227,7 @@ func _lock_visual(tile: Control) -> void:
 	tile.add_theme_stylebox_override("panel", sb)
 
 func _return_home(tile: Control) -> void:
+	AudioManager.sfx("wrong")
 	var t := create_tween()
 	t.tween_property(tile, "position", tile.get_meta("home"), 0.18).set_trans(Tween.TRANS_BACK)
 

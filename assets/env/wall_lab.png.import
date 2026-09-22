@@ -17,7 +17,7 @@ dest_files=["res://.godot/imported/wall_lab.png-e8cb015b55ed73f6c8a952c0bfb89c89
 
 compress/mode=0
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0

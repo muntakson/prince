@@ -12,10 +12,11 @@ func _ready() -> void:
 
 func build_content() -> void:
 	# Simple cave obstacles forming a path upward toward the chamber exit.
-	add_wall_rect(Rect2(0, 1650, 900, 40))
-	add_wall_rect(Rect2(500, 1150, 900, 40))
-	add_wall_rect(Rect2(0, 650, 900, 40))
-	add_wall_rect(Rect2(300, 300, 40, 360))
+	# low rock ledges: walk around them, or leap at one and climb over it
+	add_wall_rect(Rect2(0, 1650, 900, 40), true)
+	add_wall_rect(Rect2(500, 1150, 900, 40), true)
+	add_wall_rect(Rect2(0, 650, 900, 40), true)
+	add_wall_rect(Rect2(300, 300, 40, 360), true)
 
 	add_label(Vector2(440, 1830), "Use the joystick or WASD / arrows to move. Press E or the hand button to interact.", 24, 520)
 

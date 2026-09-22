@@ -46,6 +46,10 @@ var _gen := 0
 var _gen_t := 0.0
 var _rng := RandomNumberGenerator.new()
 var _hint_shake := 0.0
+var clue: CluePanel
+var _clues: Dictionary = {}
+var _reveal_t := 0.0         # seconds the matching cell glows after the clue closes
+const CLUES_PATH := "res://assets/help/tcell_clues.json"
 
 func _ready() -> void:
 	layer = 40
@@ -142,7 +146,30 @@ func _build() -> void:
 	close.add_theme_font_size_override("font_size", 26)
 	close.pressed.connect(_on_close)
 	frame.add_child(close)
+	if FileAccess.file_exists(CLUES_PATH):
+		var parsed = JSON.parse_string(FileAccess.get_file_as_string(CLUES_PATH))
+		if parsed is Dictionary:
+			_clues = parsed
+	clue = CluePanel.create(frame, BW, str(_clues.get("title", "Clue")))
+	clue.changed.connect(_on_clue_changed)
+	CluePanel.add_button(frame, BW, 1086, func(): clue.toggle(clue_text()))
 	_set_phase(Phase.SCREEN)
+
+## F1 clue (assets/help/tcell_clues.json). Closing it reveals the matching
+## T-cell with a green glow for a few seconds.
+func clue_text() -> String:
+	return str(_clues.get("screen" if _phase == Phase.SCREEN else "wait", ""))
+
+func _on_clue_changed(open: bool) -> void:
+	if not open and _phase == Phase.SCREEN:
+		_reveal_t = 6.0
+	DebugConsole.dlog("tcell clue %s" % ("open" if open else "closed"))
+
+func match_index() -> int:
+	for i in cells.size():
+		if cells[i]["pattern"] == KEY_PATTERN:
+			return i
+	return -1
 
 func _load(p: String) -> Texture2D:
 	return load(p) if ResourceLoader.exists(p) else null
@@ -167,6 +194,12 @@ func _on_close() -> void:
 
 # --------------------------------------------------------------------------
 func _set_phase(p: int) -> void:
+	if p == Phase.MATCH:
+		AudioManager.sfx("lock")
+	elif p == Phase.REJECT:
+		AudioManager.sfx("wrong")
+	elif p == Phase.ACTIVATE:
+		AudioManager.sfx("mg_start")
 	_phase = p
 	_pt = 0.0
 	DebugConsole.dlog("TCell phase %d" % p)
@@ -212,7 +245,10 @@ func _begin_test(i: int) -> void:
 
 # --------------------------------------------------------------------------
 func _input(event: InputEvent) -> void:
-	if _phase != Phase.SCREEN:
+	if clue.handle_input(event, clue_text):
+		get_viewport().set_input_as_handled()
+		return
+	if clue.is_open or _phase != Phase.SCREEN:
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.is_action("move_left") or event.is_action("ui_left"):
@@ -255,6 +291,7 @@ func _process(delta: float) -> void:
 	_t += delta
 	_pt += delta
 	_hint_shake = maxf(0.0, _hint_shake - delta)
+	_reveal_t = maxf(0.0, _reveal_t - delta)
 	# idle drift for cells at home
 	for i in cells.size():
 		var c: Dictionary = cells[i]
@@ -452,6 +489,16 @@ class Stage extends Control:
 			var shake: float = sin(mg._t * 60.0) * 6.0 * mg._hint_shake
 			draw_arc(sp + Vector2(shake, 0), 62.0 + sin(mg._t * 4.0) * 3.0, 0.0, TAU, 40, Color(1, 0.95, 0.5, 0.9), 4.0, true)
 			draw_string(font, sp + Vector2(-60, -66), "tap / E to test", HORIZONTAL_ALIGNMENT_CENTER, 120, 15, Color(1, 0.95, 0.6))
+		# clue reveal: the matching cell glows green for a few seconds
+		if ph == mg.Phase.SCREEN and mg._reveal_t > 0.0:
+			var mi: int = mg.match_index()
+			if mi >= 0:
+				var mp: Vector2 = mg.cells[mi]["pos"]
+				var a: float = clampf(mg._reveal_t, 0.0, 1.0)
+				var pulse: float = 0.5 + 0.5 * sin(mg._t * 6.0)
+				draw_circle(mp, 74.0 + pulse * 6.0, Color(0.3, 1.0, 0.5, 0.18 * a))
+				draw_arc(mp, 70.0 + pulse * 6.0, 0.0, TAU, 48, Color(0.4, 1.0, 0.55, 0.95 * a), 5.0, true)
+				draw_string(font, mp + Vector2(-70, 118), "this TCR fits!", HORIZONTAL_ALIGNMENT_CENTER, 140, 16, Color(0.6, 1.0, 0.7, a))
 		# synapse zoom panel
 		if ph == mg.Phase.SYNAPSE:
 			_draw_synapse(mg._syn_stage, mg._pt)
@@ -582,4 +629,5 @@ func debug_state() -> Dictionary:
 	for c in cells:
 		cs.append([c["pos"].x, c["pos"].y, c["pattern"] == KEY_PATTERN, c["tested"]])
 	return {"kind": "tcell", "phase": _phase, "fx": frame.global_position.x, "fy": frame.global_position.y,
-		"cells": cs, "tries": _tries, "sel": _sel}
+		"cells": cs, "tries": _tries, "sel": _sel, "match": match_index(), "clue": clue.is_open, "reveal": _reveal_t,
+		"clue_ok": [clue.ok_center().x, clue.ok_center().y], "clue_h": clue.size.y}

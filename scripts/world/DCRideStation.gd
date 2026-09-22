@@ -2,8 +2,8 @@ extends MinigameStation
 ## Chapter 5 — station 1: ride the dendritic cell along the CCL19 gradient.
 
 func _configure() -> void:
-	station_name = "Dendritic Cell"
-	texture_path = "res://assets/env/dc_rider.png"
+	station_name = "Lymphatic Vessel"
+	texture_path = "res://assets/env/vessel_mouth.png"
 	sprite_max_dim = 190.0
 	required_flag = "antigen_presented"
 	done_flag = "dc_migrated"

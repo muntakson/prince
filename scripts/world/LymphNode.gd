@@ -25,7 +25,11 @@ func _ready() -> void:
 	super._ready()
 
 func build_content() -> void:
-	add_label(Vector2(440, 2130), "Ride the dendritic cell to the lymph node.", 24)
+	# The prince is aboard the dendritic cell for this whole chapter: the
+	# player avatar becomes the mounted DC (no separate walking prince).
+	if player:
+		player.call_deferred("mount", "res://assets/env/dc_rider.png", 170.0)   # deferred: the player's @onready sprite must exist
+	add_label(Vector2(440, 2130), "You ride the dendritic cell. Steer it into the lymphatic vessel.", 24)
 
 	# Station 1: ride the DC along the chemokine gradient (mini-game).
 	var nav := Area2D.new()
@@ -39,7 +43,7 @@ func build_content() -> void:
 	add_wall_rect(Rect2(0, 1440, 560, 44))
 	add_wall_rect(Rect2(840, 1440, 560, 44))
 	_gate_body = StaticBody2D.new()
-	_gate_body.collision_layer = 1
+	_gate_body.collision_layer = TALL_WALL_LAYERS
 	_gate_body.collision_mask = 0
 	var cs := CollisionShape2D.new()
 	var sh := RectangleShape2D.new()
@@ -94,7 +98,7 @@ func _process(delta: float) -> void:
 		var home: Vector2 = spr.get_meta("home")
 		var ph: float = spr.get_meta("ph")
 		spr.position = home + Vector2(sin(_t * 0.7 + ph) * 22.0, cos(_t * 0.9 + ph) * 14.0)
-	if _gate_body != null and GameState.has_flag("dc_migrated"):
+	if _gate_body != null and GameState.unlocked("dc_migrated"):
 		_gate_body.queue_free()
 		_gate_body = null
 		_gate_label.text = "The lymph node opens — the T-cell zone lies ahead."

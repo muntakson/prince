@@ -31,6 +31,7 @@ static func open(tree: SceneTree) -> HelpScreen:
 	return h
 
 func _ready() -> void:
+	lang = GameState.lang
 	layer = 90
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	add_to_group("help_screen")
@@ -192,6 +193,7 @@ func _process(delta: float) -> void:
 
 func _toggle_lang() -> void:
 	lang = "ko" if lang == "en" else "en"
+	GameState.set_lang(lang)
 	_fill()
 
 func _close() -> void:

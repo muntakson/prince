@@ -17,7 +17,7 @@ dest_files=["res://.godot/imported/scroll.png-b09b886d6e07961c4a88d1dc9d72cbee.c
 
 compress/mode=0
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0

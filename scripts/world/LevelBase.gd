@@ -23,7 +23,8 @@ const PIT_SCRIPT = preload("res://scripts/world/Pit.gd")
 var player: CharacterBody2D
 var hud: CanvasLayer
 var content_root: Node2D
-var _wall_body: StaticBody2D
+var _wall_body: StaticBody2D      # tall walls: layer 1 (physics) + 16 (blocks the player's high ray)
+var _low_wall_body: StaticBody2D  # climbable walls: layer 1 only, so the high ray passes over them
 
 # --- hazard / integrity system ---
 var integrity := 1.0              # 0..1, shown by the HUD meter while meter_on
@@ -37,6 +38,7 @@ var _respawn_text := ""
 var _respawn_lines: Array = []
 var _fade: ColorRect
 
+const TALL_WALL_LAYERS := 1 | 16   # physics + "too tall to climb" (Player RayHigh mask)
 const WALL_THICKNESS := 40.0
 
 func _ready() -> void:
@@ -81,6 +83,7 @@ func _process(delta: float) -> void:
 			_fade.color.a = clampf(_respawn_t / 0.35, 0.0, 1.0) if _respawn_t < 0.9 else clampf(1.0 - (_respawn_t - 0.9) / 0.4, 0.0, 1.0)
 		if _respawn_t >= 0.9 and player and is_instance_valid(player) and player.get_meta("respawned", false) == false:
 			player.set_meta("respawned", true)
+			AudioManager.sfx("respawn")
 			player.global_position = _respawn_target()
 			player.reset_state()
 			_pos_history.clear()
@@ -159,6 +162,7 @@ func defeat(text: String, lines: Array = []) -> void:
 	_respawn_t = 0.0
 	_respawn_lines = lines
 	flash_text(text)
+	AudioManager.sfx("defeat")
 	DebugConsole.dlog("defeat: %s" % text)
 
 ## A pit fall: fade out, put the player back where they stood a second ago.
@@ -249,9 +253,14 @@ func _build_floor() -> void:
 
 func _build_room_walls() -> void:
 	_wall_body = StaticBody2D.new()
-	_wall_body.collision_layer = 1
+	_wall_body.collision_layer = TALL_WALL_LAYERS
 	_wall_body.collision_mask = 0
 	add_child(_wall_body)
+	_low_wall_body = StaticBody2D.new()
+	_low_wall_body.collision_layer = 1
+	_low_wall_body.collision_mask = 0
+	_low_wall_body.add_to_group("climbable_wall")
+	add_child(_low_wall_body)
 	var t := WALL_THICKNESS
 	# four borders (collision + visual)
 	_add_wall_rect(Rect2(-t, -t, room_size.x + 2 * t, t))                       # top
@@ -259,17 +268,23 @@ func _build_room_walls() -> void:
 	_add_wall_rect(Rect2(-t, 0, t, room_size.y))                               # left
 	_add_wall_rect(Rect2(room_size.x, 0, t, room_size.y))                      # right
 
-## Public: add a rectangular wall/obstacle (world coords).
-func add_wall_rect(rect: Rect2) -> void:
-	_add_wall_rect(rect)
+## Public: add a rectangular wall/obstacle (world coords). A `climbable`
+## wall is a low ledge: the prince can jump at it, catch the top edge and
+## pull himself over (Player.gd ledge grab). Gates and borders are tall.
+func add_wall_rect(rect: Rect2, climbable: bool = false) -> void:
+	_add_wall_rect(rect, climbable)
 
-func _add_wall_rect(rect: Rect2) -> void:
+func _add_wall_rect(rect: Rect2, climbable: bool = false) -> void:
 	var cs := CollisionShape2D.new()
 	var shape := RectangleShape2D.new()
 	shape.size = rect.size
 	cs.shape = shape
 	cs.position = rect.position + rect.size / 2.0
-	_wall_body.add_child(cs)
+	cs.set_meta("rect", rect)
+	if climbable:
+		_low_wall_body.add_child(cs)
+	else:
+		_wall_body.add_child(cs)
 	# visual
 	var spr := Sprite2D.new()
 	if wall_texture:

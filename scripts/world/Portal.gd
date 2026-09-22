@@ -48,7 +48,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_glow += delta
-	var locked := required_flag != "" and not GameState.has_flag(required_flag)
+	var locked := not GameState.unlocked(required_flag)
 	var pulse := sin(_glow * 3.0) * 0.5 + 0.5
 	if locked:
 		_poly.color = Color(0.45, 0.35, 0.12, 0.30)
@@ -73,9 +73,11 @@ func _on_body_entered(b: Node) -> void:
 		_travel()
 
 func _travel() -> void:
-	if required_flag != "" and not GameState.has_flag(required_flag):
+	if not GameState.unlocked(required_flag):
 		var hint := "The gate is sealed. Collect all 7 components and operate the Synthesizer first." if required_flag == "mrna_assembled" else "The way is not open yet."
+		AudioManager.sfx("deny")
 		DialogueManager.start([{"speaker": "", "text": hint}])
 		return
 	if target_chapter != "":
+		AudioManager.sfx("portal")
 		SceneManager.goto_chapter(target_chapter, target_spawn)

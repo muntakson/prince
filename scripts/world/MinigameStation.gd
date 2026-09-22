@@ -69,6 +69,8 @@ func is_done() -> bool:
 	return done_flag != "" and GameState.has_flag(done_flag)
 
 func requirement_met() -> bool:
+	if GameState.debug_mode:
+		return true
 	if required_flag != "" and not GameState.has_flag(required_flag):
 		return false
 	if required_item != "" and not Inventory.has(required_item):
@@ -127,6 +129,7 @@ func _launch() -> void:
 	DebugConsole.dlog("%s minigame start" % station_name)
 	_mg = minigame_script.new()
 	_mg.finished.connect(_on_minigame_finished)
+	AudioManager.sfx("mg_start")
 	var host := get_tree().current_scene
 	if host == null:
 		host = get_tree().root
@@ -140,8 +143,10 @@ func _on_minigame_finished(success: bool) -> void:
 			GameState.set_flag(done_flag)
 		_on_success()
 		_pending_finish = true
+		AudioManager.sfx("mg_win")
 	else:
 		_pending_fail = true
+		AudioManager.sfx("mg_fail")
 
 func _on_success() -> void:
 	pass

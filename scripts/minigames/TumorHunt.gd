@@ -395,6 +395,12 @@ func _process(delta: float) -> void:
 	field.queue_redraw()
 
 func _set_phase(p: int) -> void:
+	if p == Phase.KILL:
+		AudioManager.sfx("zap")
+	elif p == Phase.EXHAUST:
+		AudioManager.sfx("wrong")
+	elif p == Phase.SPARE:
+		AudioManager.sfx("lock")
 	_phase = p
 	_pt = 0.0
 	DebugConsole.dlog("Hunt phase %d" % p)

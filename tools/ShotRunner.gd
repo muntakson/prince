@@ -64,6 +64,7 @@ func _run(_inst) -> void:
 	if dump_labels:
 		_dump_labels_of(get_tree().root)
 	if show_help != "":
+		GameState.lang = show_help   # HelpScreen opens in the shared F3 language
 		HelpScreen.lang = show_help
 		HelpScreen.open(get_tree())
 		for k in 10:
@@ -71,12 +72,44 @@ func _run(_inst) -> void:
 	if act != "":
 		var pl1 = get_tree().get_first_node_in_group("player")
 		if pl1:
-			if act == "walkup" or act == "leap":
+			if act == "walkup" or act == "leap" or act.begins_with("vault"):
 				pl1._k_up = true
-			if act == "jump" or act == "leap":
-				for k in 6:
+			if act.begins_with("walkdown") or act.begins_with("hang"):
+				pl1._k_down = true
+			if act == "jump" or act == "leap" or act.begins_with("vault"):
+				# a leap needs a run-up: hold the direction until WALK -> RUN
+				for k in (120 if act != "jump" else 6):
 					await get_tree().process_frame
+					if act != "jump" and pl1.has_method("is_running") and pl1.is_running():
+						break
 				pl1._jump_queued = true
+			if act.begins_with("vault"):
+				# leap up at a low wall; wait for the wall grab, then keep pushing in
+				# (climb over) or push away (vaultdrop)
+				for k in 120:
+					await get_tree().process_frame
+					if pl1.is_hanging():
+						break
+				if act == "vaultdrop":
+					pl1._k_up = false
+					for k in 15:
+						await get_tree().process_frame
+					pl1._k_down = true
+				elif act == "vaulthang":
+					pl1._k_up = false
+			if act.begins_with("hang"):
+				# walk onto the rim, wait for the grab, then climb (hangclimb) or let go (hangdrop)
+				for k in 90:
+					await get_tree().process_frame
+					if pl1.has_method("is_hanging") and pl1.is_hanging():
+						break
+				pl1._k_down = false
+				for k in 20:
+					await get_tree().process_frame
+				if act == "hangclimb":
+					pl1._k_up = true
+				elif act == "hangdrop":
+					pl1._k_down = true
 	if trigger_dialogue:
 		DialogueManager.start([
 			{"speaker": "Mira", "text": "Arin... you came. But I am gravely ill. The healers call it cancer."},

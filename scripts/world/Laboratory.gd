@@ -21,8 +21,8 @@ func build_content() -> void:
 	add_label(Vector2(540, 1050), "Collect all 7 mRNA components, assemble them at the Synthesizer, then wrap the mRNA at the Mixer.", 24, 520)
 
 	# Lab benches that break up the room (and give the RNases corners to lurk in).
-	add_wall_rect(Rect2(450, 480, 300, 36))
-	add_wall_rect(Rect2(950, 780, 300, 36))
+	add_wall_rect(Rect2(450, 480, 300, 36), true)   # benches: leap at one to vault it
+	add_wall_rect(Rect2(950, 780, 300, 36), true)
 
 	# Seven components scattered around the kingdom.
 	add_pickup("cap5",        Vector2(250, 300))

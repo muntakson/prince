@@ -58,7 +58,7 @@ func build_content() -> void:
 	add_wall_rect(Rect2(0, 1040, 560, 44))
 	add_wall_rect(Rect2(840, 1040, 560, 44))
 	_gate_body = StaticBody2D.new()
-	_gate_body.collision_layer = 1
+	_gate_body.collision_layer = TALL_WALL_LAYERS
 	_gate_body.collision_mask = 0
 	var cs := CollisionShape2D.new()
 	var sh := RectangleShape2D.new()
@@ -87,7 +87,7 @@ func build_content() -> void:
 func _process(delta: float) -> void:
 	super._process(delta)
 	_t += delta
-	var cleared := GameState.has_flag("tumor_cleared")
+	var cleared := GameState.unlocked("tumor_cleared")
 	for spr in _tumor_sprites:
 		var home: Vector2 = spr.get_meta("home")
 		var ph: float = spr.get_meta("ph")
