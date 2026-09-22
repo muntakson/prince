@@ -488,7 +488,7 @@ class Stage extends Control:
 			var sp: Vector2 = mg.cells[mg._sel]["pos"]
 			var shake: float = sin(mg._t * 60.0) * 6.0 * mg._hint_shake
 			draw_arc(sp + Vector2(shake, 0), 62.0 + sin(mg._t * 4.0) * 3.0, 0.0, TAU, 40, Color(1, 0.95, 0.5, 0.9), 4.0, true)
-			draw_string(font, sp + Vector2(-60, -66), "tap / E to test", HORIZONTAL_ALIGNMENT_CENTER, 120, 15, Color(1, 0.95, 0.6))
+			draw_string(font, sp + Vector2(-60, -66), tr("tap / E to test"), HORIZONTAL_ALIGNMENT_CENTER, 120, 15, Color(1, 0.95, 0.6))
 		# clue reveal: the matching cell glows green for a few seconds
 		if ph == mg.Phase.SCREEN and mg._reveal_t > 0.0:
 			var mi: int = mg.match_index()
@@ -498,7 +498,7 @@ class Stage extends Control:
 				var pulse: float = 0.5 + 0.5 * sin(mg._t * 6.0)
 				draw_circle(mp, 74.0 + pulse * 6.0, Color(0.3, 1.0, 0.5, 0.18 * a))
 				draw_arc(mp, 70.0 + pulse * 6.0, 0.0, TAU, 48, Color(0.4, 1.0, 0.55, 0.95 * a), 5.0, true)
-				draw_string(font, mp + Vector2(-70, 118), "this TCR fits!", HORIZONTAL_ALIGNMENT_CENTER, 140, 16, Color(0.6, 1.0, 0.7, a))
+				draw_string(font, mp + Vector2(-70, 118), tr("this TCR fits!"), HORIZONTAL_ALIGNMENT_CENTER, 140, 16, Color(0.6, 1.0, 0.7, a))
 		# synapse zoom panel
 		if ph == mg.Phase.SYNAPSE:
 			_draw_synapse(mg._syn_stage, mg._pt)
@@ -539,7 +539,7 @@ class Stage extends Control:
 		var outline := pts.duplicate()
 		outline.append(pts[0])
 		draw_polyline(outline, out, 3.0, true)
-		draw_string(font, p + Vector2(-80, 104), "antigen on MHC", HORIZONTAL_ALIGNMENT_CENTER, 160, 15, Color(1, 0.9, 0.7))
+		draw_string(font, p + Vector2(-80, 104), tr("antigen on MHC"), HORIZONTAL_ALIGNMENT_CENTER, 160, 15, Color(1, 0.9, 0.7))
 
 	## TCR: two arms coming down from the T-cell to a binding plate whose lower
 	## edge has 4 notches of depth pattern[i] (fits the key when equal).
@@ -576,13 +576,13 @@ class Stage extends Control:
 		var r := Rect2(60, 200, 600, 360)
 		draw_rect(r, Color(0.02, 0.02, 0.06, 0.9))
 		draw_rect(r, Color(1, 0.95, 0.6, 0.8), false, 3.0)
-		draw_string(font, Vector2(r.position.x, r.position.y + 28), "Immunological synapse (zoom)", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 20, Color(1, 0.95, 0.75))
+		draw_string(font, Vector2(r.position.x, r.position.y + 28), tr("Immunological synapse (zoom)"), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 20, Color(1, 0.95, 0.75))
 		var ty := r.position.y + 90.0     # T-cell membrane
 		var dy := r.end.y - 70.0          # DC membrane
 		draw_line(Vector2(r.position.x + 10, ty), Vector2(r.end.x - 10, ty), Color(0.3, 0.55, 1.0), 10.0, true)
 		draw_line(Vector2(r.position.x + 10, dy), Vector2(r.end.x - 10, dy), Color(0.75, 0.45, 0.95), 10.0, true)
-		draw_string(font, Vector2(r.position.x + 14, ty - 20), "T-cell", HORIZONTAL_ALIGNMENT_LEFT, 200, 16, Color(0.6, 0.8, 1.0))
-		draw_string(font, Vector2(r.position.x + 14, dy + 34), "Dendritic cell", HORIZONTAL_ALIGNMENT_LEFT, 200, 16, Color(0.9, 0.75, 1.0))
+		draw_string(font, Vector2(r.position.x + 14, ty - 20), tr("T-cell"), HORIZONTAL_ALIGNMENT_LEFT, 200, 16, Color(0.6, 0.8, 1.0))
+		draw_string(font, Vector2(r.position.x + 14, dy + 34), tr("Dendritic cell"), HORIZONTAL_ALIGNMENT_LEFT, 200, 16, Color(0.9, 0.75, 1.0))
 		var cx := r.get_center().x
 		var pulse := 0.5 + 0.5 * sin(t * 5.0)
 		# Signal 1: TCR + pMHC (center)
@@ -590,19 +590,19 @@ class Stage extends Control:
 			_pair(cx, ty, dy, Color(0.35, 0.6, 1.0), Color(1.0, 0.55, 0.15), "TCR", "pMHC", 16.0)
 			_pair(cx + 44, ty, dy, Color(0.5, 0.8, 1.0), Color(1.0, 0.75, 0.3), "CD8", "MHC", 8.0)
 			draw_circle(Vector2(cx, (ty + dy) / 2.0), 14.0 + pulse * 6.0, Color(1, 0.95, 0.5, 0.25))
-			draw_string(font, Vector2(cx - 100, ty - 40), "Signal 1", HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(1, 0.95, 0.5))
+			draw_string(font, Vector2(cx - 100, ty - 40), tr("Signal 1"), HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(1, 0.95, 0.5))
 		# Signal 2: CD28 – CD80/86
 		if stage_i >= 1:
 			for sx in [-110.0, 110.0]:
 				_pair(cx + sx, ty, dy, Color(0.4, 0.95, 0.6), Color(0.95, 0.85, 0.3), "CD28", "CD80/86", 12.0)
-			draw_string(font, Vector2(cx - 220, ty - 40), "Signal 2", HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(0.6, 1.0, 0.7))
-			draw_string(font, Vector2(cx + 20, ty - 40), "Signal 2", HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(0.6, 1.0, 0.7))
+			draw_string(font, Vector2(cx - 220, ty - 40), tr("Signal 2"), HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(0.6, 1.0, 0.7))
+			draw_string(font, Vector2(cx + 20, ty - 40), tr("Signal 2"), HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(0.6, 1.0, 0.7))
 		# adhesion ring: LFA-1 – ICAM-1
 		if stage_i >= 2:
 			for sx in [-220.0, -180.0, 180.0, 220.0]:
 				_pair(cx + sx, ty, dy, Color(0.9, 0.6, 0.6), Color(0.9, 0.6, 0.6), "", "", 7.0)
-			draw_string(font, Vector2(r.position.x + 10, dy - 12), "LFA-1 / ICAM-1 ring", HORIZONTAL_ALIGNMENT_LEFT, 200, 14, Color(1, 0.75, 0.75))
-			draw_string(font, Vector2(r.end.x - 210, dy - 12), "LFA-1 / ICAM-1 ring", HORIZONTAL_ALIGNMENT_RIGHT, 200, 14, Color(1, 0.75, 0.75))
+			draw_string(font, Vector2(r.position.x + 10, dy - 12), tr("LFA-1 / ICAM-1 ring"), HORIZONTAL_ALIGNMENT_LEFT, 200, 14, Color(1, 0.75, 0.75))
+			draw_string(font, Vector2(r.end.x - 210, dy - 12), tr("LFA-1 / ICAM-1 ring"), HORIZONTAL_ALIGNMENT_RIGHT, 200, 14, Color(1, 0.75, 0.75))
 		# Signal 3: cytokines
 		if stage_i >= 3:
 			for i in 9:
@@ -610,7 +610,7 @@ class Stage extends Control:
 				var px := cx - 150 + i * 36.0 + sin(t * 3.0 + i) * 6.0
 				var py: float = lerpf(dy - 12.0, ty + 12.0, ph2)
 				draw_circle(Vector2(px, py), 6.0, Color(1.0, 0.6, 0.9, 1.0 - ph2 * 0.6))
-			draw_string(font, Vector2(cx - 100, (ty + dy) / 2.0 - 60), "Signal 3: IL-12", HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(1, 0.7, 0.95))
+			draw_string(font, Vector2(cx - 100, (ty + dy) / 2.0 - 60), tr("Signal 3: IL-12"), HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(1, 0.7, 0.95))
 
 	func _pair(x: float, ty: float, dy: float, ct: Color, cd: Color, lt: String, ld: String, w: float) -> void:
 		var mid := (ty + dy) / 2.0

@@ -88,7 +88,7 @@ func _process(delta: float) -> void:
 		_sprite.modulate = Color(1, 1, 1).lerp(Color(1.25, 1.2, 0.95), pulse)
 	else:
 		_sprite.modulate = Color(0.85, 0.86, 0.92)
-	_prompt.text = (station_name + " (done)") if done else station_name
+	_prompt.text = (tr(station_name) + tr(" (done)")) if done else tr(station_name)
 	_prompt.modulate.a = move_toward(_prompt.modulate.a, 1.0 if _highlighted else 0.0, delta * 6.0)
 	if _pending_launch and not DialogueManager.is_active():
 		_pending_launch = false

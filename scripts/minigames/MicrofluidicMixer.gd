@@ -263,17 +263,17 @@ func _set_phase(p: int) -> void:
 			run_btn.visible = not result["ok"]
 			dial_btn.visible = result["ok"]
 			if result["ok"]:
-				banner.text = "LNPs formed: %d nm, PDI %.2f, %d%% mRNA encapsulated" % [result["size"], result["pdi"], result["ee"]]
+				banner.text = tr("LNPs formed: %d nm, PDI %.2f, %d%% mRNA encapsulated") % [result["size"], result["pdi"], result["ee"]]
 				caption.text = "Small, uniform particles with the mRNA inside. One step left: the particles still sit in ethanol at pH 4."
 			else:
-				banner.text = "Poor batch: %d nm, PDI %.2f, %d%% encapsulated" % [result["size"], result["pdi"], result["ee"]]
+				banner.text = tr("Poor batch: %d nm, PDI %.2f, %d%% encapsulated") % [result["size"], result["pdi"], result["ee"]]
 				caption.text = result["why"]
 		Phase.DIALYSIS:
 			set_box.visible = false
 			caption.text = "Dialysis: ethanol leaves and the pH rises to 7.4. The ionizable lipid turns neutral, so the LNP is gentle in the blood — it will only turn positive again inside the acidic endosome."
 		Phase.DONE:
 			banner.text = "Lipid nanoparticle ready!"
-			caption.text = "The mRNA is packed inside a %d nm lipid shell with a PEG coat. Ready for injection." % result["size"]
+			caption.text = tr("The mRNA is packed inside a %d nm lipid shell with a PEG coat. Ready for injection.") % result["size"]
 
 func _predict() -> Dictionary:
 	var ratio: float = ratio_slider.value
@@ -381,7 +381,7 @@ func _drop(tile: Control, target: String) -> void:
 	else:
 		tile.position = tile.get_meta("home")
 		if target != "":
-			caption.text = ("The %s belongs in the ethanol inlet — lipids are hydrophobic and only dissolve in ethanol." % _name(id)) if want == "organic" else "mRNA is water-soluble and must stay in the acidic aqueous buffer, away from the ethanol."
+			caption.text = (tr("The %s belongs in the ethanol inlet — lipids are hydrophobic and only dissolve in ethanol.") % tr(_name(id))) if want == "organic" else "mRNA is water-soluble and must stay in the acidic aqueous buffer, away from the ethanol."
 
 func _name(id: String) -> String:
 	for it in ITEMS:
@@ -402,10 +402,10 @@ func _process(delta: float) -> void:
 						_drop(tile, "aqueous" if id == "mrna" else "organic")
 						break
 		Phase.SET, Phase.RESULT:
-			ratio_label.text = "Flow-rate ratio (buffer : ethanol) = %.1f : 1" % ratio_slider.value
-			tfr_label.text = "Total flow rate = %d mL/min" % int(tfr_slider.value)
+			ratio_label.text = tr("Flow-rate ratio (buffer : ethanol) = %.1f : 1") % ratio_slider.value
+			tfr_label.text = tr("Total flow rate = %d mL/min") % int(tfr_slider.value)
 			var pr := _predict()
-			predict_label.text = "Predicted: ~%d nm, PDI %.2f, %d%% encapsulated" % [pr["size"], pr["pdi"], pr["ee"]]
+			predict_label.text = tr("Predicted: ~%d nm, PDI %.2f, %d%% encapsulated") % [pr["size"], pr["pdi"], pr["ee"]]
 			if debug_autoplay and _pt > 1.5:
 				if _phase == Phase.SET:
 					ratio_slider.value = 3.0
@@ -500,7 +500,7 @@ class Icon extends Control:
 				draw_line(Vector2(-4, -3), Vector2(30, -12), col, 4.0, true)
 				draw_line(Vector2(-4, 3), Vector2(30, 12), col, 4.0, true)
 				if kind == "ionizable":
-					draw_string(ThemeDB.fallback_font, Vector2(-20, -14), "+", HORIZONTAL_ALIGNMENT_CENTER, 16, 16, Color(1, 1, 1))
+					draw_string(ThemeDB.fallback_font, Vector2(-20, -14), tr("+"), HORIZONTAL_ALIGNMENT_CENTER, 16, 16, Color(1, 1, 1))
 
 ## The chip: two inlets, a Y-junction, a herringbone channel, an outlet.
 class Stage extends Control:
@@ -517,7 +517,7 @@ class Stage extends Control:
 		# chip body
 		draw_rect(CH, Color(0.12, 0.2, 0.28, 0.95))
 		draw_rect(CH, Color(0.5, 0.75, 0.9, 0.9), false, 3.0)
-		draw_string(font, CH.position + Vector2(10, 22), "Staggered-herringbone microfluidic chip", HORIZONTAL_ALIGNMENT_LEFT, 500, 16, Color(0.75, 0.9, 1.0))
+		draw_string(font, CH.position + Vector2(10, 22), tr("Staggered-herringbone microfluidic chip"), HORIZONTAL_ALIGNMENT_LEFT, 500, 16, Color(0.75, 0.9, 1.0))
 		var j := _channel_point(0.0)
 		var o := _channel_point(1.0)
 		var in_org := Vector2(CH.position.x + 30, CH.position.y + 80)
@@ -531,8 +531,8 @@ class Stage extends Control:
 		var loaded_aq: bool = mg.placed["aqueous"].size() == 1
 		draw_line(in_org, j, Color(1.0, 0.8, 0.3, 0.9 if loaded_org else 0.25), 18.0, true)
 		draw_line(in_aq, j, Color(0.35, 0.7, 1.0, 0.9 if loaded_aq else 0.25), 18.0, true)
-		draw_string(font, in_org + Vector2(-14, -20), "ethanol + lipids", HORIZONTAL_ALIGNMENT_LEFT, 160, 14, Color(1, 0.9, 0.6))
-		draw_string(font, in_aq + Vector2(-14, 34), "pH 4 buffer + mRNA", HORIZONTAL_ALIGNMENT_LEFT, 180, 14, Color(0.7, 0.85, 1.0))
+		draw_string(font, in_org + Vector2(-14, -20), tr("ethanol + lipids"), HORIZONTAL_ALIGNMENT_LEFT, 160, 14, Color(1, 0.9, 0.6))
+		draw_string(font, in_aq + Vector2(-14, 34), tr("pH 4 buffer + mRNA"), HORIZONTAL_ALIGNMENT_LEFT, 180, 14, Color(0.7, 0.85, 1.0))
 		# main channel fill: blend from two-tone to mixed green along s
 		var running: bool = ph == mg.Phase.RUN
 		var mix_len: float = 0.25 + 0.45 * (1.0 - clampf(mg.tfr_slider.value / 16.0, 0.0, 1.0)) if running or ph >= mg.Phase.RESULT else 1.0
@@ -557,7 +557,7 @@ class Stage extends Control:
 			var dir := 1.0 if (i / 4) % 2 == 0 else -1.0
 			draw_line(p + Vector2(-8 * dir, -13), p + Vector2(0, 0), Color(0, 0, 0, 0.35), 3.0, true)
 			draw_line(p + Vector2(0, 0), p + Vector2(-8 * dir, 13), Color(0, 0, 0, 0.35), 3.0, true)
-		draw_string(font, o + Vector2(-90, 40), "outlet: LNPs", HORIZONTAL_ALIGNMENT_RIGHT, 180, 14, Color(0.7, 1.0, 0.8))
+		draw_string(font, o + Vector2(-90, 40), tr("outlet: LNPs"), HORIZONTAL_ALIGNMENT_RIGHT, 180, 14, Color(0.7, 1.0, 0.8))
 		# flowing particles during RUN
 		if running:
 			for fp in mg.flow_particles:
@@ -584,7 +584,7 @@ class Stage extends Control:
 				draw_circle(in_org.lerp(j, f), 3.5, Color(1.0, 0.8, 0.3))
 				draw_circle(in_aq.lerp(j, f), 3.5, Color(0.35, 0.7, 1.0))
 			# pH 4 charge cue
-			draw_string(font, j + Vector2(-60, -60), "pH 4: ionizable lipid (+) binds mRNA (–)", HORIZONTAL_ALIGNMENT_LEFT, 360, 14, Color(1, 0.95, 0.7))
+			draw_string(font, j + Vector2(-60, -60), tr("pH 4: ionizable lipid (+) binds mRNA (–)"), HORIZONTAL_ALIGNMENT_LEFT, 360, 14, Color(1, 0.95, 0.7))
 		# result / dialysis / done: show a big LNP cross-section
 		if ph >= mg.Phase.RESULT:
 			var c: Vector2 = Vector2(BW_CENTER, 1000) if ph == mg.Phase.RESULT else Vector2(BW_CENTER, 900)
@@ -624,11 +624,11 @@ class Stage extends Control:
 		var charge_a := 1.0 - ph_f
 		for i in 6:
 			var ang := i * TAU / 6.0 + 0.5
-			draw_string(font, c + Vector2.from_angle(ang) * (r * 0.78) + Vector2(-5, 6), "+", HORIZONTAL_ALIGNMENT_CENTER, 12, 16, Color(1, 1, 1, charge_a))
+			draw_string(font, c + Vector2.from_angle(ang) * (r * 0.78) + Vector2(-5, 6), tr("+"), HORIZONTAL_ALIGNMENT_CENTER, 12, 16, Color(1, 1, 1, charge_a))
 		if not ok and ph == mg.Phase.RESULT:
 			draw_circle(c + Vector2(r * 0.9, r * 0.5), r * 0.6, Color(1.0, 0.8, 0.3, 0.9))
 			draw_circle(c + Vector2(-r * 0.8, r * 0.6), r * 0.5, Color(1.0, 0.8, 0.3, 0.9))
-			draw_string(font, c + Vector2(-120, r + 40), "aggregated, uneven", HORIZONTAL_ALIGNMENT_CENTER, 240, 16, Color(1, 0.6, 0.6))
+			draw_string(font, c + Vector2(-120, r + 40), tr("aggregated, uneven"), HORIZONTAL_ALIGNMENT_CENTER, 240, 16, Color(1, 0.6, 0.6))
 		if ph == mg.Phase.DIALYSIS or ph == mg.Phase.DONE:
 			# pH meter and ethanol bubbles leaving
 			var mx := c.x - 200.0
@@ -636,10 +636,10 @@ class Stage extends Control:
 			var lvl := lerpf(4.0, 7.4, ph_f)
 			var h := (lvl - 3.0) / 6.0 * 180.0
 			draw_rect(Rect2(mx, c.y + 90 - h, 30, h), Color(1.0, 0.4, 0.3).lerp(Color(0.4, 0.9, 0.6), ph_f))
-			draw_string(font, Vector2(mx - 30, c.y + 115), "pH %.1f" % lvl, HORIZONTAL_ALIGNMENT_CENTER, 90, 18, Color(1, 1, 1))
+			draw_string(font, Vector2(mx - 30, c.y + 115), tr("pH %.1f") % lvl, HORIZONTAL_ALIGNMENT_CENTER, 90, 18, Color(1, 1, 1))
 			for i in 8:
 				var f := fmod(t * 0.5 + i * 0.125, 1.0)
 				var bp := c + Vector2(r + 40 + i * 12.0, 60 - f * 200.0)
 				draw_circle(bp, 5.0, Color(1.0, 0.9, 0.6, (1.0 - f) * (1.0 - ph_f)))
-			draw_string(font, c + Vector2(r + 30, 80), "ethanol out", HORIZONTAL_ALIGNMENT_LEFT, 120, 14, Color(1, 0.9, 0.7, 1.0 - ph_f))
-			draw_string(font, c + Vector2(-120, -r - 30), "neutral, PEG-coated LNP" if ph_f >= 1.0 else "ionizable lipid losing its charge...", HORIZONTAL_ALIGNMENT_CENTER, 240, 16, Color(0.8, 1.0, 0.85))
+			draw_string(font, c + Vector2(r + 30, 80), tr("ethanol out"), HORIZONTAL_ALIGNMENT_LEFT, 120, 14, Color(1, 0.9, 0.7, 1.0 - ph_f))
+			draw_string(font, c + Vector2(-120, -r - 30), tr("neutral, PEG-coated LNP") if ph_f >= 1.0 else "ionizable lipid losing its charge...", HORIZONTAL_ALIGNMENT_CENTER, 240, 16, Color(0.8, 1.0, 0.85))

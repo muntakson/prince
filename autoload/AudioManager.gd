@@ -136,10 +136,10 @@ func speak(speaker: String, text: String) -> void:
 	var lang_code := "en-US"
 	var path := VOICE_DIR + id + ".mp3"
 	if GameState.lang == "ko":
+		lang_code = "ko-KR"
 		var ko: String = GameState.ko_text(speaker, text)
 		if ko != "":
 			spoken = ko
-			lang_code = "ko-KR"
 			path = VOICE_DIR + "ko/" + id + ".mp3"
 	var stream = _get_stream(path)
 	if stream != null:

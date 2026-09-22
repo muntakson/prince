@@ -367,7 +367,7 @@ func _process(delta: float) -> void:
 				kills += 1
 				_burst(c["p"], 22, Color(0.8, 0.6, 0.9))
 				_set_phase(Phase.HUNT)
-				caption.text = "Tumor cell destroyed by apoptosis. %d to go." % tumors_left()
+				caption.text = tr("Tumor cell destroyed by apoptosis. %d to go.") % tumors_left()
 		Phase.SPARE:
 			if _pt > 1.2:
 				ctl_vel = (ctl_pos - _target["p"]).normalized() * 120.0
@@ -384,7 +384,7 @@ func _process(delta: float) -> void:
 			if _pt > 3.5:
 				_finish(true)
 	ctl_sprite.position = ctl_local() + Vector2(0, sin(_t * 3.0) * 3.0)
-	counter.text = "Tumor cells left: %d     Killed: %d     %s" % [tumors_left(), kills, "Antibody: yes" if has_antibody else "Antibody: no"]
+	counter.text = tr("Tumor cells left: %d     Killed: %d     %s") % [tumors_left(), kills, tr("Antibody: yes") if has_antibody else tr("Antibody: no")]
 	var keep: Array = []
 	for pt in particles:
 		pt["life"] -= delta
@@ -472,10 +472,10 @@ class Field extends Control:
 				for i in 8:
 					var ang: float = i * TAU / 8.0 + mg._t * 0.6
 					draw_circle(p + Vector2.from_angle(ang) * (mg.CELL_RADIUS + 10.0), 5.0, Color(0.9, 0.9, 1.0, a))
-				draw_string(font, p + Vector2(-40, mg.CELL_RADIUS + 30), "PD-L1", HORIZONTAL_ALIGNMENT_CENTER, 80, 14, Color(0.9, 0.9, 1.0, a))
+				draw_string(font, p + Vector2(-40, mg.CELL_RADIUS + 30), tr("PD-L1"), HORIZONTAL_ALIGNMENT_CENTER, 80, 14, Color(0.9, 0.9, 1.0, a))
 		# antibody label
 		if not mg.has_antibody:
-			draw_string(font, mg.ab_pos - off + Vector2(-70, 52), "anti-PD-1 antibody", HORIZONTAL_ALIGNMENT_CENTER, 140, 13, Color(1, 0.95, 0.7))
+			draw_string(font, mg.ab_pos - off + Vector2(-70, 52), tr("anti-PD-1 antibody"), HORIZONTAL_ALIGNMENT_CENTER, 140, 13, Color(1, 0.95, 0.7))
 		# TCR probe between the T-cell and its target
 		var ph: int = mg._phase
 		if ph == mg.Phase.INSPECT or ph == mg.Phase.KILL or ph == mg.Phase.SPARE or ph == mg.Phase.EXHAUST:
@@ -493,7 +493,7 @@ class Field extends Control:
 			_kill_panel(mg._pt)
 		# PD-1 mark on the T-cell when exhausted
 		if ph == mg.Phase.EXHAUST:
-			draw_string(font, mg.ctl_local() + Vector2(-40, -mg.CTL_RADIUS - 12), "PD-1 off", HORIZONTAL_ALIGNMENT_CENTER, 80, 15, Color(0.9, 0.9, 1.0))
+			draw_string(font, mg.ctl_local() + Vector2(-40, -mg.CTL_RADIUS - 12), tr("PD-1 off"), HORIZONTAL_ALIGNMENT_CENTER, 80, 15, Color(0.9, 0.9, 1.0))
 		for pt in mg.particles:
 			var al: float = clampf(pt["life"], 0.0, 1.0)
 			var cc: Color = pt["c"]
@@ -522,12 +522,12 @@ class Field extends Control:
 		draw_rect(r, Color(0.02, 0.02, 0.06, 0.92))
 		draw_rect(r, Color(1, 0.7, 0.5, 0.9), false, 3.0)
 		var st: int = clampi(int(t / 1.6), 0, 3)
-		draw_string(font, Vector2(r.position.x, r.position.y + 28), "The lethal hit (zoom)", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 20, Color(1, 0.9, 0.75))
+		draw_string(font, Vector2(r.position.x, r.position.y + 28), tr("The lethal hit (zoom)"), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 20, Color(1, 0.9, 0.75))
 		var ty := r.position.y + 70.0     # T-cell membrane
 		var dy := r.position.y + 210.0    # tumor cell membrane
 		draw_line(Vector2(r.position.x + 20, ty), Vector2(r.end.x - 20, ty), Color(0.3, 0.55, 1.0), 10.0, true)
-		draw_string(font, Vector2(r.position.x + 24, ty - 18), "Killer T-cell", HORIZONTAL_ALIGNMENT_LEFT, 200, 15, Color(0.6, 0.8, 1.0))
-		draw_string(font, Vector2(r.position.x + 24, dy + 34), "Tumor cell", HORIZONTAL_ALIGNMENT_LEFT, 200, 15, Color(1.0, 0.7, 0.9))
+		draw_string(font, Vector2(r.position.x + 24, ty - 18), tr("Killer T-cell"), HORIZONTAL_ALIGNMENT_LEFT, 200, 15, Color(0.6, 0.8, 1.0))
+		draw_string(font, Vector2(r.position.x + 24, dy + 34), tr("Tumor cell"), HORIZONTAL_ALIGNMENT_LEFT, 200, 15, Color(1.0, 0.7, 0.9))
 		var cx := r.get_center().x
 		# tumor membrane with pores appearing in stage >= 1
 		var segs := 12
@@ -545,27 +545,27 @@ class Field extends Control:
 		# TCR–pMHC in the centre
 		draw_line(Vector2(cx, ty), Vector2(cx, (ty + dy) / 2.0 - 2), Color(0.35, 0.6, 1.0), 12.0, true)
 		draw_line(Vector2(cx, dy), Vector2(cx, (ty + dy) / 2.0 + 2), Color(1.0, 0.55, 0.15), 12.0, true)
-		draw_string(font, Vector2(cx - 60, ty + 28), "TCR", HORIZONTAL_ALIGNMENT_CENTER, 120, 13, Color(0.85, 0.92, 1.0))
-		draw_string(font, Vector2(cx - 60, dy - 16), "antigen–MHC-I", HORIZONTAL_ALIGNMENT_CENTER, 120, 13, Color(1, 0.9, 0.8))
+		draw_string(font, Vector2(cx - 60, ty + 28), tr("TCR"), HORIZONTAL_ALIGNMENT_CENTER, 120, 13, Color(0.85, 0.92, 1.0))
+		draw_string(font, Vector2(cx - 60, dy - 16), tr("antigen–MHC-I"), HORIZONTAL_ALIGNMENT_CENTER, 120, 13, Color(1, 0.9, 0.8))
 		# perforin (orange) and granzyme (purple) granules travelling down
 		if st >= 1:
 			for i in 6:
 				var f := fmod(t * 0.8 + i * 0.17, 1.0)
 				var px := cx - 150 + i * 60.0
 				draw_circle(Vector2(px, lerpf(ty + 12, dy - 12, f)), 7.0, Color(1.0, 0.6, 0.3, 1.0 - f * 0.5))
-			draw_string(font, Vector2(r.position.x + 20, (ty + dy) / 2.0 - 30), "perforin", HORIZONTAL_ALIGNMENT_LEFT, 120, 14, Color(1, 0.7, 0.4))
+			draw_string(font, Vector2(r.position.x + 20, (ty + dy) / 2.0 - 30), tr("perforin"), HORIZONTAL_ALIGNMENT_LEFT, 120, 14, Color(1, 0.7, 0.4))
 		if st >= 2:
 			for i in 5:
 				var f := fmod(t * 0.9 + i * 0.2, 1.0)
 				var px := cx - 120 + i * 60.0
 				var y: float = lerpf(ty + 12, dy + 60, f)
 				draw_circle(Vector2(px, y), 6.0, Color(0.75, 0.45, 1.0, 1.0 - f * 0.4))
-			draw_string(font, Vector2(r.end.x - 160, (ty + dy) / 2.0 - 30), "granzyme B", HORIZONTAL_ALIGNMENT_RIGHT, 140, 14, Color(0.85, 0.65, 1.0))
-			draw_string(font, Vector2(cx - 100, dy + 62), "caspases activated", HORIZONTAL_ALIGNMENT_CENTER, 200, 14, Color(1, 0.8, 1.0))
+			draw_string(font, Vector2(r.end.x - 160, (ty + dy) / 2.0 - 30), tr("granzyme B"), HORIZONTAL_ALIGNMENT_RIGHT, 140, 14, Color(0.85, 0.65, 1.0))
+			draw_string(font, Vector2(cx - 100, dy + 62), tr("caspases activated"), HORIZONTAL_ALIGNMENT_CENTER, 200, 14, Color(1, 0.8, 1.0))
 		if st >= 3:
 			for i in 7:
 				var ang := i * TAU / 7.0 + t
 				var pp := Vector2(cx, dy + 70) + Vector2.from_angle(ang) * (30.0 + 20.0 * fmod(t, 1.0))
 				draw_circle(pp, 8.0, Color(0.7, 0.5, 0.8, 0.8))
-			draw_string(font, Vector2(cx - 100, dy + 100), "apoptosis", HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(1, 0.85, 0.95))
+			draw_string(font, Vector2(cx - 100, dy + 100), tr("apoptosis"), HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(1, 0.85, 0.95))
 		draw_string(font, Vector2(r.position.x + 10, r.end.y - 14), mg.KILL_CAPTIONS[st], HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 20, 14, Color(0.95, 0.95, 0.8))

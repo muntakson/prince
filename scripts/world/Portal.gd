@@ -53,7 +53,7 @@ func _process(delta: float) -> void:
 	if locked:
 		_poly.color = Color(0.45, 0.35, 0.12, 0.30)
 		_outline.default_color = Color(0.8, 0.6, 0.2, 0.7)
-		_label.text = "🔒 " + (label_text if label_text != "" else "Locked")
+		_label.text = "" + (label_text if label_text != "" else "Locked")
 	else:
 		_poly.color = Color(0.2, 0.6, 0.35, 0.25 + pulse * 0.2)
 		_outline.default_color = Color(0.4, 1.0, 0.6, 0.9)

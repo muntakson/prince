@@ -377,8 +377,8 @@ func _process(delta: float) -> void:
 	if in_hypoxia(prince_pos):
 		_set_caption(3)
 	var n := arrived_count()
-	status.text = "In the tumor: %d / %d   (need %d)" % [n, N_CELLS, NEED]
-	timer_label.text = "%d s" % int(ceil(_time_left))
+	status.text = tr("In the tumor: %d / %d   (need %d)") % [n, N_CELLS, NEED]
+	timer_label.text = tr("%d s") % int(ceil(_time_left))
 	if n >= NEED:
 		_done = true
 		_win_t = 0.0

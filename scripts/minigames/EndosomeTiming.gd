@@ -188,7 +188,7 @@ func _attempt() -> void:
 	if ph > WIN_HI:
 		_shake = 0.5
 		_msg_t = 2.0
-		msg.text = "Too early! At pH %.1f the lipids are still neutral - nothing happens." % ph
+		msg.text = tr("Too early! At pH %.1f the lipids are still neutral - nothing happens.") % ph
 		DebugConsole.dlog("endo early ph=%.2f" % ph)
 	elif ph >= WIN_LO:
 		phase = Phase.ESCAPE
@@ -259,9 +259,9 @@ func _process(delta: float) -> void:
 	_protons = _protons.filter(func(pr): return pr["p"].distance_to(CENTER) > 30.0)
 	if _protons.size() > 80:
 		_protons = _protons.slice(_protons.size() - 80)
-	ph_label.text = "pH %.1f" % ph
+	ph_label.text = tr("pH %.1f") % ph
 	var cf := charged_fraction()
-	charge_label.text = "Lipid charge: %s (%d%% protonated)" % ["neutral" if cf < 0.25 else ("charging" if cf < 0.6 else "POSITIVE"), int(round(cf * 100.0))]
+	charge_label.text = tr("Lipid charge: %s (%d%% protonated)") % [tr("neutral") if cf < 0.25 else (tr("charging") if cf < 0.6 else tr("POSITIVE")), int(round(cf * 100.0))]
 	charge_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85).lerp(Color(1.0, 0.85, 0.3), cf))
 	var off := Vector2(sin(_t * 50.0) * 6.0 * _shake, 0)
 	lnp_sprite.position = CENTER + off + Vector2(0, sin(_t * 2.0) * 4.0)

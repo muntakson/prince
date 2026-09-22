@@ -46,12 +46,15 @@ s = s.replace('src="index.js"', 'src="index.%s.js"' % hj).replace('src="index.pn
 open(dst, "w", encoding="utf-8").write(s)
 PY
 
-# drop hashed files from older deploys and the un-hashed originals
+# drop hashed files from older deploys — but only ones older than 2 hours, so a
+# browser that loaded index.html just before this deploy can still fetch the
+# pck/wasm it references (an immediate delete produced 404s mid-load).
 for f in "$WEB"/index.*; do
 	b=$(basename "$f")
 	case "$b" in
 		index.$HW.*|index.$HP.*|index.$HJ.*|index.$HI.*|index.html|index.icon.png|index.apple-touch-icon.png) ;;
-		*) rm -f "$f" ;;
+		*) [[ -n "$(find "$f" -mmin +120)" ]] && rm -f "$f" ;;
 	esac
 done
+rm -f "$WEB"/index.wasm "$WEB"/index.pck "$WEB"/index.js "$WEB"/index.png "$WEB"/index.audio.worklet.js "$WEB"/*.import
 echo "deployed to $WEB: wasm=$HW pck=$HP js=$HJ splash=$HI ($(du -h "$BUILD/index.pck" | cut -f1) pck)"

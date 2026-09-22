@@ -26,6 +26,7 @@ var lang: String = "en"                      # F3: "en" / "ko" — dialogue text
 signal lang_changed(lang: String)
 
 const KO_PATH := "res://assets/help/dialogue_ko.json"
+const UI_KO_PATH := "res://assets/help/ui_ko.json"   # English UI string -> Korean (TranslationServer)
 const CJK_FONT_PATH := "res://assets/fonts/help_ko.otf"
 var _ko_speakers: Dictionary = {}
 var _ko_lines: Dictionary = {}
@@ -44,14 +45,35 @@ func _load_locale() -> void:
 			_ko_lines = parsed.get("lines", {})
 	if ResourceLoader.exists(CJK_FONT_PATH):
 		_cjk_font = load(CJK_FONT_PATH)
+		# The CJK subset (Latin + Hangul) becomes the default UI font for every
+		# Control, so translated captions render. Set at runtime: as the project
+		# setting gui/theme/custom_font it stalled the web build's boot.
+		ThemeDB.fallback_font = _cjk_font          # custom-drawn text (draw_string)
+		var th: Theme = ThemeDB.get_project_theme()
+		if th == null:
+			th = ThemeDB.get_default_theme()
+		if th:
+			th.default_font = _cjk_font            # Labels / Buttons / RichTextLabels
+	# UI strings: every Label/Button/RichTextLabel auto-translates its text through
+	# the TranslationServer, so captions, labels and menus follow the locale.
+	if FileAccess.file_exists(UI_KO_PATH):
+		var ui = JSON.parse_string(FileAccess.get_file_as_string(UI_KO_PATH))
+		if ui is Dictionary:
+			var t := Translation.new()
+			t.locale = "ko"
+			for k in ui.keys():
+				t.add_message(k, ui[k])
+			TranslationServer.add_translation(t)
 	var cf := ConfigFile.new()
 	if cf.load("user://settings.cfg") == OK:
 		lang = str(cf.get_value("ui", "lang", "en"))
+	TranslationServer.set_locale(lang)
 
 func set_lang(l: String) -> void:
 	if l == lang:
 		return
 	lang = l
+	TranslationServer.set_locale(lang)
 	var cf := ConfigFile.new()
 	cf.load("user://settings.cfg")
 	cf.set_value("ui", "lang", lang)

@@ -146,7 +146,7 @@ func damage(amount: float, source: String = "") -> void:
 	if integrity <= 0.0:
 		defeat(defeat_message(source), defeat_lines(source))
 	elif source != "":
-		flash_text("%s! %s %d%%" % [source, meter_label, int(round(integrity * 100.0))])
+		flash_text("%s! %s %d%%" % [tr(source), tr(meter_label), int(round(integrity * 100.0))])
 
 ## Override: HUD text shown when integrity hits zero.
 func defeat_message(_source: String) -> String:

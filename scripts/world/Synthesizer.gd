@@ -67,7 +67,7 @@ func _process(delta: float) -> void:
 		_label.text = "Synthesizer — READY!"
 		_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.4))
 	else:
-		_label.text = "Vaccine Synthesizer (%d/7)" % Inventory.count_mrna()
+		_label.text = tr("Vaccine Synthesizer (%d/7)") % Inventory.count_mrna()
 		_label.add_theme_color_override("font_color", Color(0.85, 0.88, 1.0))
 	var vis := 1.0 if (_highlighted or ready or assembled) else 0.0
 	_label.modulate.a = move_toward(_label.modulate.a, vis, delta * 6.0)
@@ -86,8 +86,8 @@ func interact() -> void:
 		var n := Inventory.count_mrna()
 		var missing := ", ".join(_missing_names())
 		DialogueManager.start([
-			["Synthesizer", "Components loaded: %d of 7." % n],
-			["Synthesizer", "Still needed: %s. Gather them, then operate me." % missing],
+			["Synthesizer", tr("Components loaded: %d of 7.") % n],
+			["Synthesizer", tr("Still needed: %s. Gather them, then operate me.") % missing],
 		])
 		return
 	# All seven — launch the assembly mini-game (it sets "mrna_assembled" on success).
@@ -101,5 +101,5 @@ func _missing_names() -> Array:
 	var out: Array = []
 	for id in Inventory.MRNA_ORDER:
 		if not Inventory.has(id):
-			out.append(Inventory.component_name(id))
+			out.append(tr(Inventory.component_name(id)))
 	return out
