@@ -148,9 +148,16 @@ const app = express();
 app.use(express.json());
 app.use('/backdrops', express.static(BACKDROPS, { maxAge: '1h' }));
 app.use('/sfx', express.static(SFX, { maxAge: '1h' }));
-app.use(express.static(path.join(__dirname, 'public')));
-app.get('/stage', (_, res) => res.sendFile(path.join(__dirname, 'public', 'stage.html')));
-app.get('/settings', (_, res) => res.sendFile(path.join(__dirname, 'public', 'settings.html')));
+const ASSET_VER = String(Math.floor(fs.statSync(path.join(__dirname, 'public', 'app.js')).mtimeMs));
+function sendPage(name) {   // HTML is never cached; js/css links get a version query so browsers and Cloudflare fetch new builds
+  const html = fs.readFileSync(path.join(__dirname, 'public', name), 'utf8').replace(/(href|src)="\/([a-z]+\.(?:js|css))"/g, `$1="/$2?v=${ASSET_VER}"`);
+  return (_, res) => { res.set('Cache-Control', 'no-store'); res.type('html').send(html); };
+}
+app.get('/', sendPage('index.html'));
+app.get('/index.html', sendPage('index.html'));
+app.use(express.static(path.join(__dirname, 'public'), { setHeaders: res => res.set('Cache-Control', 'no-cache') }));
+app.get('/stage', sendPage('stage.html'));
+app.get('/settings', sendPage('settings.html'));
 
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: '/ws' });
