@@ -1,0 +1,8 @@
+{
+  "name": "prince-of-mrna-director-dashboard",
+  "version": "1.0.0",
+  "description": "Director's dashboard for the Prince of mRNA stage play: cue sheet, projector backdrops, sound effects, IoT lights",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": { "express": "^4.21.0", "ws": "^8.18.0" }
+}

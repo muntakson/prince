@@ -1,0 +1,10 @@
+{
+ "2": {
+  "file": "play/backdrops/02_scroll_room.png",
+  "prompt": "A scholar's chamber turned molecular biology atlas: on a stone pedestal lies an unrolled luminous scroll, and rising out of it as a 3D hologram is the full anatomy of an mRNA vaccine molecule drawn accurately and large: a single RNA strand with a 5' cap at one end, the untranslated regions, a long coding region, and a long poly(A) tail of beads at the other end, with small glowing modified nucleosides along the strand. Behind it the central dogma as objects: a DNA double helix inside a nucleus, an RNA polymerase, and a ribosome (large and small subunit) threading the strand and extruding a folding protein chain. Warm golden light, bookshelves blurred in the background. Absolutely no words, letters or labels anywhere in the picture."
+ },
+ "5": {
+  "file": "play/backdrops/05_lymph_node.png",
+  "prompt": "Inside a lymph node T-cell zone at cellular scale: a mature dendritic cell with long branching dendrites in the centre, its surface studded with MHC-peptide complexes, CD80/CD86 costimulatory molecules and secreted IL-12 droplets, forming an immunological synapse with one naive T cell whose T-cell receptors (Y-shaped TCR with CD3) and CD28 dock onto it; around them dozens of other round naive T cells with slightly different receptors drifting in lymph, held by a lattice of reticular fibres and high endothelial venules. Soft yellow-white light on a dark background, realistic cell textures; the bottom of the picture is a dark floor, never white."
+ }
+}

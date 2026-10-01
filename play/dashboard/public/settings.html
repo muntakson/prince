@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>설정 · Prince of mRNA 연출 대시보드</title>
+<link rel="icon" href="/favicon.svg">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>⚙ 설정</h1>
+  <div class="spacer"></div>
+  <a href="/"><button>← 대시보드로</button></a>
+</header>
+<div class="settings">
+  <div class="panel">
+    <h2>소리와 무대 화면</h2>
+    <div class="form-row"><label for="audioOutput">음향효과 재생 창</label>
+      <select id="audioOutput">
+        <option value="dashboard">대시보드 창 (노트북 스피커/오디오 출력)</option>
+        <option value="stage">무대 화면 창 (프로젝터 HDMI 오디오)</option>
+        <option value="both">둘 다 (같은 PC면 소리가 겹치니 주의)</option>
+      </select></div>
+    <div class="form-row"><label for="stageFit">배경 맞춤</label>
+      <select id="stageFit"><option value="contain">전체 보이기 (좌우 검은 여백)</option><option value="cover">화면 채우기 (위아래 잘림)</option></select></div>
+    <div class="form-row"><label for="stageFadeMs">배경 전환 페이드 (ms)</label><input id="stageFadeMs" type="number" min="0" max="5000" step="100"></div>
+  </div>
+  <div class="panel">
+    <h2>IoT 조명 4대</h2>
+    <p class="help" style="margin-top:0">각 조명은 HTTP로 켜고 끕니다. 서버가 <code>http://IP:포트/경로</code>로 요청을 보내므로 노트북이 조명과 같은 네트워크(Wi-Fi)에 있어야 합니다. 예: Shelly <code>/relay/0?turn=on</code>, Tasmota <code>/cm?cmnd=Power%20On</code>, ESP8266 커스텀 <code>/on</code>.</p>
+    <div id="lightForms"></div>
+  </div>
+  <div class="cuebox">
+    <button id="save" class="primary">저장</button>
+    <span id="saveMsg" class="help"></span>
+  </div>
+</div>
+<script src="/common.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+let config = {};
+async function load() {
+  config = await (await fetch('/api/settings')).json();
+  $('#audioOutput').value = config.audioOutput; $('#stageFit').value = config.stageFit; $('#stageFadeMs').value = config.stageFadeMs;
+  const wrap = $('#lightForms'); wrap.innerHTML = '';
+  config.lights.forEach((l, i) => {
+    const d = document.createElement('div'); d.className = 'lightform'; d.dataset.i = i;
+    d.innerHTML = `
+      <div class="wide"><label>이름</label><input name="name" value="${esc(l.name)}"></div>
+      <div><label>표시 색</label><input name="color" type="color" value="${esc(l.color)}" style="height:38px;padding:2px"></div>
+      <div class="wide"><label>IP 주소 / 호스트</label><input name="host" value="${esc(l.host)}" placeholder="192.168.0.101"></div>
+      <div><label>포트</label><input name="port" type="number" value="${l.port}"></div>
+      <div><label>메서드</label><select name="method"><option ${l.method === 'GET' ? 'selected' : ''}>GET</option><option ${l.method === 'POST' ? 'selected' : ''}>POST</option><option ${l.method === 'PUT' ? 'selected' : ''}>PUT</option></select></div>
+      <div class="wide"><label>켜기 경로</label><input name="onPath" value="${esc(l.onPath)}"></div>
+      <div class="wide"><label>끄기 경로</label><input name="offPath" value="${esc(l.offPath)}"></div>
+      <div><label>테스트</label><div style="display:flex;gap:4px"><button class="small" data-test="1">ON</button><button class="small" data-test="0">OFF</button></div></div>
+      <div class="full"><label>요청 본문 (POST/PUT일 때만, JSON)</label><input name="body" value="${esc(l.body || '')}" placeholder='{"state":"on"}'></div>
+      <div class="full help" data-msg></div>`;
+    d.querySelectorAll('[data-test]').forEach(b => b.onclick = async () => {
+      await save(false);
+      const r = await API.post('/api/lights/' + (i + 1), { on: b.dataset.test === '1' });
+      d.querySelector('[data-msg]').textContent = (r.ok ? '✅ ' : '⚠ ') + r.light.message + '  (' + r.url + ')';
+    });
+    wrap.appendChild(d);
+  });
+}
+function collect() {
+  return {
+    audioOutput: $('#audioOutput').value, stageFit: $('#stageFit').value, stageFadeMs: Number($('#stageFadeMs').value),
+    lights: [...document.querySelectorAll('.lightform')].map(f => Object.fromEntries([...f.querySelectorAll('[name]')].map(el => [el.name, el.value]))),
+  };
+}
+async function save(notify = true) {
+  try { const r = await API.put('/api/settings', collect()); config = r.config; if (notify) { $('#saveMsg').textContent = '저장했습니다. 모든 창에 바로 적용됩니다.'; toast('설정 저장됨'); } }
+  catch (e) { $('#saveMsg').textContent = '저장 실패: ' + e.message; toast(e.message, true); }
+}
+$('#save').onclick = () => save(true);
+load();
+</script>
+</body>
+</html>

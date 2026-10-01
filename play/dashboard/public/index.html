@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prince of mRNA 연출 대시보드</title>
+<link rel="icon" href="/favicon.svg">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>🎭 Prince of mRNA 연출 대시보드</h1>
+  <span id="conn" class="badge bad">연결 끊김</span>
+  <span id="audioState" class="badge bad" title="클릭하면 이 창의 소리 재생을 허용합니다" style="cursor:pointer">🔇 소리 꺼짐</span>
+  <div class="spacer"></div>
+  <div id="clock" class="clock">00:00</div>
+  <button id="swStart" class="primary">▶ 시작</button>
+  <button id="swPause">⏸ 일시정지</button>
+  <button id="swReset">↺ 리셋</button>
+  <div class="spacer"></div>
+  <button id="openStage" title="두 번째 모니터(빔 프로젝터)로 옮긴 뒤 F11로 전체화면">🖥 무대 화면 열기</button>
+  <a href="/settings"><button>⚙ 설정</button></a>
+</header>
+
+<div class="layout">
+  <main>
+    <div class="panel">
+      <div class="cuebox">
+        <div class="now">
+          <div class="label">현재 큐</div>
+          <div id="curCue" class="big">아직 시작 전</div>
+          <div class="label" style="margin-top:6px">다음 큐</div>
+          <div id="nextCue" class="big">큐 0 · 개막 전</div>
+        </div>
+        <button id="goBtn" class="go">GO ▶ 다음 큐</button>
+        <button id="blackBtn" title="무대 화면 암전 (B)">⬛ 암전</button>
+        <button id="stopAllBtn" class="danger" title="모든 소리 정지 (Esc)">■ 소리 전부 정지</button>
+      </div>
+      <div class="nowplaying" id="nowPlaying"><span class="label" style="color:var(--dim)">재생 중: 없음</span></div>
+      <div class="help">단축키: <kbd>Space</kbd>/<kbd>Enter</kbd> 다음 큐 GO · <kbd>Esc</kbd> 소리 전부 정지 · <kbd>B</kbd> 암전 · <kbd>↑</kbd>/<kbd>↓</kbd> 큐 포인터 이동(실행 안 함). 표의 배경 번호나 음향 이름을 누르면 그것만 바로 실행됩니다.</div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <h2>큐시트</h2>
+      <div class="cuewrap">
+        <table class="cues" id="cueTable">
+          <thead><tr><th>큐</th><th>시간</th><th>장면</th><th>계기 (대사·동작)</th><th>배경</th><th>조명</th><th>음향</th><th>배우·소품·동선</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:16px" id="actorsPanel">
+      <h2>AI 배우 · 대본 낭독</h2>
+      <div class="cuebox" style="margin-bottom:8px">
+        <button id="narrPlay" class="go">▶ 자동 재생</button>
+        <button id="narrStop" class="danger">■ 정지</button>
+        <button id="narrPrev">⏮ 이전 줄</button>
+        <button id="narrNext">⏭ 다음 줄</button>
+        <span id="narrStatus" class="help" style="margin:0"></span>
+        <div class="spacer"></div>
+        <label class="help" style="margin:0"><input type="checkbox" id="narrFollow" checked style="width:auto"> 현재 줄 따라가기</label>
+      </div>
+      <div class="help" style="margin:0 0 8px">자동 재생은 선택한 줄부터 AI 배우가 차례로 대사를 읽고, 지문(> 줄)의 음향·배경 지시도 같이 실행합니다. 줄의 ▶는 그 대사만 읽습니다. 장면 제목의 ▶는 그 장면부터 자동 재생합니다. 단축키 <kbd>N</kbd> 다음 줄, <kbd>P</kbd> 자동 재생/정지.</div>
+      <div class="scriptwrap" id="scriptList"></div>
+    </div>
+  </main>
+
+  <aside>
+    <div class="panel">
+      <h2>무대 화면 (배경)</h2>
+      <div class="grid bd" id="backdrops"></div>
+      <div class="help">현재 표시 중: <b id="curBackdrop">암전</b></div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <h2>조명 (IoT)</h2>
+      <div class="lights" id="lights"></div>
+      <div class="cuebox" style="margin:10px 0 0">
+        <button id="allOn" class="primary">모두 켜기</button>
+        <button id="allOff">모두 끄기</button>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <h2>음향효과 전체</h2>
+      <div class="sfxlist" id="sfxList"></div>
+    </div>
+  </aside>
+</div>
+<script src="/common.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

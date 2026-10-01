@@ -1,0 +1,12 @@
+{
+  "port": 8100,
+  "audioOutput": "dashboard",
+  "stageFit": "contain",
+  "stageFadeMs": 800,
+  "lights": [
+    { "id": 1, "name": "전체 조명 1", "color": "#f59e0b", "host": "192.168.0.101", "port": 80, "method": "GET", "onPath": "/relay/0?turn=on", "offPath": "/relay/0?turn=off", "body": "" },
+    { "id": 2, "name": "전체 조명 2", "color": "#f59e0b", "host": "192.168.0.102", "port": 80, "method": "GET", "onPath": "/relay/0?turn=on", "offPath": "/relay/0?turn=off", "body": "" },
+    { "id": 3, "name": "핀 조명",     "color": "#38bdf8", "host": "192.168.0.103", "port": 80, "method": "GET", "onPath": "/relay/0?turn=on", "offPath": "/relay/0?turn=off", "body": "" },
+    { "id": 4, "name": "효과 조명",   "color": "#a78bfa", "host": "192.168.0.104", "port": 80, "method": "GET", "onPath": "/relay/0?turn=on", "offPath": "/relay/0?turn=off", "body": "" }
+  ]
+}

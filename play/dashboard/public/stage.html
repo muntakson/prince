@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prince of mRNA 무대 화면</title>
+<link rel="icon" href="/favicon.svg">
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; cursor: none; font-family: "Noto Sans KR", system-ui, sans-serif; }
+  body.show-cursor { cursor: default; }
+  .layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity var(--fade, 800ms) ease; }
+  .layer.visible { opacity: 1; }
+  .layer img { width: 100%; height: 100%; object-fit: var(--fit, contain); display: block; }
+  #hint { position: absolute; left: 16px; bottom: 16px; color: #e5e7eb; background: rgba(15, 23, 42, .85); border: 1px solid #475569; padding: 10px 14px; border-radius: 10px; font-size: 15px; transition: opacity .5s; z-index: 5; max-width: 90vw; }
+  #hint.hide { opacity: 0; pointer-events: none; }
+  #hint b { color: #fde68a; }
+  #conn { position: absolute; top: 8px; right: 8px; width: 10px; height: 10px; border-radius: 50%; background: #ef4444; z-index: 5; }
+  #conn.ok { background: #22c55e; opacity: .35; }
+</style>
+</head>
+<body>
+<div id="a" class="layer"><img alt=""></div>
+<div id="b" class="layer"><img alt=""></div>
+<div id="conn"></div>
+<div id="hint">무대 화면 · 이 창을 프로젝터 모니터로 옮기고 <b>F11</b>(전체화면)을 누르세요. 화면을 클릭하면 전체화면 전환, 마우스를 움직이면 이 안내가 다시 보입니다.<br><span id="audioHint"></span></div>
+<script src="/common.js"></script>
+<script>
+const ROLE = 'stage';
+let config = {}, backdrops = [], current = null, front = 'a';
+const layers = { a: document.getElementById('a'), b: document.getElementById('b') };
+function audioEnabled() { return config.audioOutput === ROLE || config.audioOutput === 'both'; }
+function applyConfig() {
+  document.documentElement.style.setProperty('--fit', config.stageFit || 'contain');
+  document.documentElement.style.setProperty('--fade', (config.stageFadeMs ?? 800) + 'ms');
+  Player.enabled = audioEnabled();
+  document.getElementById('audioHint').textContent = audioEnabled() ? (Player.unlocked ? '🔊 이 창에서 소리가 재생됩니다.' : '🔇 소리가 이 창으로 설정되어 있습니다. 한 번 클릭해서 재생을 허용하세요.') : '';
+}
+function setBackdrop(id) {
+  if (id === current) return; current = id;
+  const b = backdrops.find(x => x.id === id);
+  const back = front === 'a' ? 'b' : 'a';
+  if (!b) { layers[front].classList.remove('visible'); return; }
+  const img = layers[back].querySelector('img');
+  img.onload = () => { layers[back].classList.add('visible'); layers[front].classList.remove('visible'); front = back; };
+  img.src = b.url;
+}
+connect(msg => {
+  if (msg.type === 'hello') { config = msg.config; backdrops = msg.backdrops; applyConfig(); setBackdrop(msg.state.backdrop); }
+  else if (msg.type === 'state') setBackdrop(msg.state.backdrop);
+  else if (msg.type === 'config') { config = msg.config; applyConfig(); }
+  else if (msg.type === 'preload') { if (msg.backdrop) { const i = new Image(); i.src = '/backdrops/' + msg.backdrop + '.png'; } }
+  else if ((msg.type === 'sound' || msg.type === 'voice') && audioEnabled()) {
+    if (msg.action === 'play') Player.play(msg.id, msg.loop, msg.type); else if (msg.action === 'stop') Player.stop(msg.id, msg.fade); else if (msg.action === 'stopAll') Player.stopAll();
+  }
+}, ok => document.getElementById('conn').className = ok ? 'ok' : '');
+window.onAudioBlocked = () => { Player.unlocked = false; applyConfig(); hint.classList.remove('hide'); };
+const hint = document.getElementById('hint'); let hideT;
+function showHint() { hint.classList.remove('hide'); document.body.classList.add('show-cursor'); clearTimeout(hideT); hideT = setTimeout(() => { hint.classList.add('hide'); document.body.classList.remove('show-cursor'); }, 4000); }
+document.addEventListener('mousemove', showHint); showHint();
+document.addEventListener('click', () => { Player.unlock(); applyConfig(); if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {}); else document.exitFullscreen(); });
+</script>
+</body>
+</html>
