@@ -18,7 +18,8 @@ func is_active() -> bool:
 func queue_size() -> int:
 	return _queue.size()
 
-## Accepts an Array of line Dictionaries, or an Array of [speaker, text] pairs,
+## Accepts an Array of line Dictionaries, or an Array of [speaker, text] pairs
+## (or [speaker, text, word_id] Word Cards from Glossary.card),
 ## or a single "text" String for quick barks.
 func start(lines) -> void:
 	_queue.clear()
@@ -27,9 +28,10 @@ func start(lines) -> void:
 	elif lines is Array:
 		for l in lines:
 			if l is Dictionary:
-				_queue.append({"speaker": l.get("speaker", ""), "text": l.get("text", "")})
+				_queue.append({"speaker": l.get("speaker", ""), "text": l.get("text", ""), "word": l.get("word", "")})
 			elif l is Array and l.size() >= 2:
-				_queue.append({"speaker": str(l[0]), "text": str(l[1])})
+				# a third element is a Glossary word id (Glossary.card): learned when shown
+				_queue.append({"speaker": str(l[0]), "text": str(l[1]), "word": str(l[2]) if l.size() >= 3 else ""})
 			elif l is String:
 				_queue.append({"speaker": "", "text": l})
 	if _queue.is_empty():
@@ -51,6 +53,8 @@ func advance() -> void:
 
 func _show_next() -> void:
 	var line: Dictionary = _queue.pop_front()
+	if line.get("word", "") != "":
+		Glossary.learn(line["word"])
 	line_shown.emit(line.get("speaker", ""), line.get("text", ""))
 
 func _finish() -> void:

@@ -54,7 +54,16 @@ func count_mrna() -> int:
 func has_all_mrna() -> bool:
 	return count_mrna() == MRNA_ORDER.size()
 
+## The name players see: the kingdom nickname (Glossary) in the current
+## language. The science name is earned on the Word Card.
 func component_name(id: String) -> String:
+	if Glossary.has(id):
+		return Glossary.nick(id)
+	return COMPONENTS.get(id, {}).get("name", id)
+
+func science_name(id: String) -> String:
+	if Glossary.has(id):
+		return Glossary.sci(id)
 	return COMPONENTS.get(id, {}).get("name", id)
 
 func component_blurb(id: String) -> String:

@@ -267,14 +267,14 @@ func _build_touch() -> void:
 func _build_pause_menu() -> void:
 	pause_menu = PanelContainer.new()
 	pause_menu.set_anchors_preset(Control.PRESET_CENTER)
-	pause_menu.custom_minimum_size = Vector2(360, 490)
+	pause_menu.custom_minimum_size = Vector2(360, 560)
 	pause_menu.position = Vector2(-180, -180)
 	pause_menu.anchor_left = 0.5
 	pause_menu.anchor_top = 0.5
 	pause_menu.offset_left = -180
-	pause_menu.offset_top = -245
+	pause_menu.offset_top = -280
 	pause_menu.offset_right = 180
-	pause_menu.offset_bottom = 245
+	pause_menu.offset_bottom = 280
 	_style_panel(pause_menu, Color(0.06, 0.08, 0.16, 0.97), Color(0.4, 0.6, 0.9, 0.8))
 	pause_menu.visible = false
 	root.add_child(pause_menu)
@@ -296,6 +296,7 @@ func _build_pause_menu() -> void:
 		SaveManager.save_game()
 		_flash_hint("Saved!")))
 	vb.add_child(_menu_button("Help", _open_help))
+	vb.add_child(_menu_button("Science Words", func(): CodexScreen.open(get_tree())))
 	_voice_btn = _menu_button(_voice_label(), AudioManager.toggle_voice)
 	AudioManager.voice_toggled.connect(_on_voice_toggled)
 	vb.add_child(_voice_btn)
@@ -339,6 +340,11 @@ func _on_line_shown(speaker: String, text: String) -> void:
 		text_label.remove_theme_font_override("normal_font")
 	speaker_label.text = loc[0]
 	speaker_label.visible = loc[0] != ""
+	# Word Cards (Glossary) stand out in gold so a new science word reads as a reward
+	var card := speaker == Glossary.SPEAKER
+	speaker_label.add_theme_color_override("font_color", Color(1.0, 0.82, 0.35) if card else Color(0.6, 0.85, 1.0))
+	if card:
+		speaker_label.text = "%s  (%d / %d)" % [loc[0], Glossary.learned_count(), Glossary.total()]
 	_full_text = loc[1]
 	text_label.text = loc[1]
 	text_label.visible_ratio = 0.0

@@ -7,6 +7,7 @@ portal_re = re.compile(r'add_portal\([^,]+,\s*"[^"]*"\s*,\s*"((?:[^"\\]|\\.)*)"'
 def unesc(s): return bytes(s, "utf-8").decode("unicode_escape").encode("latin-1").decode("utf-8") if "\\" in s else s
 for f in sorted(glob.glob("scripts/**/*.gd", recursive=True)) + sorted(glob.glob("autoload/*.gd")):
     src = open(f, encoding="utf-8").read()
+    if f.replace("\\", "/").endswith("ui/Glossary.gd"): continue   # word data, not dialogue (cards added below)
     for m in pair_re.finditer(src):
         lines.append((unesc(m.group(1)), unesc(m.group(2)), f))
     for m in dict_re.finditer(src):
@@ -15,6 +16,11 @@ for f in sorted(glob.glob("scripts/**/*.gd", recursive=True)) + sorted(glob.glob
         lines.append(("", unesc(m.group(1)), f))
     for m in portal_re.finditer(src):
         lines.append(("", unesc(m.group(1)), f))
+# Word Cards (scripts/ui/Glossary.gd): speaker "New Word", text = Glossary.card_text (nick  =  sci, newline, what)
+gsrc = open("scripts/ui/Glossary.gd", encoding="utf-8").read()
+wre = re.compile(r'"nick": \["([^"]*)",[^\]]*\],\s*"sci": \["([^"]*)",[^\]]*\],\s*"what": \["([^"]*)"', re.S)
+for m in wre.finditer(gsrc):
+    lines.append(("New Word", "%s  =  %s\n%s" % (unesc(m.group(1)), unesc(m.group(2)), unesc(m.group(3))), "scripts/ui/Glossary.gd"))
 for cf in ["assets/help/mixer_clues.json", "assets/help/tcell_clues.json"]:
     for k, v in json.load(open(cf, encoding="utf-8")).items():
         if k != "title": lines.append(("Scroll", v, cf))

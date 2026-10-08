@@ -19,11 +19,11 @@ const TILE := Vector2(112, 96)
 enum Phase { LOAD, SET, RUN, RESULT, DIALYSIS, DONE }
 
 const ITEMS := [
-	{"id": "ionizable", "name": "Ionizable lipid", "inlet": "organic", "col": Color(1.0, 0.75, 0.2)},
-	{"id": "dspc", "name": "DSPC (helper)", "inlet": "organic", "col": Color(1.0, 0.55, 0.35)},
-	{"id": "chol", "name": "Cholesterol", "inlet": "organic", "col": Color(0.95, 0.9, 0.5)},
-	{"id": "peg", "name": "PEG-lipid", "inlet": "organic", "col": Color(0.7, 0.9, 1.0)},
-	{"id": "mrna", "name": "mRNA", "inlet": "aqueous", "col": Color(0.35, 0.7, 1.0)},
+	{"id": "ionizable", "name": "Magnet Fat", "sci": "ionizable lipid", "inlet": "organic", "col": Color(1.0, 0.75, 0.2)},
+	{"id": "dspc", "name": "Brick Fat", "sci": "DSPC", "inlet": "organic", "col": Color(1.0, 0.55, 0.35)},
+	{"id": "chol", "name": "Mortar", "sci": "cholesterol", "inlet": "organic", "col": Color(0.95, 0.9, 0.5)},
+	{"id": "peg", "name": "Non-stick Coat", "sci": "PEG-lipid", "inlet": "organic", "col": Color(0.7, 0.9, 1.0)},
+	{"id": "mrna", "name": "Royal Letter", "sci": "mRNA", "inlet": "aqueous", "col": Color(0.35, 0.7, 1.0)},
 ]
 
 var debug_autoplay := false
@@ -86,8 +86,8 @@ func _build() -> void:
 	frame.offset_top = -640
 	frame.offset_bottom = 640
 	root.add_child(frame)
-	_add_label(frame, Vector2(20, 26), BW - 40, "Microfluidic Mixer", 38, Color(1, 0.95, 0.75))
-	_add_label(frame, Vector2(20, 78), BW - 40, "Wrap the mRNA in a lipid nanoparticle", 20, Color(0.75, 0.9, 1.0))
+	_add_label(frame, Vector2(20, 26), BW - 40, "Bubble Maker", 38, Color(1, 0.95, 0.75))
+	_add_label(frame, Vector2(20, 78), BW - 40, "Wrap the Royal Letter (mRNA) in a Bubble Shield (LNP)", 20, Color(0.75, 0.9, 1.0))
 
 	stage = Stage.new()
 	stage.mg = self
@@ -97,9 +97,9 @@ func _build() -> void:
 
 	# inlets
 	inlet_panels["organic"] = _make_panel(frame, Vector2(20, 142), Vector2(330, 250), Color(0.25, 0.18, 0.05, 0.9), Color(1.0, 0.8, 0.3))
-	_add_label(inlet_panels["organic"], Vector2(6, 6), 318, "Ethanol inlet (lipids)", 18, Color(1, 0.9, 0.6))
+	_add_label(inlet_panels["organic"], Vector2(6, 6), 318, "Fats go here (ethanol)", 18, Color(1, 0.9, 0.6))
 	inlet_panels["aqueous"] = _make_panel(frame, Vector2(370, 142), Vector2(330, 250), Color(0.05, 0.12, 0.28, 0.9), Color(0.4, 0.7, 1.0))
-	_add_label(inlet_panels["aqueous"], Vector2(6, 6), 318, "pH 4 acetate buffer inlet", 18, Color(0.7, 0.85, 1.0))
+	_add_label(inlet_panels["aqueous"], Vector2(6, 6), 318, "Letter goes here (pH 4 acid water)", 18, Color(0.7, 0.85, 1.0))
 
 	# tray tiles
 	var xs := [20.0, 140.0, 260.0, 380.0, 500.0]
@@ -115,8 +115,11 @@ func _build() -> void:
 		ic.position = Vector2(TILE.x / 2.0, 34)
 		ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		tile.add_child(ic)
-		var nm := _add_label(tile, Vector2(2, 62), TILE.x - 4, it["name"], 13, Color(0.9, 0.95, 1.0))
+		# nickname first (big), science name underneath (small)
+		var nm := _add_label(tile, Vector2(2, 56), TILE.x - 4, it["name"], 12 if str(it["name"]).length() > 12 else 14, Color(0.9, 0.95, 1.0))
 		nm.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var sci := _add_label(tile, Vector2(2, 75), TILE.x - 4, it["sci"], 11, Color(0.65, 0.75, 0.9))
+		sci.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		tray_tiles.append(tile)
 
 	# settings box (hidden until LOAD is done)
@@ -131,14 +134,14 @@ func _build() -> void:
 	tfr_slider = _slider(set_box, Vector2(0, 112), 2.0, 16.0, 1.0, 4.0)
 	predict_label = _add_label(set_box, Vector2(0, 160), BW - 40, "", 17, Color(0.8, 0.9, 0.8), HORIZONTAL_ALIGNMENT_LEFT)
 	run_btn = Button.new()
-	run_btn.text = "Run mixer"
+	run_btn.text = "Make bubbles!"
 	run_btn.position = Vector2((BW - 40) / 2.0 - 110, 220)
 	run_btn.custom_minimum_size = Vector2(220, 56)
 	run_btn.add_theme_font_size_override("font_size", 24)
 	run_btn.pressed.connect(_on_run)
 	set_box.add_child(run_btn)
 	dial_btn = Button.new()
-	dial_btn.text = "Exchange buffer to pH 7.4"
+	dial_btn.text = "Rinse to body pH (7.4)"
 	dial_btn.position = Vector2((BW - 40) / 2.0 - 170, 220)
 	dial_btn.custom_minimum_size = Vector2(340, 56)
 	dial_btn.add_theme_font_size_override("font_size", 22)
@@ -247,33 +250,33 @@ func _set_phase(p: int) -> void:
 	DebugConsole.dlog("Mixer phase %d" % p)
 	match p:
 		Phase.LOAD:
-			caption.text = "Drag the four lipids into the ethanol inlet and the mRNA into the pH 4 buffer inlet. Lipids only dissolve in ethanol; mRNA stays in water."
+			caption.text = "Drag the four fats to the ethanol side. Drag the Royal Letter into the acid water. Fats only dissolve in alcohol; the letter needs water."
 		Phase.SET:
 			set_box.visible = true
 			run_btn.visible = true
 			dial_btn.visible = false
-			caption.text = "Recipe: 1 volume lipid–ethanol to 3 volumes mRNA buffer (ratio 3:1). Fast total flow mixes in milliseconds — before lipids can clump."
-			banner.text = "" if _runs == 0 else "Adjust the settings and run again"
+			caption.text = "Recipe: 3 parts letter water to 1 part fat (3:1). Flow fast, so the fats mix before they clump."
+			banner.text = "" if _runs == 0 else "Move the sliders and try again"
 		Phase.RUN:
 			set_box.visible = false
 			flow_particles.clear()
-			caption.text = "The streams meet. Herringbone grooves fold them over and over; at pH 4 the ionizable lipid is charged (+) and grabs the mRNA (–). As ethanol dilutes, the lipids precipitate into nanoparticles."
+			caption.text = "The two streams meet. Zigzag grooves fold them together. In the acid, Magnet Fat turns + and grabs the letter (–). The fats wrap up into tiny bubbles."
 		Phase.RESULT:
 			set_box.visible = true
 			run_btn.visible = not result["ok"]
 			dial_btn.visible = result["ok"]
 			if result["ok"]:
-				banner.text = tr("LNPs formed: %d nm, PDI %.2f, %d%% mRNA encapsulated") % [result["size"], result["pdi"], result["ee"]]
-				caption.text = "Small, uniform particles with the mRNA inside. One step left: the particles still sit in ethanol at pH 4."
+				banner.text = tr("Good bubbles! %d nm, evenness: %s, %d%% letters inside") % [result["size"], _evenness(result["pdi"]), result["ee"]]
+				caption.text = "Small, even bubbles with the letter inside. Last step: they still sit in alcohol and acid."
 			else:
-				banner.text = tr("Poor batch: %d nm, PDI %.2f, %d%% encapsulated") % [result["size"], result["pdi"], result["ee"]]
+				banner.text = tr("Bad batch: %d nm, evenness: %s, %d%% letters inside") % [result["size"], _evenness(result["pdi"]), result["ee"]]
 				caption.text = result["why"]
 		Phase.DIALYSIS:
 			set_box.visible = false
-			caption.text = "Dialysis: ethanol leaves and the pH rises to 7.4. The ionizable lipid turns neutral, so the LNP is gentle in the blood — it will only turn positive again inside the acidic endosome."
+			caption.text = "Rinsing (dialysis): the alcohol washes out and the acid fades to body pH 7.4. Magnet Fat goes neutral, so it is gentle in the blood. It turns + again only in the acidic Swallow Bubble."
 		Phase.DONE:
-			banner.text = "Lipid nanoparticle ready!"
-			caption.text = tr("The mRNA is packed inside a %d nm lipid shell with a PEG coat. Ready for injection.") % result["size"]
+			banner.text = "Bubble Shield ready!"
+			caption.text = tr("The letter is safe inside a %d nm Bubble Shield with a Non-stick Coat. Ready for the injection.") % result["size"]
 
 func _predict() -> Dictionary:
 	var ratio: float = ratio_slider.value
@@ -284,10 +287,18 @@ func _predict() -> Dictionary:
 	var ok := absf(ratio - 3.0) <= 0.5 and tfr >= 10.0
 	var why := ""
 	if absf(ratio - 3.0) > 0.5:
-		why = "Wrong flow-rate ratio: too much ethanol lets particles fuse and grow; too little leaves lipid behind. Aim for 3:1." if ratio < 3.0 else "Wrong flow-rate ratio: with so much buffer the lipids precipitate unevenly. Aim for 3:1."
+		why = "Not enough water: the bubbles stick together and grow too big. Aim for 3:1." if ratio < 3.0 else "Too much water: the fats wrap up unevenly. Aim for 3:1."
 	elif tfr < 10.0:
-		why = "Too slow: slow mixing gives lipids time to aggregate into big, uneven particles. Raise the total flow rate."
+		why = "Too slow: the fats have time to clump into big, uneven bubbles. Speed up the flow."
 	return {"size": int(round(size)), "pdi": snappedf(pdi, 0.01), "ee": int(round(clampf(ee, 20.0, 99.0))), "ok": ok, "why": why}
+
+## Plain-word readout for the PDI (how alike the bubble sizes are). Display only.
+func _evenness(pdi: float) -> String:
+	if pdi < 0.10:
+		return tr("great")
+	if pdi < 0.20:
+		return tr("so-so")
+	return tr("poor")
 
 func _on_run() -> void:
 	if _phase != Phase.SET and _phase != Phase.RESULT:
@@ -364,6 +375,7 @@ func _drop(tile: Control, target: String) -> void:
 	if target == want:
 		tile.set_meta("locked", true)
 		placed[target].append(id)
+		Glossary.learn({"chol": "cholesterol"}.get(id, id))   # earn the Science Word for this ingredient
 		var panel: Panel = inlet_panels[target]
 		var n: int = placed[target].size()
 		var slot_pos: Vector2 = panel.position + Vector2(12 + ((n - 1) % 2) * (TILE.x + 10), 40 + ((n - 1) / 2) * (TILE.y + 6))
@@ -381,7 +393,7 @@ func _drop(tile: Control, target: String) -> void:
 	else:
 		tile.position = tile.get_meta("home")
 		if target != "":
-			caption.text = (tr("The %s belongs in the ethanol inlet — lipids are hydrophobic and only dissolve in ethanol.") % tr(_name(id))) if want == "organic" else "mRNA is water-soluble and must stay in the acidic aqueous buffer, away from the ethanol."
+			caption.text = (tr("%s goes on the ethanol side. Fats dissolve in alcohol, not water.") % tr(_name(id))) if want == "organic" else "The Royal Letter dissolves in water. Keep it in the acid water, away from the ethanol."
 
 func _name(id: String) -> String:
 	for it in ITEMS:
@@ -402,10 +414,10 @@ func _process(delta: float) -> void:
 						_drop(tile, "aqueous" if id == "mrna" else "organic")
 						break
 		Phase.SET, Phase.RESULT:
-			ratio_label.text = tr("Flow-rate ratio (buffer : ethanol) = %.1f : 1") % ratio_slider.value
-			tfr_label.text = tr("Total flow rate = %d mL/min") % int(tfr_slider.value)
+			ratio_label.text = tr("Water : fat ratio = %.1f : 1   (recipe 3 : 1)") % ratio_slider.value
+			tfr_label.text = tr("Flow speed = %d mL/min   (fast = small, even bubbles)") % int(tfr_slider.value)
 			var pr := _predict()
-			predict_label.text = tr("Predicted: ~%d nm, PDI %.2f, %d%% encapsulated") % [pr["size"], pr["pdi"], pr["ee"]]
+			predict_label.text = tr("Forecast: size ~%d nm (goal ~80), evenness: %s, %d%% letters inside (goal 90+)") % [pr["size"], _evenness(pr["pdi"]), pr["ee"]]
 			if debug_autoplay and _pt > 1.5:
 				if _phase == Phase.SET:
 					ratio_slider.value = 3.0
@@ -517,7 +529,7 @@ class Stage extends Control:
 		# chip body
 		draw_rect(CH, Color(0.12, 0.2, 0.28, 0.95))
 		draw_rect(CH, Color(0.5, 0.75, 0.9, 0.9), false, 3.0)
-		draw_string(font, CH.position + Vector2(10, 22), tr("Staggered-herringbone microfluidic chip"), HORIZONTAL_ALIGNMENT_LEFT, 500, 16, Color(0.75, 0.9, 1.0))
+		draw_string(font, CH.position + Vector2(10, 22), tr("Bubble Maker chip (microfluidic mixer)"), HORIZONTAL_ALIGNMENT_LEFT, 500, 16, Color(0.75, 0.9, 1.0))
 		var j := _channel_point(0.0)
 		var o := _channel_point(1.0)
 		var in_org := Vector2(CH.position.x + 30, CH.position.y + 80)
@@ -531,8 +543,8 @@ class Stage extends Control:
 		var loaded_aq: bool = mg.placed["aqueous"].size() == 1
 		draw_line(in_org, j, Color(1.0, 0.8, 0.3, 0.9 if loaded_org else 0.25), 18.0, true)
 		draw_line(in_aq, j, Color(0.35, 0.7, 1.0, 0.9 if loaded_aq else 0.25), 18.0, true)
-		draw_string(font, in_org + Vector2(-14, -20), tr("ethanol + lipids"), HORIZONTAL_ALIGNMENT_LEFT, 160, 14, Color(1, 0.9, 0.6))
-		draw_string(font, in_aq + Vector2(-14, 34), tr("pH 4 buffer + mRNA"), HORIZONTAL_ALIGNMENT_LEFT, 180, 14, Color(0.7, 0.85, 1.0))
+		draw_string(font, in_org + Vector2(-14, -20), tr("ethanol + fats"), HORIZONTAL_ALIGNMENT_LEFT, 160, 14, Color(1, 0.9, 0.6))
+		draw_string(font, in_aq + Vector2(-14, 34), tr("acid water (pH 4) + letter"), HORIZONTAL_ALIGNMENT_LEFT, 180, 14, Color(0.7, 0.85, 1.0))
 		# main channel fill: blend from two-tone to mixed green along s
 		var running: bool = ph == mg.Phase.RUN
 		var mix_len: float = 0.25 + 0.45 * (1.0 - clampf(mg.tfr_slider.value / 16.0, 0.0, 1.0)) if running or ph >= mg.Phase.RESULT else 1.0
@@ -557,7 +569,7 @@ class Stage extends Control:
 			var dir := 1.0 if (i / 4) % 2 == 0 else -1.0
 			draw_line(p + Vector2(-8 * dir, -13), p + Vector2(0, 0), Color(0, 0, 0, 0.35), 3.0, true)
 			draw_line(p + Vector2(0, 0), p + Vector2(-8 * dir, 13), Color(0, 0, 0, 0.35), 3.0, true)
-		draw_string(font, o + Vector2(-90, 40), tr("outlet: LNPs"), HORIZONTAL_ALIGNMENT_RIGHT, 180, 14, Color(0.7, 1.0, 0.8))
+		draw_string(font, o + Vector2(-175, 40), tr("out: Bubble Shields"), HORIZONTAL_ALIGNMENT_RIGHT, 180, 14, Color(0.7, 1.0, 0.8))
 		# flowing particles during RUN
 		if running:
 			for fp in mg.flow_particles:
@@ -584,7 +596,7 @@ class Stage extends Control:
 				draw_circle(in_org.lerp(j, f), 3.5, Color(1.0, 0.8, 0.3))
 				draw_circle(in_aq.lerp(j, f), 3.5, Color(0.35, 0.7, 1.0))
 			# pH 4 charge cue
-			draw_string(font, j + Vector2(-60, -60), tr("pH 4: ionizable lipid (+) binds mRNA (–)"), HORIZONTAL_ALIGNMENT_LEFT, 360, 14, Color(1, 0.95, 0.7))
+			draw_string(font, j + Vector2(-60, -60), tr("In acid, Magnet Fat (+) grabs the letter (–)"), HORIZONTAL_ALIGNMENT_LEFT, 360, 14, Color(1, 0.95, 0.7))
 		# result / dialysis / done: show a big LNP cross-section
 		if ph >= mg.Phase.RESULT:
 			var c: Vector2 = Vector2(BW_CENTER, 1000) if ph == mg.Phase.RESULT else Vector2(BW_CENTER, 900)
@@ -628,7 +640,7 @@ class Stage extends Control:
 		if not ok and ph == mg.Phase.RESULT:
 			draw_circle(c + Vector2(r * 0.9, r * 0.5), r * 0.6, Color(1.0, 0.8, 0.3, 0.9))
 			draw_circle(c + Vector2(-r * 0.8, r * 0.6), r * 0.5, Color(1.0, 0.8, 0.3, 0.9))
-			draw_string(font, c + Vector2(-120, r + 40), tr("aggregated, uneven"), HORIZONTAL_ALIGNMENT_CENTER, 240, 16, Color(1, 0.6, 0.6))
+			draw_string(font, c + Vector2(-120, r + 40), tr("clumped, uneven"), HORIZONTAL_ALIGNMENT_CENTER, 240, 16, Color(1, 0.6, 0.6))
 		if ph == mg.Phase.DIALYSIS or ph == mg.Phase.DONE:
 			# pH meter and ethanol bubbles leaving
 			var mx := c.x - 200.0
@@ -641,5 +653,5 @@ class Stage extends Control:
 				var f := fmod(t * 0.5 + i * 0.125, 1.0)
 				var bp := c + Vector2(r + 40 + i * 12.0, 60 - f * 200.0)
 				draw_circle(bp, 5.0, Color(1.0, 0.9, 0.6, (1.0 - f) * (1.0 - ph_f)))
-			draw_string(font, c + Vector2(r + 30, 80), tr("ethanol out"), HORIZONTAL_ALIGNMENT_LEFT, 120, 14, Color(1, 0.9, 0.7, 1.0 - ph_f))
-			draw_string(font, c + Vector2(-120, -r - 30), tr("neutral, PEG-coated LNP") if ph_f >= 1.0 else "ionizable lipid losing its charge...", HORIZONTAL_ALIGNMENT_CENTER, 240, 16, Color(0.8, 1.0, 0.85))
+			draw_string(font, c + Vector2(r + 30, 80), tr("alcohol out"), HORIZONTAL_ALIGNMENT_LEFT, 120, 14, Color(1, 0.9, 0.7, 1.0 - ph_f))
+			draw_string(font, c + Vector2(-120, -r - 30), tr("neutral, coated Bubble Shield") if ph_f >= 1.0 else tr("Magnet Fat losing its charge..."), HORIZONTAL_ALIGNMENT_CENTER, 240, 16, Color(0.8, 1.0, 0.85))

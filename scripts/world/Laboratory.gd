@@ -18,7 +18,7 @@ func _ready() -> void:
 	super._ready()
 
 func build_content() -> void:
-	add_label(Vector2(540, 1050), "Collect all 7 mRNA components, assemble them at the Synthesizer, then wrap the mRNA at the Mixer.", 24, 520)
+	add_label(Vector2(540, 1050), "Find the 7 letter parts, put them in order at the Synthesizer, then shield the letter at the Bubble Maker.", 24, 520)
 
 	# Lab benches that break up the room (and give the RNases corners to lurk in).
 	add_wall_rect(Rect2(450, 480, 300, 36), true)   # benches: leap at one to vault it
@@ -48,10 +48,10 @@ func build_content() -> void:
 
 	# RNases: dormant until the naked mRNA exists; harmless once it is inside an LNP.
 	var rn := {
-		"hazard_name": "RNase", "texture_path": RNASE_TEX, "sprite_max_dim": 130.0,
+		"hazard_name": "Shredder", "texture_path": RNASE_TEX, "sprite_max_dim": 130.0,
 		"mode": "chase", "speed": 110.0, "chase_speed": 150.0, "chase_range": 300.0,
 		"hit_radius": 36.0, "damage": 0.34, "active_flag": "mrna_assembled",
-		"shield_flag": "lnp_made", "shield_text": "The lipid shell repels the RNase!",
+		"shield_flag": "lnp_made", "shield_text": "The Bubble Shield bounces the Shredder off!",
 		"bounds": Rect2(60, 60, 1480, 1280),
 	}
 	var a := rn.duplicate(); a["points"] = [Vector2(500, 420), Vector2(1100, 420), Vector2(1100, 560), Vector2(500, 560)]
@@ -62,7 +62,7 @@ func build_content() -> void:
 	add_hazard(Vector2(250, 650), c)
 
 	# Portal to the biological world: inject the LNP.
-	var door := add_portal(Vector2(1450, 200), "bioworld", "Inject the LNP", Vector2(700, 1350))
+	var door := add_portal(Vector2(1450, 200), "bioworld", "Inject the Bubble Shields", Vector2(700, 1350))
 	door.required_flag = "lnp_made"
 
 func _process(delta: float) -> void:
@@ -71,23 +71,24 @@ func _process(delta: float) -> void:
 	var shielded := GameState.has_flag("lnp_made")
 	if assembled and not shielded:
 		if not meter_on:
-			set_meter("mRNA integrity", 1.0)
+			set_meter("Letter health", 1.0)
 			respawn_point = Vector2(800, 360)
 		if not _rnase_warned and not DialogueManager.is_active() and not GameState.cutscene_active and not GameState.has_flag("rnase_warned"):
 			_rnase_warned = true
 			GameState.set_flag("rnase_warned")
 			DialogueManager.start([
-				["Scroll", "Beware! The naked mRNA is out, and RNases — enzymes that shred unprotected RNA — are prowling the kingdom."],
-				["Scroll", "Three bites and the message is gone. Leap over them with SPACE or the JUMP button, and get the mRNA to the mixer!"],
+				["Scroll", "Beware! The letter has no protection yet, and Shredders are prowling the kingdom."],
+				Glossary.card("rnase"),
+				["Scroll", "Three bites and the letter is gone. Leap over them with SPACE or JUMP, and race to the Bubble Maker!"],
 				["Arin", "Then I'll be quick on my feet."],
 			])
 	elif meter_on:
 		hide_meter()
 
 func defeat_message(_source: String) -> String:
-	return "The RNase shredded the mRNA!"
+	return "A Shredder tore up the letter!"
 
 func defeat_lines(_source: String) -> Array:
 	return [
-		["Synthesizer", "The message was destroyed by RNase. Here is a fresh copy — this time, leap over them!"],
+		["Synthesizer", "A Shredder tore up the letter. Here is a fresh copy. This time, leap over them!"],
 	]

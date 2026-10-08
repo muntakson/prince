@@ -104,8 +104,8 @@ func _build_ui() -> void:
 	frame.offset_top = -640
 	frame.offset_bottom = 640
 	root.add_child(frame)
-	_add_label(frame, Vector2(20, 26), BW - 40, "Herd the T-Cells to the Tumor", 36, Color(1, 0.95, 0.75))
-	_add_label(frame, Vector2(20, 76), BW - 40, "Keep the fighters close - avoid the purple Treg fog and find the gaps in the stroma", 18, Color(0.75, 0.9, 1.0))
+	_add_label(frame, Vector2(20, 26), BW - 40, "Lead the Knights to the Tumor", 36, Color(1, 0.95, 0.75))
+	_add_label(frame, Vector2(20, 76), BW - 40, "Keep your Knights close. Dodge purple fog. Find gaps in the walls.", 18, Color(0.75, 0.9, 1.0))
 
 	var tex_path := "res://assets/env/tumor_bg.png"
 	if ResourceLoader.exists(tex_path):
@@ -179,11 +179,11 @@ func _build_ui() -> void:
 	_set_caption(0)
 
 const CAPTIONS := [
-	"Effector T-cells leave the blood vessel, following CXCL9 and CXCL10 chemokines released around the tumor.",
-	"Regulatory T-cells (Tregs) secrete IL-10 and TGF-beta. A fighter caught in their fog is switched off - run past it to rally it.",
-	"Cancer-associated fibroblasts lay down dense collagen that walls the tumor in. Find the gaps.",
-	"Hypoxic pockets (no oxygen) drain the T-cells' energy: they crawl until they get out.",
-	"The T-cells have infiltrated the tumor!",
+	"Your Knights (T-cells) leave the blood vessel. They follow a Scent Trail (chemokines) from the tumor.",
+	"Peacekeepers (Tregs) puff out calm-down chemicals. A Knight in their fog falls asleep. Run past it to wake it.",
+	"Wall Builders (CAFs) pile thick fibre walls around the tumor. Find the gaps.",
+	"Thin Air (hypoxia): too little oxygen here. Knights crawl until they get out.",
+	"Your Knights broke into the tumor!",
 ]
 
 func _set_caption(i: int) -> void:
@@ -383,10 +383,10 @@ func _process(delta: float) -> void:
 		_done = true
 		_win_t = 0.0
 		_set_caption(4)
-		banner.text = "The T-cell army is inside the tumor!"
+		banner.text = "The Knight army is inside the tumor!"
 		DebugConsole.dlog("herd win n=%d" % n)
 	elif _time_left <= 0.0:
-		banner.text = "Time's up - too few T-cells made it."
+		banner.text = "Time's up - too few Knights made it."
 		_done = true
 		_win_t = -1.0
 		_finish_later = 1.6
@@ -426,7 +426,7 @@ class Field extends Control:
 			var p: Vector2 = hz["p"] - off
 			draw_circle(p, hz["r"], Color(0.25, 0.2, 0.4, 0.45))
 			draw_arc(p, hz["r"], 0, TAU, 48, Color(0.5, 0.4, 0.7, 0.6), 3.0, true)
-			_txt("hypoxia", p + Vector2(-34, 6))
+			_txt("Thin Air", p + Vector2(0, 6))
 		# tumor goal ring
 		draw_circle(mg.GOAL - off, mg.GOAL_R, Color(0.9, 0.4, 0.5, 0.18))
 		draw_arc(mg.GOAL - off, mg.GOAL_R, 0, TAU, 64, Color(1.0, 0.6, 0.7, 0.7 + 0.3 * sin(mg._t * 3.0)), 4.0, true)
@@ -452,7 +452,7 @@ class Field extends Control:
 				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 			else:
 				draw_circle(p, 30.0, Color(0.5, 0.2, 0.7))
-			_txt("Treg", p + Vector2(-18, 58))
+			_txt("Peacekeeper", p + Vector2(0, 58))
 		# T-cells
 		for c in mg.cells:
 			var p: Vector2 = c["p"] - off
@@ -468,10 +468,13 @@ class Field extends Control:
 			else:
 				draw_circle(p, 16.0, Color(0.4, 0.6, 1.0) * col)
 			if c["state"] == 1:
-				_txt("zz", p + Vector2(14, -16))
+				_txt("zz", p + Vector2(22, -16))
 		# follow radius hint around the prince
 		draw_arc(mg.prince_pos - off, mg.FOLLOW_R, 0, TAU, 64, Color(1.0, 0.95, 0.6, 0.18), 2.0, true)
+	## Draws a small label centred horizontally on p (translated).
 	func _txt(t: String, p: Vector2) -> void:
 		var f := ThemeDB.fallback_font
-		draw_string(f, p + Vector2(1, 1), t, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0, 0, 0))
-		draw_string(f, p, t, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 1, 1))
+		var s := tr(t)
+		var q := p - Vector2(f.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x / 2.0, 0)
+		draw_string(f, q + Vector2(1, 1), s, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0, 0, 0))
+		draw_string(f, q, s, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 1, 1))

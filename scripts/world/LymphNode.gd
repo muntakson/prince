@@ -29,7 +29,7 @@ func build_content() -> void:
 	# player avatar becomes the mounted DC (no separate walking prince).
 	if player:
 		player.call_deferred("mount", "res://assets/env/dc_rider.png", 170.0)   # deferred: the player's @onready sprite must exist
-	add_label(Vector2(440, 2130), "You ride the dendritic cell. Steer it into the lymphatic vessel.", 24)
+	add_label(Vector2(440, 2130), "You ride the Scout Cell. Steer it into the lymph vessel.", 24)
 
 	# Station 1: ride the DC along the chemokine gradient (mini-game).
 	var nav := Area2D.new()
@@ -60,7 +60,7 @@ func build_content() -> void:
 		_gate_sprite.scale = Vector2.ONE * (300.0 / max(s.x, s.y))
 	_gate_sprite.position = Vector2(700, 1440)
 	content_root.add_child(_gate_sprite)
-	_gate_label = add_label(Vector2(440, 1590), "Lymph node — only cells arriving through the lymphatic vessel may enter.", 20)
+	_gate_label = add_label(Vector2(440, 1590), "Training Camp (lymph node): enter through the lymph vessel only.", 20)
 
 	# Decorative naive T-cells drifting in the T-cell zone.
 	var tp := "res://assets/env/tcell_naive.png"
@@ -84,12 +84,12 @@ func build_content() -> void:
 	tz.name = "TCellZone"
 	tz.position = Vector2(700, 900)
 	content_root.add_child(tz)
-	add_label(Vector2(440, 1030), "T-cell zone", 22)
+	add_label(Vector2(440, 1030), "Knights' Hall (T-cell zone)", 22)
 
 	# Exit: the immune army leaves the node for the tumor (Chapter 6).
 	var door := add_portal(Vector2(700, 120), "tumor", "To the Tumor", Vector2(700, 2250))
 	door.required_flag = "tcell_activated"
-	add_label(Vector2(440, 230), "Efferent lymphatic — the army marches out", 20)
+	add_label(Vector2(440, 230), "Exit vessel: the army marches out", 20)
 
 func _process(delta: float) -> void:
 	super._process(delta)
@@ -101,5 +101,5 @@ func _process(delta: float) -> void:
 	if _gate_body != null and GameState.unlocked("dc_migrated"):
 		_gate_body.queue_free()
 		_gate_body = null
-		_gate_label.text = "The lymph node opens — the T-cell zone lies ahead."
+		_gate_label.text = "The Training Camp opens: the Knights' Hall lies ahead."
 		_gate_sprite.modulate = Color(1.0, 1.0, 1.0, 0.55)
