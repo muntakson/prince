@@ -96,7 +96,7 @@ func build_content() -> void:
 	content_root.add_child(mhc)
 
 	# Exit to Chapter 5: the dendritic cell leaves for the lymph node.
-	var door := add_portal(Vector2(700, 120), "lymph", "To the Lymph Node", Vector2(700, 2250))
+	var door := add_portal(Vector2(700, 120), "lymph", "To the Training Camp", Vector2(700, 2250))
 	door.required_flag = "antigen_presented"
 
 func _process(delta: float) -> void:

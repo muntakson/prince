@@ -101,5 +101,5 @@ func _process(delta: float) -> void:
 	if _gate_body != null and GameState.unlocked("dc_migrated"):
 		_gate_body.queue_free()
 		_gate_body = null
-		_gate_label.text = "The lymph node opens — the T-cell zone lies ahead."
+		_gate_label.text = "The Training Camp opens: the Knights' Hall lies ahead."
 		_gate_sprite.modulate = Color(1.0, 1.0, 1.0, 0.55)

@@ -107,6 +107,8 @@ func _fill() -> void:
 	_list.add_child(_label("이야기 속 별명을 만날 때마다 진짜 과학 이름을 얻는다. 모두 모아 보자!" if ko
 		else "Every nickname you meet in the story earns you its real science name. Collect them all!",
 		17, Color(0.75, 0.78, 0.88)))
+	_list.add_child(_label(("관문 퀴즈 별: %d / %d" if ko else "Gate Quiz stars: %d / %d") % [QuizScreen.total_stars(), QuizScreen.max_stars()],
+		19, Color(1.0, 0.85, 0.3)))
 	_gap(8)
 	for sec in Glossary.SECTIONS:
 		var ids: Array = sec["ids"]

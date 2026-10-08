@@ -42,7 +42,6 @@
  "Educational game · Godot 4": "교육용 게임 · Godot 4",
  "Back": "뒤로",
  "Ribosome": "리보솜",
- "To the Lymph Node": "림프절로",
  "The poly(A) tail is gone - the mRNA decayed!": "폴리(A) 꼬리가 사라졌다. mRNA가 분해되었다!",
  "Use the joystick or WASD / arrows to move. Press E or the hand button to interact.": "조이스틱이나 WASD / 방향키로 움직여라. E 키나 손 버튼으로 상호작용한다.",
  "You fell into the crevasse! Leap across it.": "협곡에 떨어졌다! 뛰어넘어라.",
@@ -56,7 +55,6 @@
  "Lost!": "잃었다!",
  "You fell into the crevasse!": "협곡에 떨어졌다!",
  "To the Tumor": "종양으로",
- "The lymph node opens — the T-cell zone lies ahead.": "림프절이 열린다. T세포 구역이 앞에 있다.",
  " (done)": " (완료)",
  "Mixer": "혼합기",
  "Princess Mira": "미라 공주",
@@ -296,5 +294,7 @@
  "Poison": "독",
  "self-destruct switch ON": "자폭 스위치 켜짐",
  "Self-Destruct!": "자폭!",
- "Clue: finding the right Knight": "힌트: 알맞은 기사 찾기"
+ "Clue: finding the right Knight": "힌트: 알맞은 기사 찾기",
+ "To the Training Camp": "훈련소로",
+ "The Training Camp opens: the Knights' Hall lies ahead.": "훈련소가 열린다. 기사의 전당이 앞에 있다."
 }

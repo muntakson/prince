@@ -12,6 +12,7 @@ var _poly: Polygon2D
 var _outline: Line2D
 var _glow: float = 0.0
 var _highlighted: bool = false
+var _quiz_open: bool = false
 
 func _ready() -> void:
 	add_to_group("interactable")
@@ -78,6 +79,23 @@ func _travel() -> void:
 		AudioManager.sfx("deny")
 		DialogueManager.start([{"speaker": "", "text": hint}])
 		return
-	if target_chapter != "":
-		AudioManager.sfx("portal")
-		SceneManager.goto_chapter(target_chapter, target_spawn)
+	if target_chapter == "":
+		return
+	# chapter exit: a short Gate Quiz first (once per chapter; skipped in debug mode)
+	var ch := GameState.current_chapter
+	if QuizScreen.has_quiz(ch) and not GameState.has_flag("quizdone_" + ch) and not GameState.debug_mode:
+		if _quiz_open:
+			return
+		_quiz_open = true
+		QuizScreen.open(get_tree(), ch).finished.connect(_after_quiz)
+		return
+	_go()
+
+func _after_quiz() -> void:
+	_quiz_open = false
+	GameState.set_flag("quizdone_" + GameState.current_chapter)
+	_go()
+
+func _go() -> void:
+	AudioManager.sfx("portal")
+	SceneManager.goto_chapter(target_chapter, target_spawn)
