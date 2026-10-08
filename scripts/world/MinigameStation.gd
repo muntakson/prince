@@ -147,6 +147,7 @@ func _on_minigame_finished(success: bool) -> void:
 	else:
 		_pending_fail = true
 		AudioManager.sfx("mg_fail")
+		Classroom.event("mg_fail", {"station": station_name})
 
 func _on_success() -> void:
 	pass

@@ -164,6 +164,7 @@ func defeat(text: String, lines: Array = []) -> void:
 	flash_text(text)
 	AudioManager.sfx("defeat")
 	DebugConsole.dlog("defeat: %s" % text)
+	Classroom.event("defeat")
 
 ## A pit fall: fade out, put the player back where they stood a second ago.
 func fall(text: String) -> void:

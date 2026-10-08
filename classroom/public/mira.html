@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mira's Status Board · Prince of mRNA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="app.css">
+<script src="app.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span id="crest"></span>
+    <div class="brand-text">
+      <p class="kicker"><span data-i18n="game">Prince of mRNA</span> · <span data-i18n="mira_board">Mira's Status Board</span></p>
+      <h1 class="page-title" id="className">&nbsp;</h1>
+    </div>
+  </div>
+  <div class="topbar-stats">
+    <span class="stat-chip"><strong id="nOnline">0</strong><span data-i18n="playing_now">playing now</span></span>
+    <span class="live" id="live" role="status" aria-live="polite"></span>
+  </div>
+  <div class="topbar-tools">
+    <a class="btn" id="toBoard" href="board.html" data-i18n="to_board">Scoreboard</a>
+    <button class="btn lang-btn" type="button" data-lang-toggle>한국어</button>
+  </div>
+</header>
+
+<main>
+  <div class="mira-toolbar" id="toolbar" hidden>
+    <div class="phase-summary" id="summary"></div>
+    <div class="segmented" role="group" aria-labelledby="sortLabel">
+      <span class="seg-label" id="sortLabel" data-i18n="sort_by">Sort</span>
+      <button type="button" data-sort="no" data-i18n="sort_no">Student no.</button>
+      <button type="button" data-sort="health" data-i18n="sort_health">Mira's health</button>
+    </div>
+  </div>
+  <div id="message"></div>
+  <div class="mira-grid" id="grid"></div>
+  <nav class="foot-links">
+    <a id="toStart" href="index.html" data-i18n="to_start">Start page</a>
+  </nav>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var esc = App.esc, t = App.t;
+  var code = App.code;
+  var gridEl = document.getElementById("grid");
+  var msgEl = document.getElementById("message");
+  var PHASES = ["waiting", "growing", "vaccine", "training", "attacking", "remission"];
+  var cards = {};        // no -> { el, tumor, trend, trendAt, phase }
+  var lastBoard = null, notFound = false;
+  var sortMode = App.store.get("pom.miraSort", "no");
+
+  document.getElementById("crest").innerHTML = App.svg.crest;
+  document.getElementById("toBoard").href = App.link("board.html", code);
+  document.getElementById("toStart").href = App.link("index.html", code);
+  var setLive = App.liveChip(document.getElementById("live"));
+
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+  function showMessage(titleKey, bodyKey, vars) {
+    msgEl.innerHTML = '<div class="notice"><h2>' + esc(t(titleKey)) + "</h2><p>" + esc(t(bodyKey, vars)) + "</p></div>";
+  }
+
+  /** Tumor colour: red while large / growing, sliding to green as it shrinks toward 0. */
+  function tumorColor(tumor, trend) {
+    var hue = clamp(130 * (1 - tumor / 100), 0, 130);
+    if (trend === "up" || tumor >= 100) hue = 2;
+    return "hsl(" + hue.toFixed(0) + " 85% 60%)";
+  }
+  function strengthColor(v) { return v < 35 ? "var(--bad)" : v < 65 ? "var(--warn)" : "var(--ok)"; }
+
+  /** Mira's portrait: dim and grey when weak, full colour at remission. */
+  function portraitFilter(m) {
+    if (m.phase === "remission") return "none";
+    var k = clamp(m.strength, 0, 100) / 100;          // 0 weak .. 1 strong
+    var gray = (1 - k) * 0.95;
+    var bright = 0.55 + 0.45 * k;
+    var sat = 0.5 + 0.5 * k;
+    return "grayscale(" + gray.toFixed(2) + ") saturate(" + sat.toFixed(2) + ") brightness(" + bright.toFixed(2) + ")";
+  }
+
+  function healthScore(s) {
+    var m = s.mira || {};
+    return (m.phase === "remission" ? 1000 : 0) + (m.strength || 0) * 2 - (m.tumor || 0) + (m.immune || 0) * 0.1;
+  }
+
+  function cardInner(s, c) {
+    var m = s.mira || { tumor: 100, strength: 45, immune: 0, phase: "waiting" };
+    var tumor = Math.max(0, +m.tumor || 0);
+    var tumorPct = clamp(tumor / 160 * 100, 0, 100);
+    var trendSvg = c.trend === "up" ? App.svg.up : c.trend === "down" ? App.svg.down : "";
+    var trendTxt = c.trend ? '<span class="sr-only">' + esc(t(c.trend === "up" ? "trend_up" : "trend_down")) + "</span>" : "";
+    var foot = s.online ? "" : esc(t("not_playing"));
+    var killsTxt = s.kills > 0 ? esc(t("tumor_cells", { n: s.kills })) : "";
+    return '' +
+      '<div class="mcard-head">' +
+        '<h2 class="mcard-title"><span class="online-dot' + (s.online ? " on" : "") + '" title="' + esc(t(s.online ? "online" : "offline")) + '"></span>' +
+          '<span class="t" title="' + esc(t("miras_of", { name: s.name })) + '"><span class="sno">' + s.no + "</span> " + esc(t("miras_of", { name: s.name })) + "</span></h2>" +
+        '<span class="phase-badge ph-' + esc(m.phase) + '">' + esc(t("phase_" + m.phase)) + "</span>" +
+      "</div>" +
+      '<div class="portrait"><img src="mira.png" alt="" width="160" height="321" style="filter:' + portraitFilter(m) + '"></div>' +
+      '<div class="vitals">' +
+        '<div class="vital">' +
+          '<div class="vital-top"><span class="vital-label">' + esc(t("tumor_size")) + '</span><span class="vital-val">' + trendSvg + trendTxt + Math.round(tumor) + "%</span></div>" +
+          '<div class="bar" role="img" aria-label="' + esc(t("tumor_size")) + " " + Math.round(tumor) + '%"><span class="fill" style="width:' + tumorPct.toFixed(1) + "%;background:" + tumorColor(tumor, c.trend) + '"></span><span class="tick" style="left:' + (100 / 160 * 100).toFixed(2) + '%"></span></div>' +
+        "</div>" +
+        '<div class="vital">' +
+          '<div class="vital-top"><span class="vital-label">' + esc(t("strength")) + '</span><span class="vital-val">' + Math.round(m.strength) + "</span></div>" +
+          '<div class="bar"><span class="fill" style="width:' + clamp(m.strength, 0, 100) + "%;background:" + strengthColor(m.strength) + '"></span></div>' +
+        "</div>" +
+        '<div class="vital">' +
+          '<div class="vital-top"><span class="vital-label">' + esc(t("immune")) + '</span><span class="vital-val">' + Math.round(m.immune) + "</span></div>" +
+          '<div class="bar"><span class="fill" style="width:' + clamp(m.immune, 0, 100) + '%;background:var(--info)"></span></div>' +
+        "</div>" +
+      "</div>" +
+      ((foot || killsTxt) ? '<div class="mcard-foot"><span>' + killsTxt + "</span><span>" + foot + "</span></div>" : "");
+  }
+
+  function sorted(students) {
+    var list = students.slice();
+    if (sortMode === "health") list.sort(function (a, b) { return healthScore(b) - healthScore(a) || a.no - b.no; });
+    else list.sort(function (a, b) { return a.no - b.no; });
+    return list;
+  }
+
+  function render(board) {
+    lastBoard = board;
+    var students = board.students || [];
+    var now = Date.now();
+    document.getElementById("className").textContent = board.name || board.code || code;
+    document.title = (board.name || code) + " · " + t("mira_board");
+    document.getElementById("nOnline").textContent = students.filter(function (s) { return s.online; }).length;
+    document.getElementById("toolbar").hidden = !students.length;
+    if (!students.length) showMessage("empty_title", "empty_body"); else msgEl.innerHTML = "";
+
+    // phase summary
+    var counts = {};
+    students.forEach(function (s) { var p = (s.mira && s.mira.phase) || "waiting"; counts[p] = (counts[p] || 0) + 1; });
+    document.getElementById("summary").innerHTML = PHASES.filter(function (p) { return counts[p]; }).map(function (p) {
+      return '<span class="phase-count"><span class="sw ph-' + p + '"></span>' + esc(t("phase_" + p)) + " <b>" + counts[p] + "</b></span>";
+    }).join("");
+
+    var seen = {};
+    sorted(students).forEach(function (s) {
+      seen[s.no] = true;
+      var m = s.mira || {};
+      var c = cards[s.no];
+      if (!c) {
+        c = cards[s.no] = { el: document.createElement("article"), tumor: m.tumor, trend: "", trendAt: 0, phase: m.phase };
+      } else {
+        var d = (m.tumor || 0) - (c.tumor || 0);
+        if (Math.abs(d) >= 0.05) { c.trend = d > 0 ? "up" : "down"; c.trendAt = now; }
+        else if (now - c.trendAt > 12000) c.trend = "";
+        if (m.phase === "remission" && c.phase !== "remission" && !App.reducedMotion()) {
+          c.el.classList.add("just-remitted");
+          setTimeout(function (el) { el.classList.remove("just-remitted"); }.bind(null, c.el), 2600);
+        }
+        c.tumor = m.tumor; c.phase = m.phase;
+      }
+      c.data = s;
+      var keep = c.el.classList.contains("just-remitted") ? " just-remitted" : "";
+      c.el.className = "mcard" + (m.phase === "remission" ? " is-remission" : "") + (s.online ? "" : " is-offline") + keep;
+      patchCard(c, cardInner(s, c));
+      gridEl.appendChild(c.el);
+    });
+    Object.keys(cards).forEach(function (no) { if (!seen[no]) { cards[no].el.remove(); delete cards[no]; } });
+  }
+
+  /** Update a card while keeping the <img> and bar elements so CSS transitions can run. */
+  function patchCard(c, html) {
+    if (!c.el.firstChild) { c.el.innerHTML = html; return; }
+    var tmp = document.createElement("div");
+    tmp.innerHTML = html;
+    // portrait: only change the filter
+    var oldImg = c.el.querySelector(".portrait img"), newImg = tmp.querySelector(".portrait img");
+    if (oldImg && newImg) {
+      oldImg.style.filter = newImg.style.filter;
+      newImg.parentNode.replaceChild(oldImg, newImg);
+    }
+    // bars: move the old fill elements across with new widths/colours
+    var oldFills = c.el.querySelectorAll(".bar .fill"), newFills = tmp.querySelectorAll(".bar .fill");
+    if (oldFills.length === newFills.length) {
+      for (var i = 0; i < newFills.length; i++) {
+        oldFills[i].style.width = newFills[i].style.width;
+        oldFills[i].style.background = newFills[i].style.background;
+        newFills[i].parentNode.replaceChild(oldFills[i], newFills[i]);
+      }
+    }
+    c.el.innerHTML = "";
+    while (tmp.firstChild) c.el.appendChild(tmp.firstChild);
+  }
+
+  function paintSortButtons() {
+    document.querySelectorAll("[data-sort]").forEach(function (b) {
+      b.setAttribute("aria-pressed", b.getAttribute("data-sort") === sortMode ? "true" : "false");
+    });
+  }
+  document.querySelectorAll("[data-sort]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      sortMode = b.getAttribute("data-sort");
+      App.store.set("pom.miraSort", sortMode);
+      paintSortButtons();
+      if (lastBoard) render(lastBoard);
+    });
+  });
+  paintSortButtons();
+
+  App.onLang(function () {
+    if (notFound) showMessage("notfound_title", "notfound_body", { code: code });
+    if (lastBoard) render(lastBoard);
+  });
+
+  if (!code && !App.demo) {
+    showMessage("nocode_title", "nocode_body");
+    setLive("notfound");
+    return;
+  }
+  document.getElementById("className").textContent = code || "DEMO";
+
+  App.connectBoard(code, function (b) { notFound = false; render(b); }, function (st) {
+    setLive(st);
+    if (st === "notfound" && !lastBoard) { notFound = true; showMessage("notfound_title", "notfound_body", { code: code }); }
+  });
+})();
+</script>
+</body>
+</html>

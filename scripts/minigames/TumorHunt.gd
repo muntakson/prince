@@ -249,6 +249,15 @@ func _steer() -> Vector2:
 			v = (goal - ctl_pos).normalized()
 	return v.limit_length(1.0)
 
+## Class competition: tell the classroom server whenever the tumor count
+## changes, so this student's Mira card shrinks live on the projector.
+var _reported := Vector2i(-1, -1)
+func _report_tumor() -> void:
+	var now := Vector2i(tumors_left(), kills)
+	if now != _reported:
+		_reported = now
+		Classroom.event("tumor", {"left": now.x, "kills": now.y})
+
 func tumors_left() -> int:
 	var n := 0
 	for c in cells:
@@ -385,6 +394,7 @@ func _process(delta: float) -> void:
 				_finish(true)
 	ctl_sprite.position = ctl_local() + Vector2(0, sin(_t * 3.0) * 3.0)
 	counter.text = tr("Tumor cells left: %d     Killed: %d     %s") % [tumors_left(), kills, tr("Pass Blocker: yes") if has_antibody else tr("Pass Blocker: no")]
+	_report_tumor()
 	var keep: Array = []
 	for pt in particles:
 		pt["life"] -= delta

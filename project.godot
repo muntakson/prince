@@ -25,6 +25,7 @@ DialogueManager="*res://autoload/DialogueManager.gd"
 AudioManager="*res://autoload/AudioManager.gd"
 SceneManager="*res://autoload/SceneManager.gd"
 DebugConsole="*res://autoload/DebugConsole.gd"
+Classroom="*res://autoload/Classroom.gd"
 
 [display]
 

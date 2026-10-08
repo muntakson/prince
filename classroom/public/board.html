@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scoreboard · Prince of mRNA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="app.css">
+<script src="app.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span id="crest"></span>
+    <div class="brand-text">
+      <p class="kicker"><span data-i18n="game">Prince of mRNA</span> · <span data-i18n="scoreboard">Scoreboard</span></p>
+      <h1 class="page-title" id="className">&nbsp;</h1>
+    </div>
+  </div>
+  <div class="topbar-stats">
+    <span class="stat-chip"><strong id="nOnline">0</strong><span data-i18n="playing_now">playing now</span></span>
+    <span class="live" id="live" role="status" aria-live="polite"></span>
+  </div>
+  <div class="topbar-tools">
+    <a class="btn" id="toMira" href="mira.html" data-i18n="to_mira">Mira's Status Board</a>
+    <button class="btn lang-btn" type="button" data-lang-toggle>한국어</button>
+  </div>
+</header>
+
+<main>
+  <div id="message"></div>
+  <div class="board-head" id="boardHead" hidden>
+    <span data-i18n="col_rank">Rank</span>
+    <span data-i18n="col_name">Student</span>
+    <span data-i18n="col_progress">Quest progress</span>
+    <span class="r" data-i18n="col_stars">Stars</span>
+    <span class="r" data-i18n="col_words">Words</span>
+    <span class="r" data-i18n="col_time">Time</span>
+    <span class="r" data-i18n="col_score">Score</span>
+  </div>
+  <ol class="board-list" id="list" aria-live="off" style="list-style:none;margin:0;padding:0"></ol>
+  <nav class="foot-links">
+    <a id="toStart" href="index.html" data-i18n="to_start">Start page</a>
+  </nav>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var esc = App.esc, t = App.t;
+  var code = App.code;
+  var listEl = document.getElementById("list");
+  var headEl = document.getElementById("boardHead");
+  var msgEl = document.getElementById("message");
+  var rows = {};          // no -> { el, score, data }
+  var lastBoard = null;
+  var notFound = false;
+
+  document.getElementById("crest").innerHTML = App.svg.crest;
+  document.getElementById("toMira").href = App.link("mira.html", code);
+  document.getElementById("toStart").href = App.link("index.html", code);
+  var setLive = App.liveChip(document.getElementById("live"));
+
+  function showMessage(titleKey, bodyKey, vars) {
+    msgEl.innerHTML = '<div class="notice"><h2>' + esc(t(titleKey)) + "</h2><p>" + esc(t(bodyKey, vars)) + "</p></div>";
+  }
+
+  function rowInner(s, now) {
+    var pips = "";
+    for (var i = 0; i < 13; i++) {
+      var cls = "pip";
+      if (i < s.progress) cls += " done";
+      if (i === s.progress - 1) cls += " current";
+      if (i === 12) cls += " final";
+      pips += '<span class="' + cls + '"></span>';
+    }
+    var started = s.progress > 0;
+    var stageTxt = esc(App.stageLabel(s.stage));
+    var minutes = App.minutesPlayed(s, now);
+    var name = esc(s.name);
+    return '' +
+      '<div class="rank-cell"><span class="rank" aria-label="' + esc(t("col_rank")) + " " + s.rank + '">' + s.rank + "</span></div>" +
+      '<div class="who">' +
+        '<span class="online-dot' + (s.online ? " on" : "") + '" title="' + esc(t(s.online ? "online" : "offline")) + '"></span>' +
+        '<span class="name" title="' + name + '"><span class="sno">' + s.no + "</span> " + name + "</span>" +
+      "</div>" +
+      '<div class="track">' +
+        '<div class="pips" role="img" aria-label="' + esc(t("col_progress")) + " " + s.progress + '/13">' + pips + "</div>" +
+        '<div class="stage' + (started ? "" : " not-started") + '">' +
+          (started ? '<span class="step">' + esc(t("step_of", { n: s.progress })) + "</span>" : "") + stageTxt +
+        "</div>" +
+      "</div>" +
+      '<div class="stats-wrap">' +
+        '<div class="stat"><span class="stat-label">' + esc(t("col_stars")) + "</span>" + App.svg.star + s.stars + '<span class="of">/12</span></div>' +
+        '<div class="stat"><span class="stat-label">' + esc(t("col_words")) + "</span>" + s.words + '<span class="of">/39</span></div>' +
+        '<div class="stat"><span class="stat-label">' + esc(t("col_time")) + "</span>" + esc(App.fmtMinutes(minutes)) + "</div>" +
+      "</div>" +
+      '<div class="score">' + esc(App.fmtNum(s.score)) + "</div>";
+  }
+
+  function render(board) {
+    lastBoard = board;
+    var students = (board.students || []).slice();
+    students.sort(function (a, b) { return (a.rank - b.rank) || (b.score - a.score) || (a.no - b.no); });
+
+    document.getElementById("className").textContent = board.name || board.code || code;
+    document.title = (board.name || code) + " · " + t("scoreboard");
+    document.getElementById("nOnline").textContent = students.filter(function (s) { return s.online; }).length;
+
+    if (!students.length) { showMessage("empty_title", "empty_body"); headEl.hidden = true; }
+    else { msgEl.innerHTML = ""; headEl.hidden = false; }
+
+    var animate = !App.reducedMotion() && Object.keys(rows).length > 0;
+
+    // FIRST: remember where every row is now
+    var before = {};
+    if (animate) Object.keys(rows).forEach(function (no) { before[no] = rows[no].el.getBoundingClientRect().top; });
+
+    var seen = {};
+    students.forEach(function (s) {
+      seen[s.no] = true;
+      var r = rows[s.no];
+      var isNew = !r;
+      if (isNew) {
+        var el = document.createElement("li");
+        el.className = "board-row";
+        r = rows[s.no] = { el: el, score: s.score };
+        if (animate) {
+          el.classList.add("entering");
+          setTimeout(function () { el.classList.remove("entering"); }, 600);
+        }
+      }
+      var el2 = r.el;
+      el2.className = "board-row" + (s.rank <= 3 ? " rank-" + s.rank : "") + (s.online ? "" : " is-offline") +
+        (el2.classList.contains("entering") ? " entering" : "");
+      el2.innerHTML = rowInner(s, board.now);
+      if (!isNew && s.score !== r.score) flash(el2);
+      r.score = s.score;
+      listEl.appendChild(el2);   // LAST: DOM order = new rank order
+    });
+    Object.keys(rows).forEach(function (no) {
+      if (!seen[no]) { rows[no].el.remove(); delete rows[no]; }
+    });
+
+    if (!animate) return;
+    // INVERT + PLAY
+    var moved = [];
+    students.forEach(function (s) {
+      var r = rows[s.no];
+      if (before[s.no] == null) return;
+      var dy = before[s.no] - r.el.getBoundingClientRect().top;
+      if (Math.abs(dy) < 1) return;
+      r.el.style.transition = "none";
+      r.el.style.transform = "translateY(" + dy + "px)";
+      r.el.style.zIndex = dy > 0 ? "2" : "1";   // rows climbing up pass over the others
+      moved.push(r.el);
+    });
+    if (!moved.length) return;
+    void listEl.offsetHeight; // force style/layout so the inverted position is committed
+    // (no requestAnimationFrame here: it is paused in hidden tabs and would leave rows stuck)
+    moved.forEach(function (el) {
+      el.style.transition = "transform 700ms cubic-bezier(.2,.8,.2,1)";
+      el.style.transform = "";
+      clearTimeout(el._flipT);
+      el._flipT = setTimeout(function () { el.style.zIndex = ""; el.style.transition = ""; }, 750);
+    });
+  }
+
+  function flash(el) {
+    el.classList.remove("flash");
+    void el.offsetWidth;
+    el.classList.add("flash");
+    clearTimeout(el._flashT);
+    el._flashT = setTimeout(function () { el.classList.remove("flash"); }, 1500);
+  }
+
+  // re-render text when language changes
+  App.onLang(function () {
+    if (notFound) showMessage("notfound_title", "notfound_body", { code: code });
+    if (lastBoard) {
+      // repaint without flashes
+      var b = lastBoard; Object.keys(rows).forEach(function (no) { rows[no].el.classList.remove("entering"); });
+      b.students.forEach(function (s) { if (rows[s.no]) rows[s.no].el.innerHTML = rowInner(s, b.now); });
+      document.title = (b.name || code) + " · " + t("scoreboard");
+    }
+  });
+
+  if (!code && !App.demo) {
+    showMessage("nocode_title", "nocode_body");
+    setLive("notfound");
+    return;
+  }
+  document.getElementById("className").textContent = code || "DEMO";
+
+  App.connectBoard(code, function (b) { notFound = false; render(b); }, function (st) {
+    setLive(st);
+    if (st === "notfound" && !lastBoard) { notFound = true; showMessage("notfound_title", "notfound_body", { code: code }); }
+  });
+})();
+</script>
+</body>
+</html>
