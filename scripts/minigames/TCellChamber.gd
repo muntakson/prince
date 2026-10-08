@@ -90,8 +90,8 @@ func _build() -> void:
 		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		frame.add_child(tr)
 
-	title = _add_label(frame, Vector2(20, 26), BW - 40, "The T-Cell Chamber", 38, Color(1, 0.95, 0.75))
-	_add_label(frame, Vector2(20, 78), BW - 40, "Find the naive T-cell whose receptor (TCR) fits the antigen key", 19, Color(0.75, 0.9, 1.0))
+	title = _add_label(frame, Vector2(20, 26), BW - 40, "The Knights' Chamber", 38, Color(1, 0.95, 0.75))
+	_add_label(frame, Vector2(20, 78), BW - 40, "Find the Knight (T-cell) whose lock fits the Enemy's Face", 19, Color(0.75, 0.9, 1.0))
 
 	stage = Stage.new()
 	stage.mg = self
@@ -205,35 +205,35 @@ func _set_phase(p: int) -> void:
 	DebugConsole.dlog("TCell phase %d" % p)
 	match p:
 		Phase.SCREEN:
-			caption.text = "Each naive T-cell carries a unique TCR. Compare its notches with the orange antigen key on the MHC, then tap one to test it." if _tries == 0 else "No fit. Only a T-cell with the matching TCR can recognise this antigen — try another."
+			caption.text = "Every Knight hangs a lock with its own shape. Find the one that fits the orange Enemy's Face. Tap a Knight to test it." if _tries == 0 else "No fit. Only the Knight with the matching lock knows this enemy. Try another."
 		Phase.APPROACH:
-			caption.text = "The T-cell crawls over the dendritic cell, probing the peptide–MHC with its TCR..."
+			caption.text = "The Knight climbs onto the Scout Cell and tries its lock on the Enemy's Face..."
 		Phase.REJECT:
-			caption.text = "No fit! The TCR does not match. Most naive T-cells ignore this antigen and move on."
+			caption.text = "No fit! The lock is the wrong shape. This Knight shrugs and walks away."
 		Phase.MATCH:
-			caption.text = "A perfect fit! This TCR recognises the tumor antigen on MHC — Signal 1."
-			banner.text = "TCR matches the antigen!"
+			caption.text = "A perfect fit! This Knight knows the enemy. That is Handshake 1 of 3."
+			banner.text = "The lock fits!"
 		Phase.SYNAPSE:
-			caption.text = "An immunological synapse forms at the contact zone."
+			caption.text = "Now the Three Handshakes. The Knight and the Scout hold on tight."
 			_syn_stage = -1
 		Phase.ACTIVATE:
-			caption.text = "Activated! The T-cell releases IL-2, grows, and switches on its cell-division program."
-			banner.text = "T-cell activated"
+			caption.text = "Awake! The Knight sends itself a 'grow!' message (IL-2) and gets ready to copy itself."
+			banner.text = "The Knight wakes up!"
 			var c: Dictionary = cells[_active_i]
 			if tex_active:
 				c["spr"].texture = tex_active
 				var s := tex_active.get_size()
 				c["spr"].scale = Vector2.ONE * (110.0 / max(s.x, s.y))
 		Phase.CLONE:
-			caption.text = "Clonal expansion: the chosen T-cell divides again and again — every daughter carries the same antigen-specific TCR."
-			banner.text = "Clonal expansion"
+			caption.text = "The Knight splits in two, again and again. Every copy carries the very same lock."
+			banner.text = "Copy Army (clonal expansion)"
 			_gen = 0
 			_gen_t = 0.0
 			var c: Dictionary = cells[_active_i]
 			clones = [{"spr": c["spr"], "from": c["pos"], "to": CLUSTER_C}]
 		Phase.DONE:
-			caption.text = "An army of T-cells, all trained to recognise Mira's cancer, leaves the lymph node to hunt the tumor."
-			banner.text = "The immune army is ready!"
+			caption.text = "An army of Knights, all trained to spot Mira's cancer, marches off to hunt the tumor."
+			banner.text = "The Knight army is ready!"
 
 func _begin_test(i: int) -> void:
 	if _phase != Phase.SCREEN or cells[i]["tested"]:
@@ -374,10 +374,10 @@ func _process(delta: float) -> void:
 	stage.queue_redraw()
 
 const SYN_CAPTIONS := [
-	"Signal 1 — TCR binds peptide–MHC at the centre of the synapse; CD8/CD4 co-receptors steady the grip.",
-	"Signal 2 — CD28 on the T-cell grabs CD80/CD86 (B7) on the dendritic cell: co-stimulation. Without it the T-cell would fall asleep.",
-	"An outer ring of LFA-1 – ICAM-1 adhesion molecules seals the contact, like a gasket.",
-	"Signal 3 — the dendritic cell showers the T-cell with cytokines (IL-12) that tell it what kind of fighter to become.",
+	"Handshake 1: the Knight's lock fits the Enemy's Face in the Display Window (MHC).",
+	"Handshake 2: a second 'this is real' touch (CD28). Without it, the Knight dozes off.",
+	"A grip ring forms around the edge. It holds the two cells tightly together.",
+	"Handshake 3: the Scout sends a 'go!' message (IL-12). It tells the Knight what fighter to become.",
 ]
 
 func tex_size(t: Texture2D) -> float:
@@ -498,7 +498,7 @@ class Stage extends Control:
 				var pulse: float = 0.5 + 0.5 * sin(mg._t * 6.0)
 				draw_circle(mp, 74.0 + pulse * 6.0, Color(0.3, 1.0, 0.5, 0.18 * a))
 				draw_arc(mp, 70.0 + pulse * 6.0, 0.0, TAU, 48, Color(0.4, 1.0, 0.55, 0.95 * a), 5.0, true)
-				draw_string(font, mp + Vector2(-70, 118), tr("this TCR fits!"), HORIZONTAL_ALIGNMENT_CENTER, 140, 16, Color(0.6, 1.0, 0.7, a))
+				draw_string(font, mp + Vector2(-70, 118), tr("this lock fits!"), HORIZONTAL_ALIGNMENT_CENTER, 140, 16, Color(0.6, 1.0, 0.7, a))
 		# synapse zoom panel
 		if ph == mg.Phase.SYNAPSE:
 			_draw_synapse(mg._syn_stage, mg._pt)
@@ -539,7 +539,7 @@ class Stage extends Control:
 		var outline := pts.duplicate()
 		outline.append(pts[0])
 		draw_polyline(outline, out, 3.0, true)
-		draw_string(font, p + Vector2(-80, 104), tr("antigen on MHC"), HORIZONTAL_ALIGNMENT_CENTER, 160, 15, Color(1, 0.9, 0.7))
+		draw_string(font, p + Vector2(-110, 104), tr("Enemy's Face (antigen)"), HORIZONTAL_ALIGNMENT_CENTER, 220, 15, Color(1, 0.9, 0.7))
 
 	## TCR: two arms coming down from the T-cell to a binding plate whose lower
 	## edge has 4 notches of depth pattern[i] (fits the key when equal).
@@ -576,33 +576,33 @@ class Stage extends Control:
 		var r := Rect2(60, 200, 600, 360)
 		draw_rect(r, Color(0.02, 0.02, 0.06, 0.9))
 		draw_rect(r, Color(1, 0.95, 0.6, 0.8), false, 3.0)
-		draw_string(font, Vector2(r.position.x, r.position.y + 28), tr("Immunological synapse (zoom)"), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 20, Color(1, 0.95, 0.75))
+		draw_string(font, Vector2(r.position.x, r.position.y + 28), tr("Close-up: Three Handshakes (immune synapse)"), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 20, Color(1, 0.95, 0.75))
 		var ty := r.position.y + 90.0     # T-cell membrane
 		var dy := r.end.y - 70.0          # DC membrane
 		draw_line(Vector2(r.position.x + 10, ty), Vector2(r.end.x - 10, ty), Color(0.3, 0.55, 1.0), 10.0, true)
 		draw_line(Vector2(r.position.x + 10, dy), Vector2(r.end.x - 10, dy), Color(0.75, 0.45, 0.95), 10.0, true)
-		draw_string(font, Vector2(r.position.x + 14, ty - 20), tr("T-cell"), HORIZONTAL_ALIGNMENT_LEFT, 200, 16, Color(0.6, 0.8, 1.0))
-		draw_string(font, Vector2(r.position.x + 14, dy + 34), tr("Dendritic cell"), HORIZONTAL_ALIGNMENT_LEFT, 200, 16, Color(0.9, 0.75, 1.0))
+		draw_string(font, Vector2(r.position.x + 14, ty - 20), tr("Knight (T-cell)"), HORIZONTAL_ALIGNMENT_LEFT, 240, 16, Color(0.6, 0.8, 1.0))
+		draw_string(font, Vector2(r.position.x + 14, dy + 34), tr("Scout Cell (dendritic cell)"), HORIZONTAL_ALIGNMENT_LEFT, 300, 16, Color(0.9, 0.75, 1.0))
 		var cx := r.get_center().x
 		var pulse := 0.5 + 0.5 * sin(t * 5.0)
 		# Signal 1: TCR + pMHC (center)
 		if stage_i >= 0:
-			_pair(cx, ty, dy, Color(0.35, 0.6, 1.0), Color(1.0, 0.55, 0.15), "TCR", "pMHC", 16.0)
-			_pair(cx + 44, ty, dy, Color(0.5, 0.8, 1.0), Color(1.0, 0.75, 0.3), "CD8", "MHC", 8.0)
+			_pair(cx, ty, dy, Color(0.35, 0.6, 1.0), Color(1.0, 0.55, 0.15), "lock", "face", 16.0)
+			_pair(cx + 44, ty, dy, Color(0.5, 0.8, 1.0), Color(1.0, 0.75, 0.3), "", "", 8.0)
 			draw_circle(Vector2(cx, (ty + dy) / 2.0), 14.0 + pulse * 6.0, Color(1, 0.95, 0.5, 0.25))
-			draw_string(font, Vector2(cx - 100, ty - 40), tr("Signal 1"), HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(1, 0.95, 0.5))
+			draw_string(font, Vector2(cx - 100, ty - 40), tr("Handshake 1"), HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(1, 0.95, 0.5))
 		# Signal 2: CD28 – CD80/86
 		if stage_i >= 1:
 			for sx in [-110.0, 110.0]:
 				_pair(cx + sx, ty, dy, Color(0.4, 0.95, 0.6), Color(0.95, 0.85, 0.3), "CD28", "CD80/86", 12.0)
-			draw_string(font, Vector2(cx - 220, ty - 40), tr("Signal 2"), HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(0.6, 1.0, 0.7))
-			draw_string(font, Vector2(cx + 20, ty - 40), tr("Signal 2"), HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(0.6, 1.0, 0.7))
+			draw_string(font, Vector2(cx - 220, ty - 40), tr("Handshake 2"), HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(0.6, 1.0, 0.7))
+			draw_string(font, Vector2(cx + 20, ty - 40), tr("Handshake 2"), HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(0.6, 1.0, 0.7))
 		# adhesion ring: LFA-1 – ICAM-1
 		if stage_i >= 2:
 			for sx in [-220.0, -180.0, 180.0, 220.0]:
 				_pair(cx + sx, ty, dy, Color(0.9, 0.6, 0.6), Color(0.9, 0.6, 0.6), "", "", 7.0)
-			draw_string(font, Vector2(r.position.x + 10, dy - 12), tr("LFA-1 / ICAM-1 ring"), HORIZONTAL_ALIGNMENT_LEFT, 200, 14, Color(1, 0.75, 0.75))
-			draw_string(font, Vector2(r.end.x - 210, dy - 12), tr("LFA-1 / ICAM-1 ring"), HORIZONTAL_ALIGNMENT_RIGHT, 200, 14, Color(1, 0.75, 0.75))
+			draw_string(font, Vector2(r.position.x + 10, dy - 12), tr("grip ring (LFA-1)"), HORIZONTAL_ALIGNMENT_LEFT, 200, 14, Color(1, 0.75, 0.75))
+			draw_string(font, Vector2(r.end.x - 210, dy - 12), tr("grip ring (LFA-1)"), HORIZONTAL_ALIGNMENT_RIGHT, 200, 14, Color(1, 0.75, 0.75))
 		# Signal 3: cytokines
 		if stage_i >= 3:
 			for i in 9:
@@ -610,7 +610,7 @@ class Stage extends Control:
 				var px := cx - 150 + i * 36.0 + sin(t * 3.0 + i) * 6.0
 				var py: float = lerpf(dy - 12.0, ty + 12.0, ph2)
 				draw_circle(Vector2(px, py), 6.0, Color(1.0, 0.6, 0.9, 1.0 - ph2 * 0.6))
-			draw_string(font, Vector2(cx - 100, (ty + dy) / 2.0 - 60), tr("Signal 3: IL-12"), HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(1, 0.7, 0.95))
+			draw_string(font, Vector2(cx - 130, (ty + dy) / 2.0 - 60), tr("Handshake 3: 'go!' (IL-12)"), HORIZONTAL_ALIGNMENT_CENTER, 260, 16, Color(1, 0.7, 0.95))
 
 	func _pair(x: float, ty: float, dy: float, ct: Color, cd: Color, lt: String, ld: String, w: float) -> void:
 		var mid := (ty + dy) / 2.0
@@ -619,9 +619,9 @@ class Stage extends Control:
 		draw_circle(Vector2(x, mid - 2), w * 0.75, ct)
 		draw_circle(Vector2(x, mid + 2), w * 0.75, cd)
 		if lt != "":
-			draw_string(font, Vector2(x - 40, ty + 30), lt, HORIZONTAL_ALIGNMENT_CENTER, 80, 13, Color(0.85, 0.92, 1.0))
+			draw_string(font, Vector2(x - 40, ty + 30), tr(lt), HORIZONTAL_ALIGNMENT_CENTER, 80, 13, Color(0.85, 0.92, 1.0))
 		if ld != "":
-			draw_string(font, Vector2(x - 40, dy - 20), ld, HORIZONTAL_ALIGNMENT_CENTER, 80, 13, Color(1.0, 0.9, 0.8))
+			draw_string(font, Vector2(x - 40, dy - 20), tr(ld), HORIZONTAL_ALIGNMENT_CENTER, 80, 13, Color(1.0, 0.9, 0.8))
 
 ## Live state for browser automation (mirrored to window.__ss.mg by DebugConsole).
 func debug_state() -> Dictionary:

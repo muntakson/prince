@@ -12,7 +12,7 @@ var _mg: Node = null
 var _pending_fail := false
 
 func _configure() -> void:
-	station_name = "Endosome (acidic)"
+	station_name = "Swallow Bubble (acidic)"
 	frame_dir = "res://assets/env/endo_anim/"
 	frame_prefix = "escape_"
 	frame_count = 6
@@ -24,25 +24,27 @@ func _configure() -> void:
 	prompt_offset = Vector2(0, -165)
 	captions = [
 		"",
-		"Protons pump in — the endosome turns acidic (pH drops)",
-		"The ionizable lipids gain positive charge and fuse with the membrane",
-		"The membrane destabilizes and ruptures!",
-		"The mRNA slips out through the tear...",
-		"Free in the cytoplasm — endosomal escape complete",
+		"Pumps fill the Swallow Bubble with acid (pH drops)",
+		"In acid, the Magnet Fat turns positive and clings to the wall",
+		"The wall weakens... and tears!",
+		"The letter slips out through the tear...",
+		"Free in the cell fluid: escape complete!",
 	]
 	hint_lines = [
-		["Scroll", "This endosome is empty. The nanoparticle must first be captured by the dendritic cell to the south."],
+		["Scroll", "This Swallow Bubble is empty. The Scout Cell to the south must swallow the bubble first."],
 	]
 	finish_lines = [
-		["Scroll", "Inside the endosome the pH dropped. The ionizable lipids became positively charged, disrupted the membrane, and the vesicle burst open."],
-		["Arin", "The mRNA escapes through the torn membrane into the cytoplasm — free at last!"],
-		["Scroll", "Now the ribosomes can read it. Head north — but hurry, the cytoplasm is full of nucleases."],
+		["Scroll", "The acid switched on the Magnet Fat. It turned positive, tore the Swallow Bubble's wall, and burst it open."],
+		Glossary.card("ionizable"),
+		["Arin", "The letter slips out through the tear. Free at last!"],
+		["Scroll", "Now the Printing Press can read it. Head north, but hurry: the cell is full of letter-eating enzymes."],
 	]
 	replay_lines = [
-		["Scroll", "The mRNA has already escaped this endosome. The ribosome to the north is waiting to translate it."],
+		["Scroll", "The letter has already escaped. The Printing Press to the north is waiting to read it."],
 	]
 	fail_lines = [
-		["Scroll", "The mRNA was digested. Endosomal escape is a race: wait for the lipids to charge (pH below 6.6), but break out before pH 5, when the lysosome fuses."],
+		["Scroll", "The letter was digested! Wait until the acid is strong enough (pH below 6.6), but break out before pH 5, when the Digesting Sack arrives."],
+		Glossary.card("lysosome"),
 		["Arin", "The cell is taking in more particles. Let me try again."],
 	]
 
@@ -57,7 +59,7 @@ func _start_cutscene() -> void:
 	if _mg != null and is_instance_valid(_mg):
 		return
 	DialogueManager.start([
-		["Scroll", "The endosome is acidifying. Watch the pH: the lipids only charge below pH 6.6, and below pH 5 the lysosome arrives. Tap or press SPACE at the right moment to break out."],
+		["Scroll", "The Swallow Bubble is turning acidic. Below pH 6.6 the Magnet Fat switches on; below pH 5 the Digesting Sack arrives. Tap or press SPACE in between!"],
 	])
 	_mg = TIMING_MG.new()
 	_mg.finished.connect(_on_timing_finished)

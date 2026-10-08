@@ -77,8 +77,8 @@ func _build_ui() -> void:
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(frame)
 
-	title = _label(frame, Vector2(20, 26), BW - 40, "Endosomal Escape", 38, Color(1, 0.95, 0.75))
-	_label(frame, Vector2(20, 78), BW - 40, "Wait until the lipids are charged, then break out - before the lysosome arrives!", 19, Color(0.75, 0.9, 1.0))
+	title = _label(frame, Vector2(20, 26), BW - 40, "Swallow Bubble Escape", 38, Color(1, 0.95, 0.75))
+	_label(frame, Vector2(20, 78), BW - 40, "Wait until the bubble is acidic enough, then break out before the Digesting Sack arrives!", 19, Color(0.75, 0.9, 1.0))
 
 	scene = Scene.new()
 	scene.mg = self
@@ -107,7 +107,7 @@ func _build_ui() -> void:
 	scene.add_child(lyso_sprite)
 
 	ph_label = _label(frame, Vector2(540, 120), 160, "pH 7.4", 30, Color(0.7, 0.85, 1.0))
-	charge_label = _label(frame, Vector2(20, 880), BW - 40, "Lipid charge: neutral", 22, Color(0.9, 0.9, 0.9))
+	charge_label = _label(frame, Vector2(20, 880), BW - 40, "Magnet Fat: neutral", 22, Color(0.9, 0.9, 0.9))
 	msg = _label(frame, Vector2(20, 920), BW - 40, "", 24, Color(1.0, 0.8, 0.5))
 	msg.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	caption = _label(frame, Vector2(20, 1150), BW - 40, "", 20, Color(0.95, 0.95, 0.8))
@@ -140,10 +140,10 @@ func _build_ui() -> void:
 	_set_caption(0)
 
 const CAPTIONS := [
-	"V-ATPase proton pumps push H+ into the endosome. Its pH falls from 7.4 toward 4.5.",
-	"Below about pH 6.6 the ionizable lipids (pKa ~6.4) pick up protons and turn positive. Now they can disrupt the membrane.",
-	"Too late! Below pH 5 the endosome fuses with a lysosome full of nucleases that digest RNA.",
-	"The charged lipids pair with anionic membrane lipids, the bilayer buckles, and the mRNA slips into the cytoplasm.",
+	"The Scout Cell swallowed the Bubble Shield into a Swallow Bubble (endosome). Pumps fill it with acid: pH falls from 7.4.",
+	"Below pH 6.6 the acid gives Magnet Fat a + charge. Now it can tear the bubble wall. Break out now!",
+	"Too late! Below pH 5 the Digesting Sack (lysosome) merged in. Its Shredders chop up RNA.",
+	"The charged Magnet Fat pulls the bubble wall apart. The Royal Letter slips out into the cell.",
 ]
 var _cap := -1
 func _set_caption(i: int) -> void:
@@ -188,13 +188,13 @@ func _attempt() -> void:
 	if ph > WIN_HI:
 		_shake = 0.5
 		_msg_t = 2.0
-		msg.text = tr("Too early! At pH %.1f the lipids are still neutral - nothing happens.") % ph
+		msg.text = tr("Too early! At pH %.1f Magnet Fat has no charge yet. Nothing happens.") % ph
 		DebugConsole.dlog("endo early ph=%.2f" % ph)
 	elif ph >= WIN_LO:
 		phase = Phase.ESCAPE
 		AudioManager.sfx("portal")
 		_phase_t = 0.0
-		msg.text = "The charged lipids rupture the membrane - ESCAPE!"
+		msg.text = "Magnet Fat tears the wall open. ESCAPE!"
 		go_btn.visible = false
 		_set_caption(3)
 		DebugConsole.dlog("endo escape ph=%.2f" % ph)
@@ -207,7 +207,7 @@ func _fail() -> void:
 	_phase_t = 0.0
 	go_btn.visible = false
 	retry_btn.visible = true
-	msg.text = "The lysosome fused with the endosome. Its nucleases digested the mRNA!"
+	msg.text = "The Digesting Sack merged in and chewed up the Royal Letter!"
 	_set_caption(2)
 	DebugConsole.dlog("endo fail ph=%.2f" % ph)
 
@@ -261,7 +261,7 @@ func _process(delta: float) -> void:
 		_protons = _protons.slice(_protons.size() - 80)
 	ph_label.text = tr("pH %.1f") % ph
 	var cf := charged_fraction()
-	charge_label.text = tr("Lipid charge: %s (%d%% protonated)") % [tr("neutral") if cf < 0.25 else (tr("charging") if cf < 0.6 else tr("POSITIVE")), int(round(cf * 100.0))]
+	charge_label.text = tr("Magnet Fat: %s  (%d%% charged)") % [tr("neutral") if cf < 0.25 else (tr("charging") if cf < 0.6 else tr("READY (+)")), int(round(cf * 100.0))]
 	charge_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85).lerp(Color(1.0, 0.85, 0.3), cf))
 	var off := Vector2(sin(_t * 50.0) * 6.0 * _shake, 0)
 	lnp_sprite.position = CENTER + off + Vector2(0, sin(_t * 2.0) * 4.0)

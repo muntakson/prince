@@ -7,7 +7,7 @@ extends CutsceneStation
 const DONE_FLAG := "translation_done"
 
 func _configure() -> void:
-	station_name = "Ribosome"
+	station_name = "Printing Press"
 	frame_dir = "res://assets/env/ribo_anim/"
 	frame_prefix = "translate_"
 	frame_count = 6
@@ -20,20 +20,23 @@ func _configure() -> void:
 	prompt_offset = Vector2(0, -140)
 	captions = [
 		"",
-		"The free mRNA threads into the ribosome",
-		"Reading the start codon: the first amino acids are joined",
-		"Codon by codon, the chain grows...",
-		"The chain folds as the ribosome nears the stop codon",
-		"Translation complete: a tumor-antigen protein!",
+		"The letter threads into the Printing Press",
+		"BEGIN found: the first beads are joined",
+		"Three letters at a time, the bead chain grows...",
+		"The chain folds as the press nears THE END",
+		"Done: a copy of the Enemy's Face!",
 	]
 	hint_lines = [
-		["Ribosome", "I am a ribosome, but I have nothing to read. The mRNA is still trapped inside the endosome to the south."],
+		["Printing Press", "I am the Printing Press, but I have nothing to read. The letter is still trapped in the Swallow Bubble to the south."],
 	]
 	finish_lines = [
-		["Ribosome", "I read the message three letters at a time — each codon calls for one amino acid — and linked them into a chain."],
-		["Scroll", "The chain folds into the tumor antigen: a harmless copy of a protein found on Mira's cancer cells. Now the cell can show it to the immune system."],
+		["Printing Press", "I read your letter three letters at a time. Each three-letter word adds one bead to a chain."],
+		Glossary.card("ribosome"),
+		Glossary.card("codon"),
+		["Scroll", "The chain folds into the Enemy's Face: a harmless copy of a piece of Mira's cancer. Now the cell can show it to the immune army."],
+		Glossary.card("antigen"),
 		["Arin", "So the body learns the enemy's face without ever meeting the enemy. On to the surface!"],
 	]
 	replay_lines = [
-		["Ribosome", "The antigen is made. Carry on north — the cell is presenting it on its surface now."],
+		["Printing Press", "The Enemy's Face is built. Carry on north: the cell is showing it on its surface."],
 	]

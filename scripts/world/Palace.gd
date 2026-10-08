@@ -21,11 +21,12 @@ func build_content() -> void:
 		"res://assets/characters/mira_hd.png", "met_mira")
 
 	# The mRNA scroll — sets the quest flag when read.
-	var scroll := add_npc(Vector2(600, 450), "The mRNA Scroll",
+	var scroll := add_npc(Vector2(600, 450), "The Healer's Scroll",
 		[
-			["Scroll", "To teach the body to fight the illness, craft an mRNA — a message of life."],
-			["Scroll", "Gather its seven parts: 5′ cap, 5′ UTR, start codon, the antigen code, stop codon, 3′ UTR, and poly(A) tail."],
-			["Scroll", "Assemble them, wrap them in a lipid shield, and deliver the message within."],
+			["Scroll", "Your body already has an army, but it cannot see the cancer. Send it a Royal Letter that shows the enemy's face."],
+			["Scroll", "A letter needs seven parts, scattered across the Molecular Kingdom: a seal, a greeting, a wanted poster, a fuse... Find them all."],
+			["Scroll", "Put the parts in the right order, wrap the letter in a shield, and deliver it inside her body."],
+			["Scroll", "This is no fairy tale. Since 2020, letters just like this one have been used in COVID-19 vaccines given to hundreds of millions of people."],
 			["Arin", "Then to the molecular kingdom I go. Hold on, Mira."],
 		],
 		"res://assets/env/scroll.png", "read_scroll")

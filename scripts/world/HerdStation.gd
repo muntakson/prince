@@ -12,19 +12,23 @@ func _configure() -> void:
 	prompt_offset = Vector2(0, -110)
 	interact_radius = 110.0
 	hint_lines = [
-		["Scroll", "No army has been raised yet. The T-cells must first be activated in the lymph node."],
+		["Scroll", "No army has been raised yet. The Knights must first wake up at the Training Camp."],
 	]
 	intro_lines = [
-		["Scroll", "The activated T-cells ride the blood and squeeze out of the vessel here, drawn by the tumor's chemokines. But the tumor defends itself."],
-		["Scroll", "Regulatory T-cells breathe out IL-10 and TGF-beta that switch fighters off. Cancer-associated fibroblasts wall the tumor in with dense collagen. Hypoxic pockets sap their strength."],
+		["Scroll", "The Knights ride the blood and squeeze out of the vessel here, following the tumor's scent. But the tumor fights back."],
+		["Scroll", "Peacekeepers breathe out calm-down chemicals that switch Knights off. Stay out of their purple fog!"],
+		Glossary.card("treg"),
+		["Scroll", "Wall Builders surround the tumor with thick fibre walls, and pockets of Thin Air sap the Knights' strength."],
+		Glossary.card("caf"),
+		Glossary.card("hypoxia"),
 		["Arin", "Then I'll lead them myself. Stay close, all of you!"],
 	]
 	finish_lines = [
-		["Scroll", "The T-cells have infiltrated the tumor. Now each one must read the cells around it and choose its target."],
+		["Scroll", "The Knights are inside the tumor. Now each one must check the cells around it and choose its target."],
 	]
 	replay_lines = [
 		["Scroll", "The army is inside the tumor. Head north and begin the hunt."],
 	]
 	fail_lines = [
-		["Scroll", "Too few T-cells reached the tumor. Keep the herd close, steer them around the purple Treg fog, and find the gaps in the stroma."],
+		["Scroll", "Too few Knights reached the tumor. Keep the herd close, steer around the purple Peacekeeper fog, and find the gaps in the walls."],
 	]

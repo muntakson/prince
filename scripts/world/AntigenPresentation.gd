@@ -7,7 +7,7 @@ extends CutsceneStation
 const DONE_FLAG := "antigen_presented"
 
 func _configure() -> void:
-	station_name = "Antigen Presentation"
+	station_name = "Display Window"
 	frame_dir = "res://assets/env/mhc_anim/"
 	frame_prefix = "mhc_"
 	frame_count = 6
@@ -20,19 +20,20 @@ func _configure() -> void:
 	prompt_offset = Vector2(0, -155)
 	captions = [
 		"",
-		"A piece of the antigen is carried to the cell surface",
-		"The peptide loads into the groove of an MHC molecule",
-		"A T-cell arrives to inspect what the cell is showing",
-		"Its receptor locks onto the antigen–MHC complex",
-		"Activated! T-cells multiply, trained to hunt the cancer",
+		"A piece of the Enemy's Face travels to the surface",
+		"It slots into a Display Window (MHC)",
+		"A Knight (T-cell) arrives to inspect it",
+		"The Knight's Lock fits the face",
+		"Match! The Knights multiply, ready to hunt the cancer",
 	]
 	hint_lines = [
-		["Scroll", "The MHC molecules wait empty. First the ribosome to the south must build the antigen protein."],
+		["Scroll", "The Display Windows are empty. First the Printing Press to the south must build the Enemy's Face."],
 	]
 	finish_lines = [
-		["Scroll", "The tumor antigen is displayed on the cell surface by an MHC molecule. T-cells inspect it, recognize it, and multiply into an army that hunts any cell wearing the same antigen."],
-		["Arin", "But the T-cells that must learn this face gather elsewhere... in the lymph nodes. Let's go."],
+		["Scroll", "The Enemy's Face now sits in a Display Window on the cell's surface. Knights who recognise it will multiply and hunt every cell that wears it."],
+		Glossary.card("mhc"),
+		["Arin", "But the Knights who must learn this face train somewhere else... at the Training Camp. Let's go."],
 	]
 	replay_lines = [
-		["Scroll", "The antigen is displayed on the cell surface. Now the dendritic cell must carry it to a lymph node — the way lies north."],
+		["Scroll", "The Enemy's Face is on display. Now the Scout Cell must carry it to the Training Camp. The way lies north."],
 	]

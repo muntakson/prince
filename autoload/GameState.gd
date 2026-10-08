@@ -43,6 +43,7 @@ func _load_locale() -> void:
 		if parsed is Dictionary:
 			_ko_speakers = parsed.get("speakers", {})
 			_ko_lines = parsed.get("lines", {})
+	Glossary.register_ko(_ko_lines, _ko_speakers)
 	if ResourceLoader.exists(CJK_FONT_PATH):
 		_cjk_font = load(CJK_FONT_PATH)
 		# The CJK subset (Latin + Hangul) becomes the default UI font for every

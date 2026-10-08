@@ -15,7 +15,7 @@ var _fly_t := 0.0
 var _fly_from := Vector2.ZERO
 
 func _configure() -> void:
-	station_name = "Dendritic Cell"
+	station_name = "Scout Cell"
 	frame_dir = "res://assets/env/dc_anim/"
 	frame_prefix = "uptake_"
 	frame_count = 7
@@ -24,24 +24,26 @@ func _configure() -> void:
 	required_item = "lnp"
 	captions = [
 		"",
-		"The nanoparticle drifts toward the cell...",
-		"A dendrite reaches out and touches the LNP",
-		"The membrane bends inward — endocytosis begins",
-		"The membrane wraps around the particle",
-		"It pinches off inside: an endosome forms",
-		"The endosome carries the mRNA deep into the cell",
+		"The Bubble Shield drifts toward the Scout Cell...",
+		"A long arm reaches out and touches the bubble",
+		"The cell's skin bends inward: it starts to swallow",
+		"The skin wraps all the way around the bubble",
+		"It pinches off inside: a Swallow Bubble forms",
+		"The Swallow Bubble carries the letter deep inside",
 	]
 	hint_lines = [
-		["Cell", "I am a dendritic cell. I reach out with my branches and capture particles... but you carry nothing for me yet."],
-		["Arin", "The Lipid Nanoparticle — I must bring it here first."],
+		["Scout Cell", "I am a Scout Cell. I grab anything strange with my long arms... but you carry nothing for me yet."],
+		["Arin", "The Bubble Shields! I must bring them here first."],
 	]
 	finish_lines = [
-		["Cell", "I am a dendritic cell — a sentinel of the immune system. I captured your nanoparticle and drew it inside an endosome."],
-		["Scroll", "This is endocytosis: the membrane folds around the particle and pinches off as a vesicle. The mRNA is now inside the cell, but still trapped in the endosome."],
-		["Arin", "Then the next step is to break free. Onward, to the endosome!"],
+		["Scout Cell", "I am a Scout Cell, a lookout for the immune army. I swallowed your bubble whole!"],
+		Glossary.card("dc"),
+		["Scroll", "The cell wrapped its skin around the bubble and pinched it off inside. The letter is in the cell, but trapped in a Swallow Bubble."],
+		Glossary.card("endosome"),
+		["Arin", "Then we must break out. Onward!"],
 	]
 	replay_lines = [
-		["Cell", "The nanoparticle is already inside me, sealed in an endosome. Follow it north — the endosome is turning acidic."],
+		["Scout Cell", "Your bubble is already inside me, sealed in a Swallow Bubble. Follow it north. It is turning sour with acid."],
 	]
 
 func _setup_extra() -> void:

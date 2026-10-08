@@ -1,7 +1,10 @@
 extends CanvasLayer
-## Mini-game: assemble the mRNA by dragging the 7 components into the correct
-## 5′ → 3′ order. Drag works via raw pointer events (mouse + touch), so it is
-## reliable in the Godot web export. Emits `finished(success)` and frees itself.
+## Mini-game: write the Royal Letter (mRNA) by dragging the 7 parts into the
+## correct front-to-back (5′ → 3′) order. The slots describe what each part
+## DOES, not its name, so the player has to reason it out; a wrong drop explains
+## why that part belongs elsewhere. On success the science names are revealed.
+## Drag works via raw pointer events (mouse + touch), so it is reliable in the
+## Godot web export. Emits `finished(success)` and frees itself.
 
 signal finished(success: bool)
 
@@ -21,6 +24,31 @@ var _grab_off: Vector2 = Vector2.ZERO
 var _touch_id: int = -100
 var _solved := 0
 var _done := false
+var _mistakes := 0
+var reveal: Label
+var hint: Label
+var cont: Button
+
+## What each slot does (shown on the empty slot instead of the part's name).
+const SLOT_CLUES := {
+	"cap5":        "Reader checks this first: is it genuine?",
+	"utr5":        "Lead-in: the reader gets ready",
+	"start_codon": "Building starts here",
+	"orf":         "The instructions themselves",
+	"stop_codon":  "Building stops here",
+	"utr3":        "After-note: how long it lasts",
+	"polya":       "Burns down; guards the back end",
+}
+## Why a part belongs where it does (shown when it is dropped in a wrong slot).
+const WHERE := {
+	"cap5":        "The Royal Seal must be the very first thing the reader sees.",
+	"utr5":        "The Greeting comes right after the Seal, before building starts.",
+	"start_codon": "BEGIN goes just before the instructions it starts.",
+	"orf":         "The Wanted Poster sits between BEGIN and THE END.",
+	"stop_codon":  "THE END comes right after the instructions.",
+	"utr3":        "The P.S. comes after THE END, before the Fuse.",
+	"polya":       "The Fuse always sits at the very back of the letter.",
+}
 
 func _ready() -> void:
 	layer = 40
@@ -50,12 +78,12 @@ func _build() -> void:
 	frame.offset_bottom = 1280
 	root.add_child(frame)
 
-	_add_label(frame, Vector2(20, 40), BW - 40, "Assemble the mRNA", 40, Color(1, 0.95, 0.75), HORIZONTAL_ALIGNMENT_CENTER)
-	_add_label(frame, Vector2(20, 96), BW - 40, "Drag each part into the correct 5′ → 3′ order", 22, Color(0.65, 0.85, 1.0), HORIZONTAL_ALIGNMENT_CENTER)
+	_add_label(frame, Vector2(20, 40), BW - 40, "Write the Royal Letter", 40, Color(1, 0.95, 0.75), HORIZONTAL_ALIGNMENT_CENTER)
+	_add_label(frame, Vector2(20, 96), BW - 40, "Drag each part to the slot that matches what it does", 22, Color(0.65, 0.85, 1.0), HORIZONTAL_ALIGNMENT_CENTER)
 
 	# 5' and 3' end markers
-	_add_label(frame, Vector2(24, 150), 80, "5′", 30, Color(0.9, 0.9, 0.6), HORIZONTAL_ALIGNMENT_LEFT)
-	_add_label(frame, Vector2(BW - 100, 150), 80, "3′", 30, Color(0.9, 0.9, 0.6), HORIZONTAL_ALIGNMENT_RIGHT)
+	_add_label(frame, Vector2(24, 150), 200, "FRONT (5′)", 22, Color(0.9, 0.9, 0.6), HORIZONTAL_ALIGNMENT_LEFT)
+	_add_label(frame, Vector2(BW - 224, 150), 200, "BACK (3′)", 22, Color(0.9, 0.9, 0.6), HORIZONTAL_ALIGNMENT_RIGHT)
 
 	# ---- target slots (in order, labeled with the role) ----
 	var n := ORDER.size()
@@ -67,10 +95,10 @@ func _build() -> void:
 		var panel := _make_panel(frame, Vector2(x, y_slot), Vector2(sw, 150), Color(0.08, 0.10, 0.2, 0.9), Color(0.3, 0.4, 0.7))
 		var num := _add_label(panel, Vector2(0, 6), sw, str(i + 1), 20, Color(0.7, 0.8, 1.0), HORIZONTAL_ALIGNMENT_CENTER)
 		num.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var nm := _add_label(panel, Vector2(2, 108), sw - 4, Inventory.component_name(ORDER[i]), 14, Color(0.8, 0.85, 1.0), HORIZONTAL_ALIGNMENT_CENTER)
+		var nm := _add_label(panel, Vector2(2, 30), sw - 4, SLOT_CLUES[ORDER[i]], 13, Color(0.8, 0.85, 1.0), HORIZONTAL_ALIGNMENT_CENTER)
 		nm.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		nm.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		slots.append({"panel": panel, "index": i, "tile": null, "rect_node": panel})
+		slots.append({"panel": panel, "index": i, "tile": null, "rect_node": panel, "clue": nm})
 
 	# ---- draggable tiles (shuffled) in a tray ----
 	var shuffled := ORDER.duplicate()
@@ -92,8 +120,14 @@ func _build() -> void:
 		tiles.append(tile)
 
 	# ---- banner + buttons ----
-	banner = _add_label(frame, Vector2(20, 720), BW - 40, "", 30, Color(0.6, 1.0, 0.7), HORIZONTAL_ALIGNMENT_CENTER)
+	banner = _add_label(frame, Vector2(20, 720), BW - 40, "", 26, Color(0.6, 1.0, 0.7), HORIZONTAL_ALIGNMENT_CENTER)
 	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	banner.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# science names, revealed under the banner once the letter is complete
+	reveal = _add_label(frame, Vector2(20, 860), BW - 40, "", 18, Color(1.0, 0.88, 0.5), HORIZONTAL_ALIGNMENT_CENTER)
+	reveal.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	reveal.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	reveal.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # built from Glossary, already localized
 
 	var close := Button.new()
 	close.text = "X"
@@ -103,9 +137,18 @@ func _build() -> void:
 	close.pressed.connect(func(): _finish(false))
 	frame.add_child(close)
 
-	var hint := _add_label(frame, Vector2(20, 780), BW - 40, "Order: 5′ Cap · 5′ UTR · Start · Antigen ORF · Stop · 3′ UTR · Poly(A)", 15, Color(0.6, 0.65, 0.8), HORIZONTAL_ALIGNMENT_CENTER)
+	hint = _add_label(frame, Vector2(20, 1000), BW - 40, "Stuck? Drop a part anywhere: the scribe will tell you where it belongs.", 16, Color(0.6, 0.65, 0.8), HORIZONTAL_ALIGNMENT_CENTER)
 	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+	cont = Button.new()
+	cont.text = "Continue"
+	cont.custom_minimum_size = Vector2(240, 60)
+	cont.position = Vector2(BW / 2.0 - 120, 1110)
+	cont.add_theme_font_size_override("font_size", 26)
+	cont.visible = false
+	cont.pressed.connect(_finish.bind(true))
+	frame.add_child(cont)
 
 # --------------------------------------------------------------------------
 func _make_panel(parent: Control, pos: Vector2, size: Vector2, bg: Color, border: Color) -> Panel:
@@ -211,10 +254,19 @@ func _release(pos: Vector2) -> void:
 		tile.global_position = slot_rect.position + Vector2((slot_rect.size.x - TILE.x) / 2.0, 20)
 		tile.set_meta("locked", true)
 		target["tile"] = tile
+		target["clue"].visible = false   # the tile now covers the slot
 		_lock_visual(tile)
+		banner.add_theme_color_override("font_color", Color(0.6, 1.0, 0.7))
+		banner.text = ""
 		_check_win()
+	elif target != null:
+		# dropped on the wrong slot — explain where this part belongs
+		_mistakes += 1
+		banner.add_theme_color_override("font_color", Color(1.0, 0.75, 0.5))
+		banner.text = WHERE.get(tile.get_meta("id"), "")
+		_return_home(tile)
 	else:
-		# wrong / missed — return home
+		# missed every slot — just return home
 		_return_home(tile)
 
 func _lock_visual(tile: Control) -> void:
@@ -239,10 +291,19 @@ func _check_win() -> void:
 	_solved = ok
 	if ok == ORDER.size():
 		_done = true
-		banner.text = "mRNA assembled! Cap · UTR · Start · ORF · Stop · UTR · Poly(A)"
-		var t := create_tween()
-		t.tween_interval(1.6)
-		t.tween_callback(func(): _finish(true))
+		banner.add_theme_color_override("font_color", Color(0.6, 1.0, 0.7))
+		if _mistakes == 0:
+			banner.text = tr("Perfect letter! No mistakes. You think like a Royal Scribe.")
+		else:
+			banner.text = tr("The Royal Letter is complete! Mistakes: %d") % _mistakes
+		# reveal the science name under every nickname: this IS an mRNA
+		var lines: Array = [tr("Scientists call this letter an mRNA:")]
+		for id in ORDER:
+			lines.append("%s  =  %s" % [Glossary.nick(id), Glossary.sci(id)])
+		reveal.text = "\n".join(lines)
+		Glossary.learn("mrna")
+		hint.visible = false
+		cont.visible = true
 
 func _finish(success: bool) -> void:
 	if success:

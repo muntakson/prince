@@ -92,7 +92,7 @@ func _build_ui() -> void:
 	frame.offset_bottom = 640
 	root.add_child(frame)
 	_add_label(frame, Vector2(20, 26), BW - 40, "Hunt the Tumor", 38, Color(1, 0.95, 0.75))
-	_add_label(frame, Vector2(20, 78), BW - 40, "Touch each cell to read its MHC-I peptide: kill tumor cells, spare healthy ones", 19, Color(0.75, 0.9, 1.0))
+	_add_label(frame, Vector2(20, 78), BW - 40, "Bump a cell to check its face. Kill tumor cells, spare healthy ones.", 19, Color(0.75, 0.9, 1.0))
 	var tex_path := "res://assets/env/tumor_bg.png"
 	if ResourceLoader.exists(tex_path):
 		var tr := TextureRect.new()
@@ -145,7 +145,7 @@ func _build_ui() -> void:
 	close.add_theme_font_size_override("font_size", 26)
 	close.pressed.connect(_on_close)
 	frame.add_child(close)
-	caption.text = "Tumor cells display the vaccine antigen on MHC class I. Healthy cells show self peptides. Read before you strike!"
+	caption.text = "Tumor cells show the orange Enemy's Face in their Display Window (MHC-I). Healthy cells show blue faces. Check before you strike!"
 
 func _tsize(t: Texture2D) -> float:
 	if t == null:
@@ -310,15 +310,15 @@ func _process(delta: float) -> void:
 				np.y = clampf(np.y, FIELD.position.y + CELL_RADIUS, FIELD.end.y - CELL_RADIUS)
 				_spawn_cell(np, "tumor", false)
 				_burst(np, 10, Color(0.9, 0.4, 0.8))
-				caption.text = "A tumor cell divided! Cancer grows fast — hurry."
+				caption.text = "A tumor cell split in two! Cancer grows fast. Hurry!"
 	# --- antibody pickup ---
 	if not has_antibody and ctl_pos.distance_to(ab_pos) < CTL_RADIUS + 30:
 		has_antibody = true
 		ab_sprite.visible = false
 		shield_break_t = 0.0
 		_burst(ab_pos, 20, Color(1.0, 0.95, 0.5))
-		banner.text = "Checkpoint inhibitor collected!"
-		caption.text = "The anti-PD-1 antibody blocks PD-1, so PD-L1 can no longer switch the T-cell off. Shields down!"
+		banner.text = "Pass Blocker collected!"
+		caption.text = "The Pass Blocker (anti-PD-1) covers your Knight's badge reader. Fake Passes stop working. Shields down!"
 	if shield_break_t >= 0.0:
 		shield_break_t += delta
 		if shield_break_t > 0.9:
@@ -367,7 +367,7 @@ func _process(delta: float) -> void:
 				kills += 1
 				_burst(c["p"], 22, Color(0.8, 0.6, 0.9))
 				_set_phase(Phase.HUNT)
-				caption.text = tr("Tumor cell destroyed by apoptosis. %d to go.") % tumors_left()
+				caption.text = tr("The tumor cell self-destructed (apoptosis). %d to go.") % tumors_left()
 		Phase.SPARE:
 			if _pt > 1.2:
 				ctl_vel = (ctl_pos - _target["p"]).normalized() * 120.0
@@ -384,7 +384,7 @@ func _process(delta: float) -> void:
 			if _pt > 3.5:
 				_finish(true)
 	ctl_sprite.position = ctl_local() + Vector2(0, sin(_t * 3.0) * 3.0)
-	counter.text = tr("Tumor cells left: %d     Killed: %d     %s") % [tumors_left(), kills, tr("Antibody: yes") if has_antibody else tr("Antibody: no")]
+	counter.text = tr("Tumor cells left: %d     Killed: %d     %s") % [tumors_left(), kills, tr("Pass Blocker: yes") if has_antibody else tr("Pass Blocker: no")]
 	var keep: Array = []
 	for pt in particles:
 		pt["life"] -= delta
@@ -406,18 +406,18 @@ func _set_phase(p: int) -> void:
 	DebugConsole.dlog("Hunt phase %d" % p)
 	match p:
 		Phase.INSPECT:
-			caption.text = "The TCR reads the peptide on this cell's MHC class I..."
+			caption.text = "Your Knight checks the face in this cell's Display Window..."
 		Phase.SPARE:
-			caption.text = "A self peptide — this is a healthy cell. The T-cell lets it live. (That is why the vaccine antigen must be tumor-specific!)"
+			caption.text = "A blue face: this is a healthy cell, so the Knight lets it live. That is why the vaccine must target a face only cancer has!"
 			_burst(_target["p"], 10, Color(0.5, 1.0, 0.6))
 		Phase.EXHAUST:
-			caption.text = "PD-L1 on the tumor cell grips PD-1 on the T-cell and switches the kill program off! Find the checkpoint-inhibitor antibody."
+			caption.text = "A Fake Pass (PD-L1)! It tricks your Knight into backing off. Find the Pass Blocker."
 			_burst(_target["p"], 10, Color(0.6, 0.6, 0.7))
 		Phase.KILL:
-			caption.text = "The vaccine antigen! The T-cell locks on and delivers the lethal hit." if kills > 0 else "The vaccine antigen! A lytic synapse forms..."
+			caption.text = "The Enemy's Face! The Knight locks on and strikes." if kills > 0 else "The Enemy's Face! The Knight locks on. Watch the close-up..."
 		Phase.WIN:
 			banner.text = "The tumor is destroyed!"
-			caption.text = "Every tumor cell is gone and the healthy cells were spared. Memory T-cells will keep watch for years."
+			caption.text = "Every tumor cell is gone, and the healthy cells are safe. Veteran Knights (memory T-cells) will stand guard for years."
 
 func _emit(p: Vector2, v: Vector2, c: Color) -> void:
 	particles.append({"p": p, "v": v, "life": 1.0, "c": c})
@@ -443,10 +443,10 @@ func debug_state() -> Dictionary:
 
 # --------------------------------------------------------------------------
 const KILL_CAPTIONS := [
-	"1. Recognition — the TCR binds the vaccine antigen on the tumor cell's MHC class I.",
-	"2. Perforin — the T-cell fires perforin, which punches pores through the tumor cell membrane.",
-	"3. Granzyme B — enzymes pour in through the pores and activate caspases inside the cell.",
-	"4. Apoptosis — the tumor cell shrinks, blebs and breaks apart. The T-cell moves on to the next.",
+	"1. Lock fits: the Knight finds the Enemy's Face on the tumor cell.",
+	"2. Hole Punch (perforin): the Knight punches holes in the tumor cell.",
+	"3. Poison (granzymes) slips in and flips the self-destruct switch.",
+	"4. Self-Destruct (apoptosis): the cell packs up and falls apart. Next!",
 ]
 
 class Field extends Control:
@@ -472,10 +472,10 @@ class Field extends Control:
 				for i in 8:
 					var ang: float = i * TAU / 8.0 + mg._t * 0.6
 					draw_circle(p + Vector2.from_angle(ang) * (mg.CELL_RADIUS + 10.0), 5.0, Color(0.9, 0.9, 1.0, a))
-				draw_string(font, p + Vector2(-40, mg.CELL_RADIUS + 30), tr("PD-L1"), HORIZONTAL_ALIGNMENT_CENTER, 80, 14, Color(0.9, 0.9, 1.0, a))
+				draw_string(font, p + Vector2(-40, mg.CELL_RADIUS + 30), tr("Fake Pass"), HORIZONTAL_ALIGNMENT_CENTER, 80, 14, Color(0.9, 0.9, 1.0, a))
 		# antibody label
 		if not mg.has_antibody:
-			draw_string(font, mg.ab_pos - off + Vector2(-70, 52), tr("anti-PD-1 antibody"), HORIZONTAL_ALIGNMENT_CENTER, 140, 13, Color(1, 0.95, 0.7))
+			draw_string(font, mg.ab_pos - off + Vector2(-70, 52), tr("Pass Blocker"), HORIZONTAL_ALIGNMENT_CENTER, 140, 13, Color(1, 0.95, 0.7))
 		# TCR probe between the T-cell and its target
 		var ph: int = mg._phase
 		if ph == mg.Phase.INSPECT or ph == mg.Phase.KILL or ph == mg.Phase.SPARE or ph == mg.Phase.EXHAUST:
@@ -493,7 +493,7 @@ class Field extends Control:
 			_kill_panel(mg._pt)
 		# PD-1 mark on the T-cell when exhausted
 		if ph == mg.Phase.EXHAUST:
-			draw_string(font, mg.ctl_local() + Vector2(-40, -mg.CTL_RADIUS - 12), tr("PD-1 off"), HORIZONTAL_ALIGNMENT_CENTER, 80, 15, Color(0.9, 0.9, 1.0))
+			draw_string(font, mg.ctl_local() + Vector2(-40, -mg.CTL_RADIUS - 12), tr("fooled!"), HORIZONTAL_ALIGNMENT_CENTER, 80, 15, Color(0.9, 0.9, 1.0))
 		for pt in mg.particles:
 			var al: float = clampf(pt["life"], 0.0, 1.0)
 			var cc: Color = pt["c"]
@@ -522,11 +522,11 @@ class Field extends Control:
 		draw_rect(r, Color(0.02, 0.02, 0.06, 0.92))
 		draw_rect(r, Color(1, 0.7, 0.5, 0.9), false, 3.0)
 		var st: int = clampi(int(t / 1.6), 0, 3)
-		draw_string(font, Vector2(r.position.x, r.position.y + 28), tr("The lethal hit (zoom)"), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 20, Color(1, 0.9, 0.75))
+		draw_string(font, Vector2(r.position.x, r.position.y + 28), tr("Close-up: the Knight strikes"), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 20, Color(1, 0.9, 0.75))
 		var ty := r.position.y + 70.0     # T-cell membrane
 		var dy := r.position.y + 210.0    # tumor cell membrane
 		draw_line(Vector2(r.position.x + 20, ty), Vector2(r.end.x - 20, ty), Color(0.3, 0.55, 1.0), 10.0, true)
-		draw_string(font, Vector2(r.position.x + 24, ty - 18), tr("Killer T-cell"), HORIZONTAL_ALIGNMENT_LEFT, 200, 15, Color(0.6, 0.8, 1.0))
+		draw_string(font, Vector2(r.position.x + 24, ty - 18), tr("Knight (killer T-cell)"), HORIZONTAL_ALIGNMENT_LEFT, 300, 15, Color(0.6, 0.8, 1.0))
 		draw_string(font, Vector2(r.position.x + 24, dy + 34), tr("Tumor cell"), HORIZONTAL_ALIGNMENT_LEFT, 200, 15, Color(1.0, 0.7, 0.9))
 		var cx := r.get_center().x
 		# tumor membrane with pores appearing in stage >= 1
@@ -545,27 +545,27 @@ class Field extends Control:
 		# TCR–pMHC in the centre
 		draw_line(Vector2(cx, ty), Vector2(cx, (ty + dy) / 2.0 - 2), Color(0.35, 0.6, 1.0), 12.0, true)
 		draw_line(Vector2(cx, dy), Vector2(cx, (ty + dy) / 2.0 + 2), Color(1.0, 0.55, 0.15), 12.0, true)
-		draw_string(font, Vector2(cx - 60, ty + 28), tr("TCR"), HORIZONTAL_ALIGNMENT_CENTER, 120, 13, Color(0.85, 0.92, 1.0))
-		draw_string(font, Vector2(cx - 60, dy - 16), tr("antigen–MHC-I"), HORIZONTAL_ALIGNMENT_CENTER, 120, 13, Color(1, 0.9, 0.8))
+		draw_string(font, Vector2(cx - 60, ty + 28), tr("lock"), HORIZONTAL_ALIGNMENT_CENTER, 120, 13, Color(0.85, 0.92, 1.0))
+		draw_string(font, Vector2(cx - 60, dy - 16), tr("Enemy's Face"), HORIZONTAL_ALIGNMENT_CENTER, 120, 13, Color(1, 0.9, 0.8))
 		# perforin (orange) and granzyme (purple) granules travelling down
 		if st >= 1:
 			for i in 6:
 				var f := fmod(t * 0.8 + i * 0.17, 1.0)
 				var px := cx - 150 + i * 60.0
 				draw_circle(Vector2(px, lerpf(ty + 12, dy - 12, f)), 7.0, Color(1.0, 0.6, 0.3, 1.0 - f * 0.5))
-			draw_string(font, Vector2(r.position.x + 20, (ty + dy) / 2.0 - 30), tr("perforin"), HORIZONTAL_ALIGNMENT_LEFT, 120, 14, Color(1, 0.7, 0.4))
+			draw_string(font, Vector2(r.position.x + 20, (ty + dy) / 2.0 - 30), tr("Hole Punch"), HORIZONTAL_ALIGNMENT_LEFT, 120, 14, Color(1, 0.7, 0.4))
 		if st >= 2:
 			for i in 5:
 				var f := fmod(t * 0.9 + i * 0.2, 1.0)
 				var px := cx - 120 + i * 60.0
 				var y: float = lerpf(ty + 12, dy + 60, f)
 				draw_circle(Vector2(px, y), 6.0, Color(0.75, 0.45, 1.0, 1.0 - f * 0.4))
-			draw_string(font, Vector2(r.end.x - 160, (ty + dy) / 2.0 - 30), tr("granzyme B"), HORIZONTAL_ALIGNMENT_RIGHT, 140, 14, Color(0.85, 0.65, 1.0))
-			draw_string(font, Vector2(cx - 100, dy + 62), tr("caspases activated"), HORIZONTAL_ALIGNMENT_CENTER, 200, 14, Color(1, 0.8, 1.0))
+			draw_string(font, Vector2(r.end.x - 160, (ty + dy) / 2.0 - 30), tr("Poison"), HORIZONTAL_ALIGNMENT_RIGHT, 140, 14, Color(0.85, 0.65, 1.0))
+			draw_string(font, Vector2(cx - 100, dy + 62), tr("self-destruct switch ON"), HORIZONTAL_ALIGNMENT_CENTER, 200, 14, Color(1, 0.8, 1.0))
 		if st >= 3:
 			for i in 7:
 				var ang := i * TAU / 7.0 + t
 				var pp := Vector2(cx, dy + 70) + Vector2.from_angle(ang) * (30.0 + 20.0 * fmod(t, 1.0))
 				draw_circle(pp, 8.0, Color(0.7, 0.5, 0.8, 0.8))
-			draw_string(font, Vector2(cx - 100, dy + 100), tr("apoptosis"), HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(1, 0.85, 0.95))
-		draw_string(font, Vector2(r.position.x + 10, r.end.y - 14), mg.KILL_CAPTIONS[st], HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 20, 14, Color(0.95, 0.95, 0.8))
+			draw_string(font, Vector2(cx - 100, dy + 100), tr("Self-Destruct!"), HORIZONTAL_ALIGNMENT_CENTER, 200, 16, Color(1, 0.85, 0.95))
+		draw_string(font, Vector2(r.position.x + 10, r.end.y - 14), tr(mg.KILL_CAPTIONS[st]), HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 20, 14, Color(0.95, 0.95, 0.8))

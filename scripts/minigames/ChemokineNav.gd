@@ -103,8 +103,8 @@ func _build_ui() -> void:
 	frame.offset_bottom = 640
 	root.add_child(frame)
 
-	_add_label(frame, Vector2(20, 26), BW - 40, "Follow the Chemokine Trail", 38, Color(1, 0.95, 0.75))
-	_add_label(frame, Vector2(20, 78), BW - 40, "The DC's CCR7 antennae sense CCL19 — steer toward the strongest scent", 19, Color(0.75, 0.9, 1.0))
+	_add_label(frame, Vector2(20, 26), BW - 40, "Follow the Scent Trail", 38, Color(1, 0.95, 0.75))
+	_add_label(frame, Vector2(20, 78), BW - 40, "Steer toward the strongest scent. The glowing Sniffer Antennae (CCR7) show the way.", 19, Color(0.75, 0.9, 1.0))
 
 	# tissue backdrop (sibling below the field so the field's drawing sits on top)
 	var tex_path := "res://assets/env/tissue_bg.png"
@@ -146,7 +146,7 @@ func _build_ui() -> void:
 	field.add_child(dc_sprite)
 
 	# scent meter
-	_add_label(frame, Vector2(20, 1128), 200, "CCL19 scent", 20, Color(0.8, 1.0, 0.85), HORIZONTAL_ALIGNMENT_LEFT)
+	_add_label(frame, Vector2(20, 1128), 200, "Scent (CCL19)", 20, Color(0.8, 1.0, 0.85), HORIZONTAL_ALIGNMENT_LEFT)
 	var meter_bg := ColorRect.new()
 	meter_bg.position = Vector2(180, 1132)
 	meter_bg.size = Vector2(420, 22)
@@ -173,10 +173,10 @@ func _build_ui() -> void:
 	_set_caption(0)
 
 const CAPTIONS := [
-	"Dendritic cells that captured antigen switch on CCR7, a receptor that smells the chemokine CCL19.",
-	"The scent grows stronger. Lymphatic vessels and the lymph node release CCL19 and CCL21.",
-	"Almost there! CCR7 signalling steers the DC into a lymphatic vessel toward the node.",
-	"The dendritic cell squeezes into the vessel — the lymph carries it to the lymph node.",
+	"Your Scout Cell (dendritic cell) grew Sniffer Antennae (CCR7). They smell the Scent Trail (CCL19).",
+	"The scent gets stronger. The Training Camp (lymph node) and its lymph tunnels give it off.",
+	"Almost there! The antennae pull the Scout Cell into the lymph tunnel (lymphatic vessel).",
+	"The Scout Cell squeezes into the tunnel. The flow carries it to the Training Camp.",
 ]
 
 func _set_caption(stage: int) -> void:
@@ -301,7 +301,7 @@ func _process(delta: float) -> void:
 		_done = true
 		_win_t = 0.0
 		_set_caption(3)
-		banner.text = "The DC enters the lymphatic vessel!"
+		banner.text = "The Scout Cell enters the lymph tunnel!"
 		DebugConsole.dlog("ChemokineNav win")
 	field.queue_redraw()
 

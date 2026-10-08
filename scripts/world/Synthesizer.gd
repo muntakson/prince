@@ -77,7 +77,7 @@ func set_highlight(on: bool) -> void:
 
 func interact() -> void:
 	if GameState.has_flag("mrna_assembled"):
-		DialogueManager.start([["Synthesizer", "The mRNA is ready. Take it to the microfluidic mixer to wrap it in a lipid nanoparticle."]])
+		DialogueManager.start([["Synthesizer", "The letter is written! Take it to the Bubble Maker to wrap it in a Bubble Shield."]])
 		return
 	if GameState.debug_mode and not Inventory.has_all_mrna():
 		for id in Inventory.MRNA_ORDER:   # debug mode: load all seven parts
@@ -86,7 +86,7 @@ func interact() -> void:
 		var n := Inventory.count_mrna()
 		var missing := ", ".join(_missing_names())
 		DialogueManager.start([
-			["Synthesizer", tr("Components loaded: %d of 7.") % n],
+			["Synthesizer", tr("Letter parts loaded: %d of 7.") % n],
 			["Synthesizer", tr("Still needed: %s. Gather them, then operate me.") % missing],
 		])
 		return

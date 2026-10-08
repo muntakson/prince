@@ -23,7 +23,7 @@ func _ready() -> void:
 	super._ready()
 
 func build_content() -> void:
-	add_label(Vector2(440, 2130), "The T-cell army follows the blood to the tumor.", 24)
+	add_label(Vector2(440, 2130), "The Knight army rides the blood to the tumor.", 24)
 
 	# Station 0: leave the blood vessel and herd the T-cells through the stroma.
 	var herd := Area2D.new()
@@ -76,7 +76,8 @@ func build_content() -> void:
 			["Arin", "Your own body did it, Mira. We only taught it the enemy's face — with a message written in mRNA."],
 			["Mira", "A message of life. Then let the whole kingdom learn to read it."],
 			["Scroll", "Colour returns to the princess's face. The prince steps out of her body at last... and the two of them kiss."],
-			["Scroll", "Some of the T-cells stay behind as memory cells: if the illness ever returns, they will remember its face. And so the secret of the scroll was shared. THE END."],
+			["Scroll", "Some Knights stay behind as Veteran Knights: if the illness ever returns, they will remember its face. And so the secret of the scroll was shared. THE END."],
+			["Scroll", "Open Science Words in the pause menu to see every word you earned on the journey."],
 		],
 		"res://assets/characters/mira_hd.png", "mira_cured", 150.0)
 	add_label(Vector2(440, 720), "Mira's chamber", 22)

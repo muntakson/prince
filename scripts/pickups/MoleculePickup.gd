@@ -83,7 +83,10 @@ func _collect() -> void:
 		set_deferred("monitorable", false)
 		_collect_scale = sprite.scale
 		_collecting = true
-		DialogueManager.start([
-			{"speaker": "Arin", "text": "The %s!" % Inventory.component_name(component_id)},
-			{"speaker": "Scroll", "text": Inventory.component_blurb(component_id)},
-		])
+		# one Word Card per part: nickname = science name + what it does
+		if Glossary.has(component_id):
+			DialogueManager.start([Glossary.card(component_id)])
+		else:
+			DialogueManager.start([
+				{"speaker": "Scroll", "text": Inventory.component_blurb(component_id)},
+			])
