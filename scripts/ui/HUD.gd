@@ -102,6 +102,22 @@ func _build_top_bar() -> void:
 	pause.pressed.connect(_toggle_pause)
 	root.add_child(pause)
 
+	# class competition: live score next to the pause button
+	_class_label = Label.new()
+	_class_label.anchor_left = 1.0
+	_class_label.anchor_right = 1.0
+	_class_label.offset_left = -330
+	_class_label.offset_right = -74
+	_class_label.offset_top = 20
+	_class_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_class_label.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	_class_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	TextStyle.apply(_class_label, 20, Color(1.0, 0.85, 0.4), true)
+	root.add_child(_class_label)
+	Classroom.score_changed.connect(_on_class_score)
+	Classroom.login_changed.connect(_on_class_login)
+	_update_class_label()
+
 func _build_meter() -> void:
 	meter_panel = PanelContainer.new()
 	meter_panel.anchor_left = 0.5
@@ -454,3 +470,25 @@ func _style_panel(p: Control, bg: Color, border: Color = Color(0.3, 0.4, 0.7, 0.
 	sb.border_color = border
 	sb.set_content_margin_all(4)
 	p.add_theme_stylebox_override("panel", sb)
+
+# --------------------------------------------------------------------------
+# class competition
+var _class_label: Label
+
+func _on_class_score(_s: int) -> void:
+	_update_class_label()
+
+func _on_class_login(_on: bool) -> void:
+	_update_class_label()
+
+func _update_class_label() -> void:
+	if not _class_label:
+		return
+	if not Classroom.logged_in():
+		_class_label.text = ""
+	elif Classroom.practice or GameState.debug_mode:
+		_class_label.text = tr("Practice (not counted)")
+	elif Classroom.score >= 0:
+		_class_label.text = tr("%s  ·  %d pts") % [Classroom.student_name, Classroom.score]
+	else:
+		_class_label.text = Classroom.student_name

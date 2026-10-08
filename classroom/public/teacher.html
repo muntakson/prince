@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teacher Tools · Prince of mRNA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="app.css">
+<script src="app.js"></script>
+</head>
+<body>
+<div class="screen-only">
+  <header class="topbar">
+    <div class="brand">
+      <span id="crest"></span>
+      <div class="brand-text">
+        <p class="kicker"><span data-i18n="game">Prince of mRNA</span> · <span data-i18n="teacher">Teacher</span></p>
+        <h1 class="page-title" data-i18n="teacher_title">Teacher Tools</h1>
+      </div>
+    </div>
+    <div class="topbar-tools">
+      <button class="btn" type="button" id="signOut" hidden data-i18n="sign_out">Sign out</button>
+      <button class="btn lang-btn" type="button" data-lang-toggle>한국어</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="teacher-wrap">
+      <p class="msg ok" id="demoNote" hidden data-i18n="demo_note"></p>
+
+      <!-- sign in -->
+      <section class="panel" id="loginPanel" hidden>
+        <form id="loginForm" class="form-row" autocomplete="off">
+          <div class="field">
+            <label for="pw" data-i18n="password">Teacher password</label>
+            <input id="pw" type="password" autocomplete="current-password">
+          </div>
+          <button class="btn btn-gold" type="submit" data-i18n="sign_in">Sign in</button>
+        </form>
+        <p class="msg err" id="loginMsg" role="alert"></p>
+      </section>
+
+      <!-- classes -->
+      <section class="panel" id="classesPanel" hidden>
+        <h2 data-i18n="classes">Classes</h2>
+        <form id="createForm" autocomplete="off">
+          <h3 data-i18n="new_class">New class</h3>
+          <div class="form-row">
+            <div class="field" style="flex:0 1 11rem">
+              <label for="newCode" data-i18n="code">Code</label>
+              <input id="newCode" type="text" maxlength="16" spellcheck="false" autocapitalize="characters" data-i18n-ph="code_ph2">
+            </div>
+            <div class="field" style="flex:1 1 16rem">
+              <label for="newName" data-i18n="class_name">Class name</label>
+              <input id="newName" type="text" maxlength="80" data-i18n-ph="class_name_ph">
+            </div>
+            <button class="btn btn-gold" type="submit" data-i18n="create">Create class</button>
+          </div>
+          <p class="hint" data-i18n="code_rule"></p>
+          <p class="msg" id="createMsg" role="status"></p>
+        </form>
+        <div class="class-list" id="classList" style="margin-top:16px"></div>
+      </section>
+
+      <!-- one class -->
+      <section class="panel" id="classPanel" hidden></section>
+    </div>
+  </main>
+</div>
+
+<!-- print view -->
+<div class="print-view" id="printView">
+  <div class="print-toolbar">
+    <p data-i18n="print_hint"></p>
+    <button class="btn btn-gold" type="button" id="doPrint" data-i18n="print">Print</button>
+    <button class="btn" type="button" id="closePrint" data-i18n="back">Back</button>
+  </div>
+  <div class="cards" id="cards"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var esc = App.esc, t = App.t;
+  var KEY_NAME = "pom.teacherKey";
+  var key = App.session.get(KEY_NAME);
+  var classes = [];
+  var selected = (location.hash || "").replace(/^#/, "").toUpperCase() || null;
+  var roster = null;         // {code, name, students}
+  var pending = null;        // which inline confirmation is open
+  var classMsg = { text: "", kind: "" };
+
+  var $ = function (id) { return document.getElementById(id); };
+  $("crest").innerHTML = App.svg.crest;
+  if (App.demo) { $("demoNote").hidden = false; }
+
+  function api(method, path, body) {
+    return App.api(method, path, body, key).catch(function (e) {
+      if (e.status === 401) { signOut(t("bad_password")); }
+      throw e;
+    });
+  }
+  function errText(e) {
+    if (!e || e.status == null) return t("server_error");
+    return e.message || t("server_error");
+  }
+  var enc = encodeURIComponent;
+
+  // ------------------------------------------------ sign in
+
+  function showLogin(msg) {
+    $("loginPanel").hidden = false;
+    $("classesPanel").hidden = true;
+    $("classPanel").hidden = true;
+    $("signOut").hidden = true;
+    $("loginMsg").textContent = msg || "";
+    setTimeout(function () { $("pw").focus(); }, 0);
+  }
+  function signOut(msg) {
+    key = null;
+    App.session.del(KEY_NAME);
+    showLogin(msg);
+  }
+  $("signOut").addEventListener("click", function () { signOut(); });
+
+  $("loginForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var pw = $("pw").value;
+    if (!pw) return;
+    App.api("GET", "/api/teacher/check", undefined, pw).then(function () {
+      key = pw;
+      App.session.set(KEY_NAME, pw);
+      $("pw").value = "";
+      start();
+    }).catch(function (err) {
+      $("loginMsg").textContent = err.status === 401 ? t("bad_password") : t("server_error");
+    });
+  });
+
+  function start() {
+    $("loginPanel").hidden = true;
+    $("classesPanel").hidden = false;
+    $("signOut").hidden = false;
+    loadClasses().then(function () { if (selected) openClass(selected); });
+  }
+
+  // ------------------------------------------------ classes
+
+  function loadClasses() {
+    return api("GET", "/api/classes").then(function (d) {
+      classes = (d && d.classes) || [];
+      renderClasses();
+    }).catch(function (e) { $("createMsg").className = "msg err"; $("createMsg").textContent = errText(e); });
+  }
+
+  function renderClasses() {
+    var el = $("classList");
+    if (!classes.length) { el.innerHTML = '<p class="hint">' + esc(t("no_classes")) + "</p>"; return; }
+    el.innerHTML = classes.map(function (c) {
+      var confirmOpen = pending === "delclass:" + c.code;
+      return '<div class="class-card' + (c.code === selected ? " selected" : "") + '">' +
+        '<div class="cc-code">' + esc(c.code) + "</div>" +
+        '<div class="cc-name">' + esc(c.name) + "</div>" +
+        '<div class="cc-meta">' + esc(t("students_n", { n: c.students })) + "</div>" +
+        (confirmOpen
+          ? '<div class="confirm-inline"><span>' + esc(t("sure_delete_class")) + '</span>' +
+            '<button class="btn btn-small btn-solid-danger" type="button" data-act="delclass-yes" data-code="' + esc(c.code) + '">' + esc(t("yes_delete")) + "</button>" +
+            '<button class="btn btn-small" type="button" data-act="cancel">' + esc(t("cancel")) + "</button></div>"
+          : '<div class="btn-row">' +
+            '<button class="btn btn-small btn-gold" type="button" data-act="open" data-code="' + esc(c.code) + '">' + esc(t("open")) + "</button>" +
+            '<a class="btn btn-small" href="' + esc(App.link("board.html", c.code)) + '" target="_blank" rel="noopener">' + esc(t("to_board")) + "</a>" +
+            '<a class="btn btn-small" href="' + esc(App.link("mira.html", c.code)) + '" target="_blank" rel="noopener">' + esc(t("to_mira")) + "</a>" +
+            '<button class="btn btn-small btn-danger" type="button" data-act="delclass" data-code="' + esc(c.code) + '">' + esc(t("del")) + "</button></div>") +
+        "</div>";
+    }).join("");
+  }
+
+  $("createForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var code = $("newCode").value.trim().toUpperCase();
+    var name = $("newName").value.trim() || code;
+    var msg = $("createMsg");
+    if (!/^[A-Z0-9-]{2,16}$/.test(code)) { msg.className = "msg err"; msg.textContent = t("code_rule"); return; }
+    api("POST", "/api/classes", { code: code, name: name }).then(function (c) {
+      $("newCode").value = ""; $("newName").value = "";
+      msg.className = "msg ok"; msg.textContent = "";
+      return loadClasses().then(function () { openClass((c && c.code) || code); });
+    }).catch(function (err) { msg.className = "msg err"; msg.textContent = errText(err); });
+  });
+  $("newCode").addEventListener("input", function () {
+    var v = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, "");
+    if (v !== this.value) this.value = v;
+  });
+
+  // ------------------------------------------------ one class
+
+  function openClass(code) {
+    selected = code;
+    pending = null;
+    classMsg = { text: "", kind: "" };
+    history.replaceState(null, "", location.pathname + location.search + "#" + enc(code));
+    renderClasses();
+    return api("GET", "/api/classes/" + enc(code) + "/roster").then(function (r) {
+      roster = r;
+      renderClass();
+      $("classPanel").scrollIntoView({ behavior: App.reducedMotion() ? "auto" : "smooth", block: "start" });
+    }).catch(function (e) {
+      if (e.status === 404) { selected = null; roster = null; $("classPanel").hidden = true; history.replaceState(null, "", location.pathname + location.search); renderClasses(); }
+    });
+  }
+
+  function reloadRoster() {
+    if (!selected) return Promise.resolve();
+    return api("GET", "/api/classes/" + enc(selected) + "/roster").then(function (r) { roster = r; renderClass(); });
+  }
+
+  function renderClass() {
+    var el = $("classPanel");
+    if (!roster) { el.hidden = true; return; }
+    el.hidden = false;
+    var students = (roster.students || []).slice().sort(function (a, b) { return a.no - b.no; });
+    var resetOpen = pending === "reset";
+    var rows = students.map(function (s) {
+      var act;
+      if (pending === "pin:" + s.no) {
+        act = '<div class="confirm-inline"><span>' + esc(t("sure_new_pin")) + "</span>" +
+          '<button class="btn btn-small btn-solid-danger" type="button" data-act="pin-yes" data-no="' + s.no + '">' + esc(t("yes_new_pin")) + "</button>" +
+          '<button class="btn btn-small" type="button" data-act="cancel">' + esc(t("cancel")) + "</button></div>";
+      } else if (pending === "rm:" + s.no) {
+        act = '<div class="confirm-inline"><span>' + esc(t("sure_remove")) + "</span>" +
+          '<button class="btn btn-small btn-solid-danger" type="button" data-act="rm-yes" data-no="' + s.no + '">' + esc(t("yes_remove")) + "</button>" +
+          '<button class="btn btn-small" type="button" data-act="cancel">' + esc(t("cancel")) + "</button></div>";
+      } else {
+        act = '<div class="btn-row">' +
+          '<button class="btn btn-small" type="button" data-act="pin" data-no="' + s.no + '">' + esc(t("new_pin")) + "</button>" +
+          '<button class="btn btn-small btn-danger" type="button" data-act="rm" data-no="' + s.no + '">' + esc(t("remove")) + "</button></div>";
+      }
+      return "<tr><td class=\"no\">" + s.no + '</td><td class="nm">' + esc(s.name) + '</td><td class="pin">' + esc(s.pin) + '</td><td class="act">' + act + "</td></tr>";
+    }).join("");
+
+    el.innerHTML =
+      '<div class="class-detail-head">' +
+        "<div><h2>" + esc(roster.name) + '</h2><p class="hint" style="margin-top:-8px">' + esc(t("code")) + ': <strong class="cc-code" style="color:var(--gold);font-size:1.2rem">' + esc(roster.code) + "</strong> · " + esc(t("students_n", { n: students.length })) + "</p></div>" +
+        '<div class="btn-row">' +
+          '<a class="btn" href="' + esc(App.link("board.html", roster.code)) + '" target="_blank" rel="noopener">' + esc(t("to_board")) + "</a>" +
+          '<a class="btn" href="' + esc(App.link("mira.html", roster.code)) + '" target="_blank" rel="noopener">' + esc(t("to_mira")) + "</a>" +
+          '<button class="btn btn-gold" type="button" data-act="print"' + (students.length ? "" : " disabled") + ">" + esc(t("print_cards")) + "</button>" +
+        "</div>" +
+      "</div>" +
+      '<form id="addForm" style="margin-bottom:22px">' +
+        '<label for="names"><h3 style="margin:0 0 6px">' + esc(t("add_students")) + "</h3></label>" +
+        '<textarea id="names" rows="5" placeholder="김민지&#10;Alex Carter&#10;…"></textarea>' +
+        '<p class="hint">' + esc(t("add_students_hint")) + "</p>" +
+        '<div class="btn-row" style="margin-top:10px"><button class="btn btn-gold" type="submit">' + esc(t("add")) + "</button></div>" +
+      "</form>" +
+      "<h3>" + esc(t("roster")) + "</h3>" +
+      (students.length
+        ? '<div class="table-wrap"><table class="roster"><thead><tr><th>' + esc(t("col_no")) + "</th><th>" + esc(t("col_name")) + "</th><th>" + esc(t("col_pin")) + '</th><th><span class="sr-only">actions</span></th></tr></thead><tbody>' + rows + "</tbody></table></div>"
+        : '<p class="hint">' + esc(t("no_students")) + "</p>") +
+      '<div style="margin-top:26px;padding-top:18px;border-top:2px solid var(--line-soft)">' +
+        (resetOpen
+          ? '<div class="confirm-inline"><span>' + esc(t("sure_reset")) + "</span>" +
+            '<button class="btn btn-solid-danger" type="button" data-act="reset-yes">' + esc(t("yes_reset")) + "</button>" +
+            '<button class="btn" type="button" data-act="cancel">' + esc(t("cancel")) + "</button></div>"
+          : '<button class="btn btn-danger" type="button" data-act="reset">' + esc(t("reset_round")) + "</button>") +
+      "</div>" +
+      '<p class="msg ' + classMsg.kind + '" role="status">' + esc(classMsg.text) + "</p>";
+
+    $("addForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var names = $("names").value.split(/\r?\n/).map(function (s) { return s.trim(); }).filter(Boolean);
+      if (!names.length) return;
+      var code = roster.code;
+      api("POST", "/api/classes/" + enc(code) + "/students", { names: names }).then(function (d) {
+        classMsg = { text: t("added_n", { n: ((d && d.added) || []).length }), kind: "ok" };
+        loadClasses();
+        return reloadRoster();
+      }).catch(function (err) { classMsg = { text: errText(err), kind: "err" }; renderClass(); });
+    });
+  }
+
+  // ------------------------------------------------ actions (event delegation)
+
+  document.addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-act]");
+    if (!b) return;
+    var act = b.getAttribute("data-act");
+    var code = b.getAttribute("data-code");
+    var no = b.getAttribute("data-no");
+    var setMsg = function (text, kind) { classMsg = { text: text, kind: kind }; };
+    switch (act) {
+      case "open": openClass(code); break;
+      case "cancel": pending = null; renderClasses(); renderClass(); break;
+      case "delclass": pending = "delclass:" + code; renderClasses(); break;
+      case "delclass-yes":
+        api("DELETE", "/api/classes/" + enc(code)).then(function () {
+          pending = null;
+          if (selected === code) { selected = null; roster = null; renderClass(); history.replaceState(null, "", location.pathname + location.search); }
+          loadClasses();
+        }).catch(function (e) { $("createMsg").className = "msg err"; $("createMsg").textContent = errText(e); });
+        break;
+      case "pin": pending = "pin:" + no; renderClass(); break;
+      case "rm": pending = "rm:" + no; renderClass(); break;
+      case "reset": pending = "reset"; renderClass(); break;
+      case "pin-yes":
+        api("POST", "/api/classes/" + enc(selected) + "/students/" + enc(no) + "/pin").then(function () {
+          pending = null; setMsg("", ""); return reloadRoster();
+        }).catch(function (e) { pending = null; setMsg(errText(e), "err"); renderClass(); });
+        break;
+      case "rm-yes":
+        api("DELETE", "/api/classes/" + enc(selected) + "/students/" + enc(no)).then(function () {
+          pending = null; setMsg("", ""); loadClasses(); return reloadRoster();
+        }).catch(function (e) { pending = null; setMsg(errText(e), "err"); renderClass(); });
+        break;
+      case "reset-yes":
+        api("POST", "/api/classes/" + enc(selected) + "/reset").then(function () {
+          pending = null; setMsg(t("reset_done"), "ok"); renderClass();
+        }).catch(function (e) { pending = null; setMsg(errText(e), "err"); renderClass(); });
+        break;
+      case "print": showPrint(); break;
+    }
+  });
+
+  // ------------------------------------------------ login cards
+
+  function showPrint() {
+    if (!roster) return;
+    var students = (roster.students || []).slice().sort(function (a, b) { return a.no - b.no; });
+    $("cards").innerHTML = students.map(function (s) {
+      return '<div class="login-card">' +
+        '<div class="lc-head"><span class="lc-game">Prince of mRNA</span><span class="lc-class">' + esc(roster.name) + "</span></div>" +
+        '<div class="lc-name">' + esc(s.name) + "</div>" +
+        "<dl>" +
+          "<div><dt>" + esc(t("card_class")) + "</dt><dd>" + esc(roster.code) + "</dd></div>" +
+          "<div><dt>" + esc(t("card_no")) + "</dt><dd>" + s.no + "</dd></div>" +
+          "<div><dt>" + esc(t("card_pin")) + "</dt><dd>" + esc(s.pin) + "</dd></div>" +
+        "</dl>" +
+        '<p class="lc-help">' + esc(t("card_help")) + "</p>" +
+      "</div>";
+    }).join("");
+    document.body.classList.add("printing");
+    window.scrollTo(0, 0);
+  }
+  $("doPrint").addEventListener("click", function () { window.print(); });
+  $("closePrint").addEventListener("click", function () { document.body.classList.remove("printing"); });
+
+  App.onLang(function () {
+    renderClasses();
+    renderClass();
+    if (document.body.classList.contains("printing")) showPrint();
+  });
+
+  // ------------------------------------------------ boot
+
+  if (key) {
+    App.api("GET", "/api/teacher/check", undefined, key).then(start).catch(function (e) {
+      if (e.status === 401) signOut(); else { showLogin(t("server_error")); }
+    });
+  } else {
+    showLogin();
+  }
+})();
+</script>
+</body>
+</html>

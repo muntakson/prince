@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Class Competition · Prince of mRNA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="app.css">
+<script src="app.js"></script>
+</head>
+<body>
+<div class="landing">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+    <button class="btn lang-btn" type="button" data-lang-toggle>한국어</button>
+  </div>
+  <div class="landing-hero">
+    <img src="mira.png" alt="" width="160" height="321">
+    <div>
+      <p class="kicker" data-i18n="game">Prince of mRNA</p>
+      <h1 data-i18n="landing_title">Class Competition</h1>
+      <p class="lede" data-i18n="landing_lede">Enter your class code to open the live boards.</p>
+    </div>
+  </div>
+
+  <form class="panel code-form" id="form" autocomplete="off">
+    <label for="code" data-i18n="class_code">Class code</label>
+    <input class="code-input" id="code" type="text" maxlength="16" spellcheck="false" autocapitalize="characters" data-i18n-ph="code_ph" placeholder="e.g. 2A">
+    <div class="choice-row">
+      <a class="choice" id="goBoard" href="board.html">
+        <span class="c-title" data-i18n="open_board">Scoreboard</span>
+        <span class="c-sub" data-i18n="open_board_sub">Ranks, quest progress and scores</span>
+      </a>
+      <a class="choice" id="goMira" href="mira.html">
+        <span class="c-title" data-i18n="open_mira">Mira's Status Board</span>
+        <span class="c-sub" data-i18n="open_mira_sub">Every student's Mira, live</span>
+      </a>
+    </div>
+  </form>
+
+  <a class="teacher-link" id="goTeacher" href="teacher.html" data-i18n="teacher_page">Teacher page</a>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var input = document.getElementById("code");
+  var goBoard = document.getElementById("goBoard"), goMira = document.getElementById("goMira");
+  document.getElementById("goTeacher").href = App.link("teacher.html");
+
+  function clean(v) { return v.toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 16); }
+  function update() {
+    var c = clean(input.value);
+    var ok = c.length >= 2 || App.demo;
+    goBoard.href = App.link("board.html", c);
+    goMira.href = App.link("mira.html", c);
+    [goBoard, goMira].forEach(function (a) { a.setAttribute("aria-disabled", ok ? "false" : "true"); });
+    App.store.set("pom.lastCode", c);
+  }
+  input.value = App.code || App.store.get("pom.lastCode", "");
+  input.addEventListener("input", function () {
+    var pos = input.selectionStart, c = clean(input.value);
+    if (c !== input.value) { input.value = c; try { input.setSelectionRange(pos, pos); } catch (e) {} }
+    update();
+  });
+  document.getElementById("form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (goBoard.getAttribute("aria-disabled") !== "true") location.href = goBoard.href;
+  });
+  update();
+})();
+</script>
+</body>
+</html>
